@@ -3,9 +3,9 @@ import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/config/app_translations.dart';
 import 'package:project_flutter/config/debug_config.dart';
 import 'package:project_flutter/database/ruas_db_helper.dart';
+import 'package:project_flutter/views/admin_register_view.dart';
 import 'package:project_flutter/views/database_viewer_view.dart';
 import 'package:project_flutter/views/splash_view.dart';
-import 'package:project_flutter/views/admin_register_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PengaturanView extends StatefulWidget {
@@ -710,9 +710,7 @@ class _PengaturanViewState extends State<PengaturanView> {
   void _navigateToRegisterAdmin() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const AdminRegisterView(),
-      ),
+      MaterialPageRoute(builder: (context) => const AdminRegisterView()),
     );
   }
 
@@ -899,45 +897,7 @@ class _PengaturanViewState extends State<PengaturanView> {
                         ),
                       ),
                       Divider(height: 1, color: borderColor),
-                      // Tema selector
-                      ListTile(
-                        leading: Icon(
-                          Icons.palette_outlined,
-                          color: activeTeal,
-                          size: 22,
-                        ),
-                        title: Text(
-                          AppTranslations.translate('theme', lang),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              currentThemeLabel,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: subTextColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              color: isDark
-                                  ? const Color(0xFF475569)
-                                  : const Color(0xFFCBD5E1),
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                        onTap: () =>
-                            _showTemaPicker(context, settings.themeMode, lang),
-                      ),
+
                       Divider(height: 1, color: borderColor),
                       // Notifikasi toggle
                       SwitchListTile(
@@ -1102,7 +1062,8 @@ class _PengaturanViewState extends State<PengaturanView> {
                   ),
                   child: Column(
                     children: [
-                      if (DebugConfig.showDatabaseViewer && _userRole == 'admin') ...[
+                      if (DebugConfig.showDatabaseViewer &&
+                          _userRole == 'admin') ...[
                         _buildMenuTile(
                           Icons.storage_rounded,
                           'SQLite Database Viewer',
@@ -1775,4 +1736,3 @@ class _PengaturanViewState extends State<PengaturanView> {
     );
   }
 }
-

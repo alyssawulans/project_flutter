@@ -31,7 +31,7 @@ class _HomeViewState extends State<HomeView> {
   List<LaporanModel> _recentLaporan = [];
   bool _isLoading = true;
 
-  String _currentLocationName = 'Cibadak, Sukabumi';
+  String _currentLocationName = 'Tanah Abang, Jakarta Pusat';
   AqiStation? _nearestStation;
 
   String get _cityName {
@@ -217,7 +217,7 @@ class _HomeViewState extends State<HomeView> {
         _edukasiCount = eCount;
         _recentLaporan = recent;
         // Cari stasiun terdekat ke default lokasi 'Cibadak, Sukabumi' (lat -6.8916, lon 106.7876)
-        _nearestStation ??= _findNearestStation(-6.8916, 106.7876);
+        _nearestStation ??= _findNearestStation(-6.1818, 106.8223);
         _isLoading = false;
       });
     }
@@ -358,7 +358,7 @@ class _HomeViewState extends State<HomeView> {
                           ),
                           const SizedBox(height: 16),
                           // Sub Location Indicator inside header
-                          // Diposisikan agar selaras secara vertikal dengan konten di dalam kartu AQI (margin 24 + padding 20 = 44)
+                          // Diposisikan agar selaras secara vertikal dengan konten di dalam kartu AQI
                           Padding(
                             padding: const EdgeInsets.only(left: 20),
                             child: Row(
@@ -376,7 +376,9 @@ class _HomeViewState extends State<HomeView> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.white.withValues(alpha: 0.9),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.9,
+                                      ),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -435,15 +437,17 @@ class _HomeViewState extends State<HomeView> {
                                           if (_nearestStation != null) ...[
                                             const SizedBox(width: 6),
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 6,
-                                                vertical: 2,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 6,
+                                                    vertical: 2,
+                                                  ),
                                               decoration: BoxDecoration(
                                                 color: isDark
                                                     ? const Color(0xFF334155)
                                                     : const Color(0xFFE2E8F0),
-                                                borderRadius: BorderRadius.circular(6),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
                                               ),
                                               child: Text(
                                                 _nearestStation!.name,
@@ -480,12 +484,15 @@ class _HomeViewState extends State<HomeView> {
                                           ),
                                           // Status chip dikasih maxWidth agar tidak overflow
                                           ConstrainedBox(
-                                            constraints: const BoxConstraints(maxWidth: 110),
+                                            constraints: const BoxConstraints(
+                                              maxWidth: 110,
+                                            ),
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 5,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 5,
+                                                  ),
                                               decoration: BoxDecoration(
                                                 color:
                                                     _nearestStation?.color ??
@@ -494,7 +501,8 @@ class _HomeViewState extends State<HomeView> {
                                                     BorderRadius.circular(20),
                                               ),
                                               child: Text(
-                                                _nearestStation?.status ?? 'Baik',
+                                                _nearestStation?.status ??
+                                                    'Baik',
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
@@ -540,7 +548,8 @@ class _HomeViewState extends State<HomeView> {
                                                 color: isDark
                                                     ? const Color(0xFF1E293B)
                                                     : const Color(0xFFE2F1ED),
-                                                borderRadius: BorderRadius.circular(16),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
                                               ),
                                               child: Icon(
                                                 Icons.apartment_rounded,
@@ -817,7 +826,8 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
             ),
-      floatingActionButton: (DebugConfig.showDatabaseViewer && _userRole == 'admin')
+      floatingActionButton:
+          (DebugConfig.showDatabaseViewer && _userRole == 'admin')
           ? Padding(
               padding: const EdgeInsets.only(bottom: 90.0),
               child: FloatingActionButton(
@@ -1003,11 +1013,21 @@ class _HomeViewState extends State<HomeView> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final cardBorder = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
-    final valueTxtColor = isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B);
-    final titleTxtColor = isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B);
-    final descTxtColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-    final chevronColor = isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1);
+    final cardBorder = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFF1F5F9);
+    final valueTxtColor = isDark
+        ? const Color(0xFFF1F5F9)
+        : const Color(0xFF1E293B);
+    final titleTxtColor = isDark
+        ? const Color(0xFFE2E8F0)
+        : const Color(0xFF1E293B);
+    final descTxtColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
+    final chevronColor = isDark
+        ? const Color(0xFF475569)
+        : const Color(0xFFCBD5E1);
 
     return GestureDetector(
       onTap: onTap,
@@ -1017,7 +1037,10 @@ class _HomeViewState extends State<HomeView> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: cardBorder),
           gradient: LinearGradient(
-            colors: [cardBg, Color.alphaBlend(color.withValues(alpha: 0.15), cardBg)],
+            colors: [
+              cardBg,
+              Color.alphaBlend(color.withValues(alpha: 0.15), cardBg),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -2054,4 +2077,3 @@ class _AqiChartPainter extends CustomPainter {
         oldDelegate.isDark != isDark;
   }
 }
-

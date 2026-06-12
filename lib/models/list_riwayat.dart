@@ -23,7 +23,7 @@ class ListSemuaSampah extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12.0), // Jarak antar card
           child: Card(
-            elevation: 0, // Set 0 jika ingin flat seperti di gambar
+            elevation: 0,
             shape: RoundedRectangleBorder(
               side: BorderSide(color: Colors.grey.shade200), // Garis tepi tipis
               borderRadius: BorderRadius.circular(12),
@@ -40,11 +40,11 @@ class ListSemuaSampah extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E5E53), // Warna hijau gelap aesthetic
+                  color: const Color(0xFF1E5E53),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
-                  Icons.recycling, // Ikon sampah/daur ulang
+                  Icons.recycling,
                   color: Colors.white,
                   size: 24,
                 ),
@@ -60,7 +60,7 @@ class ListSemuaSampah extends StatelessWidget {
                 ),
               ),
 
-              // Kamu juga bisa nambahin sub-title di bawah judul kalau perlu
+              // nambahin sub-title di bawah judul kalau perlu
               subtitle: Text(
                 'Status: ${item['status']}',
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
@@ -81,4 +81,3 @@ class ListSemuaSampah extends StatelessWidget {
     );
   }
 }
-
