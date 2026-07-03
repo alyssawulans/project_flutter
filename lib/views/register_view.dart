@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:project_flutter/database/ruas_db_helper.dart';
+import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/user_model.dart';
 import 'package:project_flutter/views/login_view.dart';
 
@@ -60,7 +60,10 @@ class _RegisterViewState extends State<RegisterView> {
     );
     if (picked != null) {
       setState(() {
-        tanggalLahirController.text = DateFormat('dd MMM yyyy', 'id_ID').format(picked);
+        tanggalLahirController.text = DateFormat(
+          'dd MMM yyyy',
+          'id_ID',
+        ).format(picked);
       });
     }
   }
@@ -96,7 +99,10 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close, color: isDark ? Colors.white : Colors.black87),
+                    icon: Icon(
+                      Icons.close,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -111,37 +117,79 @@ class _RegisterViewState extends State<RegisterView> {
                     children: [
                       Text(
                         "Selamat datang di RUAS (Rukun Udara & Asri Selaras). Dengan mendaftar dan menggunakan aplikasi ini, Anda setuju untuk mematuhi ketentuan berikut:",
-                        style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), height: 1.5),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         "1. Akun Pengguna",
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1E293B),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         "Anda wajib memberikan informasi pendaftaran yang akurat, lengkap, dan terbaru termasuk nama lengkap, tempat lahir, dan tanggal lahir. Anda bertanggung jawab penuh atas keamanan kata sandi Anda.",
-                        style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), height: 1.5),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         "2. Penggunaan Layanan",
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1E293B),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         "Layanan ini ditujukan untuk memantau kualitas udara, melaporkan isu lingkungan, serta mempelajari edukasi lingkungan. Anda dilarang mengunggah laporan palsu atau konten yang mengandung SARA.",
-                        style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), height: 1.5),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         "3. Hak Cipta & Konten",
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1E293B),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         "Semua konten edukasi, desain, dan ilustrasi di dalam aplikasi adalah hak milik RUAS. Penggunaan konten di luar aplikasi wajib mencantumkan sumber.",
-                        style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), height: 1.5),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
+                          height: 1.5,
+                        ),
                       ),
                     ],
                   ),
@@ -160,7 +208,10 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Saya Mengerti", style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    "Saya Mengerti",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
@@ -201,7 +252,10 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close, color: isDark ? Colors.white : Colors.black87),
+                    icon: Icon(
+                      Icons.close,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -216,37 +270,79 @@ class _RegisterViewState extends State<RegisterView> {
                     children: [
                       Text(
                         "Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda saat menggunakan aplikasi RUAS:",
-                        style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), height: 1.5),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         "1. Informasi yang Kami Kumpulkan",
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1E293B),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         "Kami mengumpulkan data pendaftaran seperti nama, email, nomor telepon, serta tempat & tanggal lahir. Kami juga mengumpulkan koordinat lokasi GPS saat Anda membuat laporan lingkungan.",
-                        style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), height: 1.5),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         "2. Penggunaan Data",
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1E293B),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         "Data Anda digunakan untuk memverifikasi identitas, menindaklanjuti laporan lingkungan ke instansi terkait, serta memberikan notifikasi perkembangan kualitas udara di sekitar Anda.",
-                        style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), height: 1.5),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
+                          height: 1.5,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         "3. Keamanan Informasi",
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1E293B),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         "Kami berkomitmen melindungi data pribadi Anda dari akses tidak sah melalui langkah-langkah enkripsi database dan kontrol akses ketat.",
-                        style: TextStyle(fontSize: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569), height: 1.5),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
+                          height: 1.5,
+                        ),
                       ),
                     ],
                   ),
@@ -265,7 +361,10 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Saya Mengerti", style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    "Saya Mengerti",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
@@ -288,7 +387,10 @@ class _RegisterViewState extends State<RegisterView> {
           ),
           elevation: 8,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 28.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -296,7 +398,9 @@ class _RegisterViewState extends State<RegisterView> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0F2625) : const Color(0xFFE6F4F1), // Soft teal background
+                    color: isDark
+                        ? const Color(0xFF0F2625)
+                        : const Color(0xFFE6F4F1), // Soft teal background
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -323,7 +427,9 @@ class _RegisterViewState extends State<RegisterView> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                     height: 1.5,
                   ),
                 ),
@@ -337,7 +443,9 @@ class _RegisterViewState extends State<RegisterView> {
                       Navigator.of(context).pop();
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginView()),
+                        MaterialPageRoute(
+                          builder: (context) => const LoginView(),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -378,7 +486,10 @@ class _RegisterViewState extends State<RegisterView> {
           ),
           elevation: 8,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 28.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -386,7 +497,9 @@ class _RegisterViewState extends State<RegisterView> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF3B1E1E) : const Color(0xFFFEE2E2), // Soft red background
+                    color: isDark
+                        ? const Color(0xFF3B1E1E)
+                        : const Color(0xFFFEE2E2), // Soft red background
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -413,7 +526,9 @@ class _RegisterViewState extends State<RegisterView> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                     height: 1.5,
                   ),
                 ),
@@ -458,7 +573,9 @@ class _RegisterViewState extends State<RegisterView> {
       return;
     }
     if (!isCheck) {
-      _showErrorDialog("Anda harus menyetujui Syarat & Ketentuan serta Kebijakan Privasi terlebih dahulu.");
+      _showErrorDialog(
+        "Anda harus menyetujui Syarat & Ketentuan serta Kebijakan Privasi terlebih dahulu.",
+      );
       return;
     }
 
@@ -480,7 +597,7 @@ class _RegisterViewState extends State<RegisterView> {
       role: 'user',
     );
 
-    final result = await RuasDbHelper.instance.registerUser(user);
+    final result = await FirebaseAuthService.instance.registerUserModel(user);
 
     setState(() {
       _isLoading = false;
@@ -491,7 +608,9 @@ class _RegisterViewState extends State<RegisterView> {
     if (result != null) {
       _showSuccessDialog();
     } else {
-      _showErrorDialog("Email yang Anda masukkan sudah terdaftar! Gunakan email lain.");
+      _showErrorDialog(
+        "Email yang Anda masukkan sudah terdaftar! Gunakan email lain.",
+      );
     }
   }
 
@@ -499,11 +618,14 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final Color bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF4F8FB);
+    final Color bgColor = isDark
+        ? const Color(0xFF0F172A)
+        : const Color(0xFFF4F8FB);
     final Color cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color textColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF1A2E44);
+    final Color textColor = isDark
+        ? const Color(0xFFF8FAFC)
+        : const Color(0xFF1A2E44);
     final Color subTextColor = isDark ? const Color(0xFF94A3B8) : Colors.grey;
-    final Color dividerColor = isDark ? const Color(0xFF334155) : Colors.grey[300]!;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -562,7 +684,9 @@ class _RegisterViewState extends State<RegisterView> {
                     decoration: BoxDecoration(
                       color: cardColor,
                       borderRadius: BorderRadius.circular(16),
-                      border: isDark ? Border.all(color: const Color(0xFF334155)) : null,
+                      border: isDark
+                          ? Border.all(color: const Color(0xFF334155))
+                          : null,
                       boxShadow: [
                         BoxShadow(
                           blurRadius: 10,
@@ -720,23 +844,25 @@ class _RegisterViewState extends State<RegisterView> {
                           obscureText: obscureNewPassword,
                           obscuringCharacter: "*",
                           style: TextStyle(color: textColor),
-                          decoration: _buildInputDecoration(
-                            "Buat Kata Sandi Kuat",
-                            Icons.lock_outline_rounded,
-                            isDark,
-                          ).copyWith(
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscureNewPassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                                color: Colors.grey,
+                          decoration:
+                              _buildInputDecoration(
+                                "Buat Kata Sandi Kuat",
+                                Icons.lock_outline_rounded,
+                                isDark,
+                              ).copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    obscureNewPassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    color: Colors.grey,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => obscureNewPassword =
+                                        !obscureNewPassword,
+                                  ),
+                                ),
                               ),
-                              onPressed: () => setState(
-                                () => obscureNewPassword = !obscureNewPassword,
-                              ),
-                            ),
-                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Kata Sandi tidak boleh kosong";
@@ -750,9 +876,15 @@ class _RegisterViewState extends State<RegisterView> {
                         const SizedBox(height: 10),
                         Theme(
                           data: ThemeData(
-                            unselectedWidgetColor: isDark ? const Color(0xFF64748B) : Colors.grey,
+                            unselectedWidgetColor: isDark
+                                ? const Color(0xFF64748B)
+                                : Colors.grey,
                             checkboxTheme: CheckboxThemeData(
-                              side: BorderSide(color: isDark ? const Color(0xFF64748B) : Colors.grey),
+                              side: BorderSide(
+                                color: isDark
+                                    ? const Color(0xFF64748B)
+                                    : Colors.grey,
+                              ),
                             ),
                           ),
                           child: CheckboxListTile(
@@ -812,7 +944,9 @@ class _RegisterViewState extends State<RegisterView> {
                           height: 54,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: isDark ? const Color(0xFF0F4C43) : const Color(0xFF1A2E44),
+                              backgroundColor: isDark
+                                  ? const Color(0xFF0F4C43)
+                                  : const Color(0xFF1A2E44),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -824,7 +958,10 @@ class _RegisterViewState extends State<RegisterView> {
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : const Text(
                                     "Daftar Sekarang",
@@ -850,7 +987,9 @@ class _RegisterViewState extends State<RegisterView> {
                             ..onTap = () {
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (context) => const LoginView()),
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginView(),
+                                ),
                               );
                             },
                           text: " Masuk Sekarang",
@@ -873,10 +1012,17 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  InputDecoration _buildInputDecoration(String hint, IconData prefixIcon, bool isDark) {
+  InputDecoration _buildInputDecoration(
+    String hint,
+    IconData prefixIcon,
+    bool isDark,
+  ) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(fontSize: 13, color: isDark ? const Color(0xFF64748B) : Colors.grey),
+      hintStyle: TextStyle(
+        fontSize: 13,
+        color: isDark ? const Color(0xFF64748B) : Colors.grey,
+      ),
       filled: true,
       fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAF9),
       contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
@@ -896,10 +1042,10 @@ class _RegisterViewState extends State<RegisterView> {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: Colors.red, width: 1.5),
       ),
-      prefixIcon: Icon(prefixIcon, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF1A2E44)),
+      prefixIcon: Icon(
+        prefixIcon,
+        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF1A2E44),
+      ),
     );
   }
 }
-
-
-

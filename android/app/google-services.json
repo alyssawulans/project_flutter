@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "702163532500",
+    "project_id": "ruas-app",
+    "storage_bucket": "ruas-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:702163532500:android:d05d7b1003d180d8d0d941",
+        "android_client_info": {
+          "package_name": "com.example.ruas.project_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4Ndkc0t-1o7V0ppjp1NssZuvBADkozo8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,6 @@
 class LaporanModel {
   final int? id;
+  final String? firestoreId; // Untuk Firebase Document ID
   final String judul;
   final String kategori;
   final String lokasi;
@@ -8,10 +9,12 @@ class LaporanModel {
   final String status; // 'Diproses', 'Selesai', 'Ditolak'
   final String tanggal;
   final int userId;
+  final String? userFirestoreId; // Untuk Firebase User UID
   final String foto; // local file path or empty if not present
 
   LaporanModel({
     this.id,
+    this.firestoreId,
     required this.judul,
     required this.kategori,
     required this.lokasi,
@@ -20,12 +23,14 @@ class LaporanModel {
     required this.status,
     required this.tanggal,
     required this.userId,
+    this.userFirestoreId,
     required this.foto,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'firestore_id': firestoreId,
       'judul': judul,
       'kategori': kategori,
       'lokasi': lokasi,
@@ -34,6 +39,7 @@ class LaporanModel {
       'status': status,
       'tanggal': tanggal,
       'user_id': userId,
+      'user_firestore_id': userFirestoreId,
       'foto': foto,
     };
   }
@@ -41,6 +47,7 @@ class LaporanModel {
   factory LaporanModel.fromMap(Map<String, dynamic> map) {
     return LaporanModel(
       id: map['id'],
+      firestoreId: map['firestore_id'],
       judul: map['judul'] ?? '',
       kategori: map['kategori'] ?? '',
       lokasi: map['lokasi'] ?? '',
@@ -49,6 +56,7 @@ class LaporanModel {
       status: map['status'] ?? 'Diproses',
       tanggal: map['tanggal'] ?? '',
       userId: map['user_id'] ?? 0,
+      userFirestoreId: map['user_firestore_id'],
       foto: map['foto'] ?? '',
     );
   }
