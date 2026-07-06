@@ -241,9 +241,9 @@ class _LaporanListViewState extends State<LaporanListView> {
               // Photo Thumbnail
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: report.foto.startsWith('http')
+                child: report.firstFoto.startsWith('http')
                     ? Image.network(
-                        report.foto,
+                        report.firstFoto,
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
@@ -254,9 +254,9 @@ class _LaporanListViewState extends State<LaporanListView> {
                           child: const Icon(Icons.image, color: Color(0xFF0D9488)),
                         ),
                       )
-                    : report.foto.startsWith('assets/')
+                    : report.firstFoto.startsWith('assets/')
                         ? Image.asset(
-                            report.foto,
+                            report.firstFoto,
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
@@ -267,9 +267,9 @@ class _LaporanListViewState extends State<LaporanListView> {
                               child: const Icon(Icons.image, color: Color(0xFF0D9488)),
                             ),
                           )
-                        : report.foto.isNotEmpty
+                        : report.firstFoto.isNotEmpty
                             ? Image.file(
-                                File(report.foto),
+                                File(report.firstFoto),
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,

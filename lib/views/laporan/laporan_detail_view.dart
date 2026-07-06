@@ -141,9 +141,9 @@ class _LaporanDetailViewState extends State<LaporanDetailView> {
                     height: 220,
                     width: double.infinity,
                     color: isDark ? const Color(0xFF1E293B) : Colors.grey.shade100,
-                    child: _currentLaporan.foto.startsWith('http')
+                    child: _currentLaporan.firstFoto.startsWith('http')
                         ? Image.network(
-                            _currentLaporan.foto,
+                            _currentLaporan.firstFoto,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) => const Icon(
                               Icons.broken_image_outlined,
@@ -151,9 +151,9 @@ class _LaporanDetailViewState extends State<LaporanDetailView> {
                               color: Colors.grey,
                             ),
                           )
-                        : _currentLaporan.foto.startsWith('assets/')
+                        : _currentLaporan.firstFoto.startsWith('assets/')
                             ? Image.asset(
-                                _currentLaporan.foto,
+                                _currentLaporan.firstFoto,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) => const Icon(
                                   Icons.broken_image_outlined,
@@ -161,9 +161,9 @@ class _LaporanDetailViewState extends State<LaporanDetailView> {
                                   color: Colors.grey,
                                 ),
                               )
-                            : _currentLaporan.foto.isNotEmpty
+                            : _currentLaporan.firstFoto.isNotEmpty
                                 ? Image.file(
-                                    File(_currentLaporan.foto),
+                                    File(_currentLaporan.firstFoto),
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) => const Icon(
                                       Icons.broken_image_outlined,

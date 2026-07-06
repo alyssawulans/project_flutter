@@ -25,34 +25,34 @@ class BuatLaporan extends StatefulWidget {
 
 final List<Map<String, dynamic>> _daftarKategori = [
   {
-    "nama": "Pembuangan Sampah",
-    "icon": Icons.delete_outline,
-    "color": const Color(0xFF0D9488),
-  },
-  {
     "nama": "Pembakaran Sampah",
     "icon": Icons.local_fire_department_outlined,
     "color": const Color(0xFFEA580C),
   },
   {
-    "nama": "Polusi Udara",
-    "icon": Icons.cloud_outlined,
+    "nama": "Asap Industri / Pabrik",
+    "icon": Icons.factory_outlined,
+    "color": const Color(0xFF475569),
+  },
+  {
+    "nama": "Asap Kendaraan",
+    "icon": Icons.directions_car_outlined,
     "color": const Color(0xFF0284C7),
   },
   {
-    "nama": "Limbah Cair",
-    "icon": Icons.water_drop_outlined,
-    "color": const Color(0xFF2563EB),
+    "nama": "Debu & Konstruksi",
+    "icon": Icons.construction_outlined,
+    "color": const Color(0xFFD97706),
   },
   {
-    "nama": "Kebisingan",
-    "icon": Icons.volume_up_outlined,
-    "color": const Color(0xFF7C3AED),
+    "nama": "Polusi Bau & Gas",
+    "icon": Icons.air_outlined,
+    "color": const Color(0xFF0D9488),
   },
   {
     "nama": "Lainnya",
     "icon": Icons.more_horiz_outlined,
-    "color": const Color(0xFF475569),
+    "color": const Color(0xFF64748B),
   },
 ];
 
@@ -1384,7 +1384,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                 userId: userId,
                                 userFirestoreId: userFirestoreId,
                                 foto: selectedPhotos.isNotEmpty
-                                    ? selectedPhotos.first
+                                    ? selectedPhotos.join(',')
                                     : 'assets/images/kota_1.jpg',
                               );
 

@@ -38,11 +38,11 @@ class RuasData {
 
   // Level 2: List of Maps
   static final List<Map<String, dynamic>> listofMap = [
-    {"nama": "Pembuangan Sampah", "gambar": "assets/images/sensor_indoor.png"},
     {"nama": "Pembakaran Sampah", "gambar": "assets/images/sensor_indoor.png"},
-    {"nama": "Polusi Udara", "gambar": "assets/images/sensor_indoor.png"},
-    {"nama": "Limbah Cair", "gambar": "assets/images/sensor_indoor.png"},
-    {"nama": "Kebisingan", "gambar": "assets/images/sensor_indoor.png"},
+    {"nama": "Asap Industri / Pabrik", "gambar": "assets/images/sensor_indoor.png"},
+    {"nama": "Asap Kendaraan", "gambar": "assets/images/sensor_indoor.png"},
+    {"nama": "Debu & Konstruksi", "gambar": "assets/images/sensor_indoor.png"},
+    {"nama": "Polusi Bau & Gas", "gambar": "assets/images/sensor_indoor.png"},
     {"nama": "Lainnya", "gambar": "assets/images/sensor_indoor.png"},
   ];
 

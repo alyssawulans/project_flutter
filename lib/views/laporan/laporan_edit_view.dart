@@ -24,16 +24,16 @@ class _LaporanEditViewState extends State<LaporanEditView> {
   late String _selectedKategori;
   late String _koordinat;
   late String _selectedStatus;
-  String? _pickedImagePath;
+  final List<String> _selectedPhotos = [];
   bool _isGettingLocation = false;
   bool _isSaving = false;
 
   final List<String> _kategoriList = [
-    'Sampah',
-    'Udara',
-    'Limbah Cair',
-    'Polusi Udara',
-    'Kebisingan',
+    'Pembakaran Sampah',
+    'Asap Industri / Pabrik',
+    'Asap Kendaraan',
+    'Debu & Konstruksi',
+    'Polusi Bau & Gas',
     'Lainnya',
   ];
 
@@ -50,9 +50,11 @@ class _LaporanEditViewState extends State<LaporanEditView> {
     _selectedKategori = widget.laporan.kategori;
     _koordinat = widget.laporan.koordinat;
     _selectedStatus = widget.laporan.status;
-    _pickedImagePath = widget.laporan.foto.isNotEmpty
-        ? widget.laporan.foto
-        : null;
+    if (widget.laporan.foto.isNotEmpty) {
+      _selectedPhotos.addAll(
+        widget.laporan.foto.split(',').where((s) => s.isNotEmpty),
+      );
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -107,13 +109,12 @@ class _LaporanEditViewState extends State<LaporanEditView> {
       final picker = ImagePicker();
       final image = await picker.pickImage(
         source: source,
-        imageQuality: 70,
-        maxWidth: 800,
+        imageQuality: 85,
       );
 
       if (image != null) {
         setState(() {
-          _pickedImagePath = image.path;
+          _selectedPhotos.add(image.path);
         });
       }
     } catch (e) {
@@ -170,7 +171,7 @@ class _LaporanEditViewState extends State<LaporanEditView> {
               onTap: () {
                 Navigator.pop(context);
                 setState(() {
-                  _pickedImagePath = 'assets/images/kota_5.jpeg';
+                  _selectedPhotos.add('assets/images/kota_5.jpeg');
                 });
               },
             ),
@@ -199,7 +200,9 @@ class _LaporanEditViewState extends State<LaporanEditView> {
       tanggal: widget.laporan.tanggal, // Keep original reporting date
       userId: widget.laporan.userId,
       userFirestoreId: widget.laporan.userFirestoreId,
-      foto: _pickedImagePath ?? widget.laporan.foto,
+      foto: _selectedPhotos.isNotEmpty
+          ? _selectedPhotos.join(',')
+          : 'assets/images/kota_1.jpg',
     );
 
     await FirebaseAuthService.instance.updateLaporan(updated);
@@ -477,62 +480,177 @@ class _LaporanEditViewState extends State<LaporanEditView> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: _showImageSourcePicker,
-                  child: Container(
-                    height: 140,
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF1E293B)
-                          : Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: CustomPaint(
-                      painter: DashedBorderPainter(
+                if (_selectedPhotos.isEmpty)
+                  GestureDetector(
+                    onTap: _showImageSourcePicker,
+                    child: Container(
+                      height: 140,
+                      decoration: BoxDecoration(
                         color: isDark
-                            ? const Color(0xFF2DD4BF)
-                            : const Color(0xFF0D9488),
-                        borderRadius: 10,
+                            ? const Color(0xFF1E293B)
+                            : Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: _pickedImagePath == null
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.camera_alt_outlined,
-                                  size: 40,
-                                  color: Color(0xFF0D9488),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Ambil Foto Bukti Kejadian',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: const Color(0xFF0D9488),
-                                    fontWeight: FontWeight.bold,
+                      child: CustomPaint(
+                        painter: DashedBorderPainter(
+                          color: isDark
+                              ? const Color(0xFF2DD4BF)
+                              : const Color(0xFF0D9488),
+                          borderRadius: 10,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.camera_alt_outlined,
+                              size: 40,
+                              color: Color(0xFF0D9488),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Ambil Foto Bukti Kejadian',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: const Color(0xFF0D9488),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          children: [
+                            ...List.generate(_selectedPhotos.length, (index) {
+                              final imgUrl = _selectedPhotos[index];
+                              return Stack(
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                      right: 12,
+                                      top: 6,
+                                      bottom: 6,
+                                    ),
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: borderColor,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(
+                                            isDark ? 0.2 : 0.05,
+                                          ),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: imgUrl.startsWith('assets/')
+                                          ? Image.asset(
+                                              imgUrl,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) =>
+                                                  const Icon(Icons.broken_image),
+                                            )
+                                          : Image.file(
+                                              File(imgUrl),
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) =>
+                                                  const Icon(Icons.broken_image),
+                                            ),
+                                    ),
+                                  ),
+                                  // Remove photo badge button
+                                  Positioned(
+                                    top: 0,
+                                    right: 6,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedPhotos.removeAt(index);
+                                        });
+                                      },
+                                      child: const CircleAvatar(
+                                        radius: 10,
+                                        backgroundColor: Colors.red,
+                                        child: Icon(
+                                          Icons.close,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
+                            // Add photo button with dashed design
+                            if (_selectedPhotos.length < 5)
+                              GestureDetector(
+                                onTap: _showImageSourcePicker,
+                                child: CustomPaint(
+                                  painter: DashedBorderPainter(
+                                    color: const Color(0xFF0D9488).withOpacity(0.4),
+                                    strokeWidth: 1.5,
+                                    gap: 4,
+                                    borderRadius: 16,
+                                  ),
+                                  child: Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? const Color(0xFF1E293B)
+                                          : Colors.grey.shade50,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add_a_photo_outlined,
+                                      color: Color(0xFF0D9488),
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
-                              ],
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: _pickedImagePath!.startsWith('assets/')
-                                  ? Image.asset(
-                                      _pickedImagePath!,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.file(
-                                      File(_pickedImagePath!),
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Maksimal 5 foto bukti",
+                            style: TextStyle(
+                              color: subTextColor,
+                              fontSize: 11,
                             ),
-                    ),
+                          ),
+                          Text(
+                            "${_selectedPhotos.length}/5 Foto Terpilih",
+                            style: TextStyle(
+                              color: const Color(0xFF0D9488),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
                 const SizedBox(height: 32),
 
                 // Buttons Row

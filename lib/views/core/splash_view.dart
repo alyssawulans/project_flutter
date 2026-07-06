@@ -47,11 +47,12 @@ class _SplashViewState extends State<SplashView> {
 
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('current_user_id');
+    final userFirestoreId = prefs.getString('current_user_firestore_id');
     final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
 
     if (!mounted) return;
 
-    if (userId != null) {
+    if (userId != null || userFirestoreId != null) {
       // User is logged in, navigate straight to Main Navigation Shell
       Navigator.pushAndRemoveUntil(
         context,

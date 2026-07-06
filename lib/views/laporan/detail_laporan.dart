@@ -80,8 +80,11 @@ class _DetailLaporanState extends State<DetailLaporan> {
   String get description => _currentReport.deskripsi;
   String get lokasi => _currentReport.lokasi;
   String get koordinat => _currentReport.koordinat;
-  String get imageUrl => _currentReport.foto;
-  List<String> get imageUrls => [_currentReport.foto];
+  String get imageUrl => _currentReport.foto.split(',').first;
+  List<String> get imageUrls {
+    if (_currentReport.foto.isEmpty) return [];
+    return _currentReport.foto.split(',').where((url) => url.isNotEmpty).toList();
+  }
 
   String get detailStatusTitle => _currentReport.status;
 

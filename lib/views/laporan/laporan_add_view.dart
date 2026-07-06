@@ -21,18 +21,18 @@ class _LaporanAddViewState extends State<LaporanAddView> {
   final _lokasiController = TextEditingController();
   final _deskripsiController = TextEditingController();
 
-  String _selectedKategori = 'Sampah';
+  String _selectedKategori = 'Pembakaran Sampah';
   String _koordinat = '-6.1818, 106.8223';
   String? _pickedImagePath;
   bool _isGettingLocation = false;
   bool _isSaving = false;
 
   final List<String> _kategoriList = [
-    'Sampah',
-    'Udara',
-    'Limbah Cair',
-    'Polusi Udara',
-    'Kebisingan',
+    'Pembakaran Sampah',
+    'Asap Industri / Pabrik',
+    'Asap Kendaraan',
+    'Debu & Konstruksi',
+    'Polusi Bau & Gas',
     'Lainnya',
   ];
 

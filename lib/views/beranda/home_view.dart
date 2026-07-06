@@ -576,8 +576,8 @@ class _HomeViewState extends State<HomeView> {
                                   borderRadius: BorderRadius.circular(16),
                                   child: Lottie.asset(
                                     'assets/animations/maskothi.json',
-                                    width: 100,
-                                    height: 110,
+                                    width: 110,
+                                    height: 130,
                                     fit: BoxFit.cover,
                                     alignment: Alignment.bottomCenter,
                                     errorBuilder:
@@ -1297,9 +1297,9 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(14),
-                        child: report.foto.startsWith('http')
+                        child: report.firstFoto.startsWith('http')
                             ? Image.network(
-                                report.foto,
+                                report.firstFoto,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     Container(
@@ -1314,9 +1314,9 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                     ),
                               )
-                            : report.foto.startsWith('assets/')
+                            : report.firstFoto.startsWith('assets/')
                             ? Image.asset(
-                                report.foto,
+                                report.firstFoto,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     Container(
@@ -1331,9 +1331,9 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                     ),
                               )
-                            : report.foto.isNotEmpty
+                            : report.firstFoto.isNotEmpty
                             ? Image.file(
-                                File(report.foto),
+                                File(report.firstFoto),
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     Container(

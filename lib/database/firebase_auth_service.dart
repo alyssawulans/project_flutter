@@ -113,13 +113,27 @@ class FirebaseAuthService {
     await _db.collection('users').doc(id).update(values);
   }
 
-  // Update password user di Firebase Auth & Firestore
+  // Update password user di Firebase Auth (Firestore tidak menyimpan password)
   Future<void> updateUserPassword(String id, String newPassword) async {
     final currentUser = _auth.currentUser;
     if (currentUser != null && currentUser.uid == id) {
       await currentUser.updatePassword(newPassword);
     }
-    await _db.collection('users').doc(id).update({'password': newPassword});
+  }
+
+  // Verifikasi password lama dengan re-autentikasi lalu update ke password baru
+  Future<void> reauthenticateAndUpdatePassword(String oldPassword, String newPassword) async {
+    final currentUser = _auth.currentUser;
+    if (currentUser != null && currentUser.email != null) {
+      final credential = auth.EmailAuthProvider.credential(
+        email: currentUser.email!,
+        password: oldPassword,
+      );
+      await currentUser.reauthenticateWithCredential(credential);
+      await currentUser.updatePassword(newPassword);
+    } else {
+      throw Exception("User tidak sedang masuk.");
+    }
   }
 
   // --- LAPORAN OPERATIONS ---

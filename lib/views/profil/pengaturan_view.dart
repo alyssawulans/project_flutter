@@ -257,8 +257,11 @@ class _PengaturanViewState extends State<PengaturanView> {
         ? const Color(0xFF334155)
         : const Color(0xFFE2E8F0);
 
+    final oldPasswordController = TextEditingController();
     final passwordController = TextEditingController();
+    bool obscureOldPassword = true;
     bool obscurePassword = true;
+    bool isProcessing = false;
 
     showDialog(
       context: context,
@@ -313,6 +316,58 @@ class _PengaturanViewState extends State<PengaturanView> {
                         ),
                       ),
                       const SizedBox(height: 18),
+                      // Kata Sandi Lama
+                      Container(
+                        decoration: BoxDecoration(
+                          color: inputBg,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: inputBorder),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: TextField(
+                          controller: oldPasswordController,
+                          obscureText: obscureOldPassword,
+                          enabled: !isProcessing,
+                          style: TextStyle(color: textColor),
+                          decoration: InputDecoration(
+                            labelText: AppTranslations.translate(
+                              'change_password_old_label',
+                              lang,
+                            ),
+                            labelStyle: TextStyle(
+                              color: subTextColor,
+                              fontSize: 13,
+                            ),
+                            hintText: AppTranslations.translate(
+                              'change_password_old_hint',
+                              lang,
+                            ),
+                            hintStyle: TextStyle(
+                              color: isDark
+                                  ? const Color(0xFF475569)
+                                  : const Color(0xFF94A3B8),
+                              fontSize: 12,
+                            ),
+                            border: InputBorder.none,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                obscureOldPassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                setDialogState(() {
+                                  obscureOldPassword = !obscureOldPassword;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      // Kata Sandi Baru
                       Container(
                         decoration: BoxDecoration(
                           color: inputBg,
@@ -323,6 +378,7 @@ class _PengaturanViewState extends State<PengaturanView> {
                         child: TextField(
                           controller: passwordController,
                           obscureText: obscurePassword,
+                          enabled: !isProcessing,
                           style: TextStyle(color: textColor),
                           decoration: InputDecoration(
                             labelText: AppTranslations.translate(
@@ -366,7 +422,7 @@ class _PengaturanViewState extends State<PengaturanView> {
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: isProcessing ? null : () => Navigator.pop(context),
                               style: OutlinedButton.styleFrom(
                                 side: BorderSide(
                                   color: isDark
@@ -392,7 +448,21 @@ class _PengaturanViewState extends State<PengaturanView> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () async {
+                              onPressed: isProcessing ? null : () async {
+                                if (oldPasswordController.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        AppTranslations.translate(
+                                          'change_password_old_error',
+                                          lang,
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  return;
+                                }
                                 if (passwordController.text.length < 6) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -408,31 +478,48 @@ class _PengaturanViewState extends State<PengaturanView> {
                                   return;
                                 }
 
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                final userFirestoreId =
-                                    prefs.getString('current_user_firestore_id');
+                                setDialogState(() {
+                                  isProcessing = true;
+                                });
 
-                                if (userFirestoreId != null) {
-                                  await FirebaseAuthService.instance.updateUserPassword(
-                                    userFirestoreId,
-                                    passwordController.text,
-                                  );
-                                }
+                                try {
+                                  await FirebaseAuthService.instance
+                                      .reauthenticateAndUpdatePassword(
+                                        oldPasswordController.text,
+                                        passwordController.text,
+                                      );
 
-                                if (mounted) {
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        AppTranslations.translate(
-                                          'change_password_success',
-                                          lang,
+                                  if (mounted) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          AppTranslations.translate(
+                                            'change_password_success',
+                                            lang,
+                                          ),
                                         ),
+                                        backgroundColor: const Color(0xFF0D9488),
                                       ),
-                                      backgroundColor: const Color(0xFF0D9488),
-                                    ),
-                                  );
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    setDialogState(() {
+                                      isProcessing = false;
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          AppTranslations.translate(
+                                            'change_password_old_wrong',
+                                            lang,
+                                          ) + " ($e)",
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -446,12 +533,19 @@ class _PengaturanViewState extends State<PengaturanView> {
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              child: Text(
-                                AppTranslations.translate('save', lang),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              child: isProcessing
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      AppTranslations.translate('save', lang),
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ),
                             ),
                           ),
                         ],

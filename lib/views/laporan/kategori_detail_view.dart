@@ -30,30 +30,6 @@ class CategoryDetailInfo {
 }
 
 final Map<String, CategoryDetailInfo> _categoryData = {
-  "Pembuangan Sampah": CategoryDetailInfo(
-    titleId: "Pembuangan Sampah",
-    titleEn: "Waste Dumping",
-    icon: Icons.delete_outline_rounded,
-    themeColor: const Color(0xFF0D9488),
-    factId:
-        "Pembuangan sampah sembarangan dapat mencemari tanah, menyumbat aliran air, dan menjadi sarang berbagai penyakit menular seperti demam berdarah.",
-    factEn:
-        "Illegal dumping pollutes soil, clogs water drainage, and serves as breeding grounds for infectious diseases like dengue fever.",
-    warningId:
-        "Sampah plastik membutuhkan waktu ratusan tahun untuk terurai di lingkungan.",
-    warningEn:
-        "Plastic waste takes hundreds of years to decompose in the environment.",
-    tipsId: [
-      "Ambil foto tumpukan sampah secara jelas.",
-      "Gunakan titik lokasi koordinat GPS yang akurat.",
-      "Tuliskan deskripsi jenis sampah (misal: sampah medis, plastik, limbah industri).",
-    ],
-    tipsEn: [
-      "Capture a clear photo of the waste pile.",
-      "Use precise GPS coordinate markers.",
-      "Describe the type of waste (e.g., medical, plastic, industrial waste).",
-    ],
-  ),
   "Pembakaran Sampah": CategoryDetailInfo(
     titleId: "Pembakaran Sampah",
     titleEn: "Trash Burning",
@@ -78,83 +54,107 @@ final Map<String, CategoryDetailInfo> _categoryData = {
       "Ensure your photo position is safe from the fire.",
     ],
   ),
-  "Polusi Udara": CategoryDetailInfo(
-    titleId: "Polusi Udara",
-    titleEn: "Air Pollution",
-    icon: Icons.cloud_rounded,
+  "Asap Industri / Pabrik": CategoryDetailInfo(
+    titleId: "Asap Industri / Pabrik",
+    titleEn: "Industrial / Factory Smoke",
+    icon: Icons.factory_rounded,
+    themeColor: const Color(0xFF475569),
+    factId:
+        "Asap pembuangan dari cerobong pabrik industri melepaskan zat kimia berbahaya seperti belerang dioksida dan nitrogen oksida yang mencemari udara sekitar.",
+    factEn:
+        "Exhaust smoke from industrial chimneys releases harmful chemical agents like sulfur dioxide and nitrogen oxide that contaminate the ambient air.",
+    warningId:
+        "Polusi udara industri dapat menurunkan fungsi paru-paru penduduk sekitar secara jangka panjang.",
+    warningEn:
+        "Industrial air pollution can reduce the lung function of surrounding residents in the long term.",
+    tipsId: [
+      "Foto asap hitam tebal yang keluar dari cerobong pabrik.",
+      "Tuliskan nama pabrik atau kawasan industrinya.",
+      "Catat waktu kepekatan asap tertinggi.",
+    ],
+    tipsEn: [
+      "Photo the thick black smoke coming from the factory chimney.",
+      "Write down the factory or industrial area name.",
+      "Record the time of peak smoke density.",
+    ],
+  ),
+  "Asap Kendaraan": CategoryDetailInfo(
+    titleId: "Asap Kendaraan",
+    titleEn: "Vehicle Smoke",
+    icon: Icons.directions_car_rounded,
     themeColor: const Color(0xFF0284C7),
     factId:
-        "Polusi udara akibat emisi kendaraan dan cerobong pabrik menurunkan indeks kualitas udara (AQI) secara drastis dan menyebabkan infeksi saluran pernapasan akut (ISPA).",
+        "Gas buang kendaraan bermotor menghasilkan karbon monoksida (CO) dan hidrokarbon yang merupakan penyumbang polusi udara terbesar di kota-kota besar.",
     factEn:
-        "Air pollution from vehicle exhaust and factory chimneys severely drops the air quality index (AQI), causing acute respiratory infections (ARI).",
+        "Vehicle exhaust gases produce carbon monoxide (CO) and hydrocarbons which are the largest contributors to air pollution in major cities.",
     warningId:
-        "Paparan polusi udara jangka panjang meningkatkan risiko penyakit jantung dan stroke.",
+        "Paparan asap kendaraan secara langsung di jalan raya meningkatkan risiko infeksi saluran pernapasan.",
     warningEn:
-        "Long-term exposure to air pollution increases the risk of heart disease and stroke.",
+        "Direct exposure to vehicle exhaust on the highway increases the risk of respiratory infections.",
     tipsId: [
-      "Foto sumber polusi udara secara jelas (misal: cerobong asap pabrik, bus berasap tebal).",
-      "Sebutkan waktu kejadian polusi tertinggi.",
-      "Berikan keterangan arah angin dan kepekatan asap jika memungkinkan.",
+      "Foto bus, truk, atau motor yang mengeluarkan asap pekat berlebih.",
+      "Tuliskan lokasi jalan atau persimpangan tempat kendaraan melintas.",
+      "Sebutkan jika polusi sering terjadi saat macet.",
     ],
     tipsEn: [
-      "Photo the pollution source clearly (e.g., factory smoke stack, smoky bus exhaust).",
-      "Mention the time when the pollution is peak.",
-      "Describe wind direction and smoke density if possible.",
+      "Photo buses, trucks, or motorcycles releasing excessive thick exhaust smoke.",
+      "Write down the street location or intersection where the vehicle passes.",
+      "Mention if pollution frequently occurs during traffic congestion.",
     ],
   ),
-  "Limbah Cair": CategoryDetailInfo(
-    titleId: "Limbah Cair",
-    titleEn: "Liquid Waste",
-    icon: Icons.water_drop_rounded,
-    themeColor: const Color(0xFF2563EB),
+  "Debu & Konstruksi": CategoryDetailInfo(
+    titleId: "Debu & Konstruksi",
+    titleEn: "Dust & Construction",
+    icon: Icons.construction_rounded,
+    themeColor: const Color(0xFFD97706),
     factId:
-        "Pembuangan limbah cair industri atau domestik tanpa pengolahan mencemari ekosistem sungai, mematikan ikan, dan meracuni pasokan air tanah warga.",
+        "Proyek konstruksi bangunan dan jalan raya menghasilkan debu semen dan partikel silika yang mengganggu kenyamanan bernapas warga sekitar.",
     factEn:
-        "Dumping industrial or domestic wastewater without treatment contaminates river ecosystems, kills aquatic life, and poisons clean groundwater sources.",
+        "Building and highway construction projects generate cement dust and silica particles that disrupt the respiratory comfort of surrounding residents.",
     warningId:
-        "Limbah cair beracun dapat menyebabkan iritasi kulit hebat dan kanker jika terkonsumsi.",
+        "Debu proyek konstruksi yang terhirup terus-menerus berbahaya bagi saluran pernapasan.",
     warningEn:
-        "Toxic liquid waste can cause severe skin irritation and cancer if consumed.",
+        "Inhaling construction project dust continuously is hazardous to the respiratory tract.",
     tipsId: [
-      "Foto aliran limbah yang keluar beserta warna dan kondisinya.",
-      "Tuliskan nama sungai atau parit terdampak.",
-      "Sebutkan jika tercium bau menyengat atau berbusa tebal.",
+      "Foto area proyek konstruksi yang menghasilkan debu berlebih.",
+      "Sebutkan nama jalan atau lokasi proyek.",
+      "Tuliskan apakah proyek menyediakan jaring pengaman debu.",
     ],
     tipsEn: [
-      "Photo the waste flow along with its color and condition.",
-      "Write down the name of the affected river or canal.",
-      "Mention if there is a strong odor or thick foam.",
+      "Photo the construction project area generating excessive dust.",
+      "Mention the street name or project location.",
+      "Describe if the project provides dust safety netting.",
     ],
   ),
-  "Kebisingan": CategoryDetailInfo(
-    titleId: "Kebisingan",
-    titleEn: "Noise Pollution",
-    icon: Icons.volume_up_rounded,
-    themeColor: const Color(0xFF7C3AED),
+  "Polusi Bau & Gas": CategoryDetailInfo(
+    titleId: "Polusi Bau & Gas",
+    titleEn: "Odor & Gas Pollution",
+    icon: Icons.air_rounded,
+    themeColor: const Color(0xFF0D9488),
     factId:
-        "Kebisingan konstan di atas 85 desibel dari proyek konstruksi atau aktivitas komersial di malam hari dapat memicu gangguan tidur, stres, dan gangguan pendengaran permanen.",
+        "Bau tidak sedap dari tumpukan sampah basah atau kebocoran gas kimia dapat mencemari kenyamanan pemukiman dan memicu pusing serta mual.",
     factEn:
-        "Constant noise above 85 decibels from construction sites or commercial night activities can cause sleep disorders, stress, and permanent hearing damage.",
+        "Bad odors from wet trash piles or chemical gas leaks can ruin residential comfort and trigger dizziness and nausea.",
     warningId:
-        "Kebisingan di malam hari sangat mengganggu kenyamanan dan konsentrasi istirahat warga.",
+        "Bau gas kimia tertentu dapat beracun atau mudah terbakar jika terpapar percikan api.",
     warningEn:
-        "Night-time noise pollution severely disrupts community rest and concentration.",
+        "Certain chemical gas odors can be toxic or highly flammable if exposed to sparks.",
     tipsId: [
-      "Tuliskan sumber suara bising secara spesifik.",
-      "Sebutkan perkiraan jam mulai dan berakhirnya kebisingan.",
-      "Lampirkan rekaman video bersuara sebagai bukti kebisingan.",
+      "Deskripsikan jenis bau yang tercium (misal: bau busuk sampah, bau gas menyengat).",
+      "Sebutkan perkiraan sumber bau tersebut.",
+      "Tuliskan efek kesehatan yang dirasakan warga sekitar.",
     ],
     tipsEn: [
-      "Specify the exact source of the noise.",
-      "Provide the estimated start and end hours of the noise.",
-      "Attach a video recording with sound as proof of noise.",
+      "Describe the type of odor smelled (e.g., rotten trash smell, strong gas odor).",
+      "Mention the estimated source of the odor.",
+      "Describe the health effects felt by nearby residents.",
     ],
   ),
   "Lainnya": CategoryDetailInfo(
     titleId: "Lainnya",
     titleEn: "Others",
     icon: Icons.more_horiz_rounded,
-    themeColor: const Color(0xFF475569),
+    themeColor: const Color(0xFF64748B),
     factId:
         "Kategori ini ditujukan untuk permasalahan lingkungan lain seperti perusakan pohon pelindung, pembalakan liar, atau pemanfaatan ruang publik ilegal.",
     factEn:

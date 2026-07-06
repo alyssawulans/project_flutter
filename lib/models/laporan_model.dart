@@ -60,5 +60,15 @@ class LaporanModel {
       foto: map['foto'] ?? '',
     );
   }
+
+  String get firstFoto {
+    if (foto.isEmpty) return '';
+    return foto.split(',').first;
+  }
+
+  List<String> get listFoto {
+    if (foto.isEmpty) return [];
+    return foto.split(',').where((url) => url.isNotEmpty).toList();
+  }
 }
 

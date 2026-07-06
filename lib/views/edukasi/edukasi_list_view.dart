@@ -1065,7 +1065,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
   void _showKuisDialog(BuildContext context) {
     int currentQuestion = 0;
     int score = 0;
-    final List<Map<String, dynamic>> questions = [
+    final List<Map<String, dynamic>> questionPool = [
       {
         'q': 'Berapakah batas ukuran partikel polusi udara PM2.5?',
         'options': [
@@ -1089,7 +1089,73 @@ class _EdukasiListViewState extends State<EdukasiListView> {
         ],
         'correct': 0,
       },
+      {
+        'q': 'Senyawa kimia apa yang paling bertanggung jawab atas penipisan lapisan ozon?',
+        'options': [
+          'Klorofluorokarbon (CFC)',
+          'Karbon Dioksida (CO₂)',
+          'Metana (CH₄)',
+        ],
+        'correct': 0,
+      },
+      {
+        'q': 'Gas rumah kaca apa yang paling banyak dihasilkan dari pembusukan sampah organik di TPA?',
+        'options': [
+          'Oksigen (O₂)',
+          'Metana (CH₄)',
+          'Nitrogen Oksida (N₂O)',
+        ],
+        'correct': 1,
+      },
+      {
+        'q': 'Apa sumber utama polutan partikulat PM2.5 di area perkotaan?',
+        'options': [
+          'Asap rokok dan pembakaran lilin',
+          'Emisi gas buang kendaraan bermotor',
+          'Uap air laut dan debu jalanan',
+        ],
+        'correct': 1,
+      },
+      {
+        'q': 'Berapa lama perkiraan waktu yang dibutuhkan botol plastik untuk terurai di alam?',
+        'options': [
+          'Sekitar 50 tahun',
+          'Sekitar 100 tahun',
+          'Sekitar 450 tahun',
+        ],
+        'correct': 2,
+      },
+      {
+        'q': 'Jenis sampah mana yang paling tepat untuk dibuang ke dalam wadah tempat sampah berwarna hijau?',
+        'options': [
+          'Sisa makanan dan daun kering (Organik)',
+          'Botol plastik dan kaleng bekas (Anorganik)',
+          'Baterai dan lampu bekas (B3)',
+        ],
+        'correct': 0,
+      },
+      {
+        'q': 'Apa nama indeks resmi yang digunakan pemerintah Indonesia untuk memantau kualitas udara?',
+        'options': [
+          'ISPU (Indeks Standar Pencemar Udara)',
+          'AQI (Air Quality Index)',
+          'API (Air Pollutant Index)',
+        ],
+        'correct': 0,
+      },
+      {
+        'q': 'Tanaman hias indoor apa yang sangat efektif menyaring racun udara seperti formaldehida?',
+        'options': [
+          'Lidah Mertua (Sansevieria)',
+          'Bunga Mawar',
+          'Pohon Kamboja',
+        ],
+        'correct': 0,
+      },
     ];
+
+    // Ambil 5 soal secara acak dari pool untuk variasi kuis yang dinamis
+    final List<Map<String, dynamic>> questions = (List<Map<String, dynamic>>.from(questionPool)..shuffle()).take(5).toList();
 
     int selectedOptionIndex = -1;
     bool hasSubmitted = false;

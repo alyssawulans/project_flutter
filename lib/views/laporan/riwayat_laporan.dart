@@ -236,7 +236,7 @@ class _RiwayatLaporanState extends State<RiwayatLaporan> {
                         // Thumbnail foto laporan
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: _buildItemImage(item.foto, isDark),
+                          child: _buildItemImage(item.firstFoto, isDark),
                         ),
                         const SizedBox(width: 16),
                         // Judul dan tanggal laporan
