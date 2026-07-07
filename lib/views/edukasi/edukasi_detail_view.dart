@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/edukasi_model.dart';
@@ -147,8 +148,8 @@ class _EdukasiDetailViewState extends State<EdukasiDetailView> {
               height: 240,
               width: double.infinity,
               color: isDark ? const Color(0xFF1E293B) : Colors.grey.shade100,
-              child: _currentArticle.gambar.startsWith('assets/')
-                  ? Image.asset(
+              child: _currentArticle.gambar.startsWith('http')
+                  ? Image.network(
                       _currentArticle.gambar,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Icon(
@@ -157,9 +158,25 @@ class _EdukasiDetailViewState extends State<EdukasiDetailView> {
                         color: isDark ? Colors.white30 : Colors.grey,
                       ),
                     )
-                  : Center(
-                      child: Icon(Icons.menu_book, size: 60, color: isDark ? Colors.white38 : Colors.black26),
-                    ),
+                  : _currentArticle.gambar.startsWith('assets/')
+                      ? Image.asset(
+                          _currentArticle.gambar,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            Icons.broken_image_outlined,
+                            size: 60,
+                            color: isDark ? Colors.white30 : Colors.grey,
+                          ),
+                        )
+                      : Image.file(
+                          File(_currentArticle.gambar),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            Icons.broken_image_outlined,
+                            size: 60,
+                            color: isDark ? Colors.white30 : Colors.grey,
+                          ),
+                        ),
             ),
 
             Padding(

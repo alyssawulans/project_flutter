@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:project_flutter/config/app_settings.dart';
 
 class AqiStation {
   final String name;
@@ -27,11 +28,27 @@ class AqiStation {
     return const Color(0xFFEF4444); // Tidak Sehat (Red)
   }
 
+  String _getLangCode() {
+    try {
+      return AppSettingsController.instance.settingsNotifier.value.languageCode;
+    } catch (_) {
+      return 'id';
+    }
+  }
+
   String get status {
-    if (aqi <= 50) return 'Baik';
-    if (aqi <= 100) return 'Sedang';
-    if (aqi <= 150) return 'Sangat Sedang';
-    return 'Tidak Sehat';
+    final lang = _getLangCode();
+    if (lang == 'en') {
+      if (aqi <= 50) return 'Good';
+      if (aqi <= 100) return 'Moderate';
+      if (aqi <= 150) return 'Slightly Unhealthy';
+      return 'Unhealthy';
+    } else {
+      if (aqi <= 50) return 'Baik';
+      if (aqi <= 100) return 'Sedang';
+      if (aqi <= 150) return 'Sangat Sedang';
+      return 'Tidak Sehat';
+    }
   }
 
   String get statusIconText {
@@ -42,14 +59,27 @@ class AqiStation {
   }
 
   String get description {
-    if (aqi <= 50) {
-      return 'Kualitas udara baik untuk aktivitas luar ruangan.';
-    } else if (aqi <= 100) {
-      return 'Kualitas udara sedang, aman bagi sebagian besar orang.';
-    } else if (aqi <= 150) {
-      return 'Kualitas udara kurang baik bagi kelompok sensitif.';
+    final lang = _getLangCode();
+    if (lang == 'en') {
+      if (aqi <= 50) {
+        return 'Air quality is good for outdoor activities.';
+      } else if (aqi <= 100) {
+        return 'Air quality is moderate, safe for most people.';
+      } else if (aqi <= 150) {
+        return 'Air quality is unhealthy for sensitive groups.';
+      } else {
+        return 'Air quality is unhealthy, reduce outdoor activities and use a mask.';
+      }
     } else {
-      return 'Kualitas udara buruk, kurangi aktivitas luar ruangan dan gunakan masker.';
+      if (aqi <= 50) {
+        return 'Kualitas udara baik untuk aktivitas luar ruangan.';
+      } else if (aqi <= 100) {
+        return 'Kualitas udara sedang, aman bagi sebagian besar orang.';
+      } else if (aqi <= 150) {
+        return 'Kualitas udara kurang baik bagi kelompok sensitif.';
+      } else {
+        return 'Kualitas udara buruk, kurangi aktivitas luar ruangan dan gunakan masker.';
+      }
     }
   }
 
@@ -60,24 +90,40 @@ class AqiStation {
   double get o3 => aqi * 0.0015; // Realistic O3 value in ppm
 
   String getRecommendation(String group) {
-    if (aqi <= 50) {
-      return 'Aman';
-    } else if (aqi <= 100) {
-      if (group == 'Sensitif') return 'Waspada';
-      return 'Aman';
-    } else if (aqi <= 150) {
-      if (group == 'Sensitif') return 'Hindari';
-      if (group == 'Olahraga') return 'Kurangi';
-      return 'Waspada';
+    final lang = _getLangCode();
+    if (lang == 'en') {
+      if (aqi <= 50) {
+        return 'Safe';
+      } else if (aqi <= 100) {
+        if (group == 'Sensitif' || group == 'Sensitive') return 'Caution';
+        return 'Safe';
+      } else if (aqi <= 150) {
+        if (group == 'Sensitif' || group == 'Sensitive') return 'Avoid';
+        if (group == 'Olahraga' || group == 'Sports') return 'Reduce';
+        return 'Caution';
+      } else {
+        return 'Avoid';
+      }
     } else {
-      return 'Hindari';
+      if (aqi <= 50) {
+        return 'Aman';
+      } else if (aqi <= 100) {
+        if (group == 'Sensitif' || group == 'Sensitive') return 'Waspada';
+        return 'Aman';
+      } else if (aqi <= 150) {
+        if (group == 'Sensitif' || group == 'Sensitive') return 'Hindari';
+        if (group == 'Olahraga' || group == 'Sports') return 'Kurangi';
+        return 'Waspada';
+      } else {
+        return 'Hindari';
+      }
     }
   }
 
   Color getRecommendationColor(String group) {
     final rec = getRecommendation(group);
-    if (rec == 'Aman') return const Color(0xFF10B981);
-    if (rec == 'Waspada' || rec == 'Kurangi') return const Color(0xFFF97316);
+    if (rec == 'Aman' || rec == 'Safe') return const Color(0xFF10B981);
+    if (rec == 'Waspada' || rec == 'Kurangi' || rec == 'Caution' || rec == 'Reduce') return const Color(0xFFF97316);
     return const Color(0xFFEF4444);
   }
 

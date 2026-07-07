@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/widgets/dashed_border_painter.dart';
@@ -239,7 +240,7 @@ class _LaporanAddViewState extends State<LaporanAddView> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Buat Laporan Baru',
+          AppSettingsController.instance.settingsNotifier.value.languageCode == 'en' ? 'Create New Report' : 'Buat Laporan Baru',
           style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontWeight: FontWeight.bold),
         ),
       ),

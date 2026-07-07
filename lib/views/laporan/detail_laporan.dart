@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
+import 'package:project_flutter/models/notification_model.dart';
 import 'package:project_flutter/views/laporan/laporan_edit_view.dart';
 import 'package:project_flutter/views/laporan/riwayat_laporan.dart';
 
@@ -58,6 +59,24 @@ class _DetailLaporanState extends State<DetailLaporan> {
     );
 
     await FirebaseAuthService.instance.updateLaporan(updatedReport);
+
+    // Send notification if status changed
+    if (_currentReport.status != newStatus && updatedReport.userFirestoreId != null) {
+      try {
+        final notif = NotificationModel(
+          title: 'Status Laporan Diperbarui',
+          body: 'Laporan "${updatedReport.judul}" Anda kini ditandai sebagai: $newStatus.',
+          tanggal: DateTime.now().toIso8601String(),
+          isRead: false,
+          type: 'laporan',
+          relatedId: updatedReport.firestoreId ?? '',
+          userFirestoreId: updatedReport.userFirestoreId!,
+        );
+        await FirebaseAuthService.instance.createNotification(notif);
+      } catch (_) {
+        // Fail silently
+      }
+    }
 
     if (mounted) {
       setState(() {

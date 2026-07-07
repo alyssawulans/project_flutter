@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/edukasi_model.dart';
 import 'package:project_flutter/views/edukasi/edukasi_detail_view.dart';
@@ -152,7 +154,9 @@ class _DaftarEdukasiViewState extends State<DaftarEdukasiView> {
         ),
         centerTitle: true,
         title: Text(
-          'Daftar Edukasi',
+          AppSettingsController.instance.settingsNotifier.value.languageCode == 'en'
+              ? 'Education List'
+              : 'Daftar Edukasi',
           style: TextStyle(
             color: textColor,
             fontWeight: FontWeight.bold,
@@ -363,10 +367,10 @@ class _DaftarEdukasiViewState extends State<DaftarEdukasiView> {
             child: Row(
               children: [
                 // Thumbnail image container
-                ClipRRect(
+                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: article.gambar.startsWith('assets/')
-                      ? Image.asset(
+                  child: article.gambar.startsWith('http')
+                      ? Image.network(
                           article.gambar,
                           width: 80,
                           height: 80,
@@ -374,16 +378,35 @@ class _DaftarEdukasiViewState extends State<DaftarEdukasiView> {
                           errorBuilder: (context, error, stackTrace) => Container(
                             width: 80,
                             height: 80,
-                            color: isDark ? const Color(0xFF0F4C43).withOpacity(0.3) : const Color(0xFFE2F1ED),
+                            color: isDark ? const Color(0xFF0F4C43).withValues(alpha: 0.3) : const Color(0xFFE2F1ED),
                             child: Icon(Icons.school, color: activeTeal, size: 28),
                           ),
                         )
-                      : Container(
-                          width: 80,
-                          height: 80,
-                          color: isDark ? const Color(0xFF0F4C43).withOpacity(0.3) : const Color(0xFFE2F1ED),
-                          child: Icon(Icons.school, color: activeTeal, size: 28),
-                        ),
+                      : article.gambar.startsWith('assets/')
+                          ? Image.asset(
+                              article.gambar,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 80,
+                                height: 80,
+                                color: isDark ? const Color(0xFF0F4C43).withValues(alpha: 0.3) : const Color(0xFFE2F1ED),
+                                child: Icon(Icons.school, color: activeTeal, size: 28),
+                              ),
+                            )
+                          : Image.file(
+                              File(article.gambar),
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 80,
+                                height: 80,
+                                color: isDark ? const Color(0xFF0F4C43).withValues(alpha: 0.3) : const Color(0xFFE2F1ED),
+                                child: Icon(Icons.school, color: activeTeal, size: 28),
+                              ),
+                            ),
                 ),
                 const SizedBox(width: 16),
                 // Title and Read Time details
@@ -412,7 +435,9 @@ class _DaftarEdukasiViewState extends State<DaftarEdukasiView> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '$readTime Menit Membaca',
+                            AppSettingsController.instance.settingsNotifier.value.languageCode == 'en'
+                                ? '$readTime Min Read'
+                                : '$readTime Menit Membaca',
                             style: TextStyle(
                               fontSize: 11,
                               color: subTextColor,

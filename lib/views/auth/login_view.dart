@@ -261,6 +261,41 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
+  void _loginWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final user = await FirebaseAuthService.instance.signInWithGoogle();
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (!mounted) return;
+
+    if (user != null) {
+      // Save session
+      final prefs = await SharedPreferences.getInstance();
+      if (user.id != null) {
+        await prefs.setString('current_user_firestore_id', user.id!);
+      }
+      await prefs.setString('current_user_name', user.nama);
+      await prefs.setString('current_user_email', user.email);
+      await prefs.setString('current_user_role', user.role);
+
+      if (mounted) {
+        _showSuccessDialog(user.nama);
+      }
+    } else {
+      if (mounted) {
+        _showErrorDialog(
+          'Gagal masuk menggunakan akun Google. Silakan coba lagi.',
+        );
+      }
+    }
+  }
+
   void _fillDemoAccount() {
     emailController.text = "andi.pratama@gmail.com";
     passwordController.text = "password123";
@@ -585,6 +620,7 @@ class _LoginViewState extends State<LoginView> {
                           icon: Icons.g_mobiledata_rounded,
                           iconColor: Colors.red,
                           isDark: isDark,
+                          onPressed: _loginWithGoogle,
                         ),
                         const SizedBox(height: 12),
                         _buildSocialButton(
@@ -674,6 +710,7 @@ class _LoginViewState extends State<LoginView> {
     required IconData icon,
     required Color iconColor,
     required bool isDark,
+    VoidCallback? onPressed,
   }) {
     return OutlinedButton.icon(
       style: OutlinedButton.styleFrom(
@@ -683,7 +720,7 @@ class _LoginViewState extends State<LoginView> {
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      onPressed: () {},
+      onPressed: onPressed ?? () {},
       icon: Icon(icon, color: iconColor, size: 24),
       label: Text(
         label,

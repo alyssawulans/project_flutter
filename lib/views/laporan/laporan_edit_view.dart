@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
+import 'package:project_flutter/models/notification_model.dart';
 import 'package:project_flutter/widgets/dashed_border_painter.dart';
 
 class LaporanEditView extends StatefulWidget {
@@ -206,6 +207,24 @@ class _LaporanEditViewState extends State<LaporanEditView> {
     );
 
     await FirebaseAuthService.instance.updateLaporan(updated);
+
+    // Send notification if status changed
+    if (widget.laporan.status != _selectedStatus && widget.laporan.userFirestoreId != null) {
+      try {
+        final notif = NotificationModel(
+          title: 'Status Laporan Diperbarui',
+          body: 'Laporan "${widget.laporan.judul}" Anda kini ditandai sebagai: $_selectedStatus.',
+          tanggal: DateTime.now().toIso8601String(),
+          isRead: false,
+          type: 'laporan',
+          relatedId: widget.laporan.firestoreId ?? '',
+          userFirestoreId: widget.laporan.userFirestoreId!,
+        );
+        await FirebaseAuthService.instance.createNotification(notif);
+      } catch (_) {
+        // Fail silently
+      }
+    }
 
     setState(() {
       _isSaving = false;

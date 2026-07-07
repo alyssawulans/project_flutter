@@ -1,14 +1,20 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
 import 'package:project_flutter/models/user_model.dart';
 import 'package:project_flutter/models/user_model_firebase.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/models/edukasi_model.dart';
+import 'package:project_flutter/models/notification_model.dart';
 
 class FirebaseAuthService {
   static final FirebaseAuthService instance = FirebaseAuthService._init();
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   FirebaseAuthService._init();
 
@@ -64,7 +70,84 @@ class FirebaseAuthService {
       );
       final uid = credential.user?.uid;
       if (uid == null) return null;
-      return await getUser(uid);
+
+      UserModelFirebase? user = await getUser(uid);
+      if (user == null) {
+        // Jika dokumen user belum ada di Firestore (misalnya admin yang dibuat langsung di console),
+        // otomatis buat profilnya. Jika email mengandung kata "admin", beri role admin.
+        final isEmailAdmin = email.toLowerCase().contains('admin');
+        final defaultUser = UserModelFirebase(
+          id: uid,
+          nama: email.split('@').first.replaceAll('.', ' ').toUpperCase(),
+          email: email,
+          nomorTelp: '080000000000',
+          password: '',
+          tanggalDaftar: DateFormat(
+            'd MMM yyyy',
+            'id_ID',
+          ).format(DateTime.now()),
+          tempatLahir: 'Jakarta',
+          tanggalLahir: '01 Jan 1990',
+          role: isEmailAdmin ? 'admin' : 'user',
+        );
+        await _db.collection('users').doc(uid).set(defaultUser.toMap());
+        user = defaultUser;
+      }
+      return user;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Login menggunakan Google Sign-In
+  Future<UserModelFirebase?> signInWithGoogle() async {
+    try {
+      // 1. Jalankan inisialisasi google sign in
+      await GoogleSignIn.instance.initialize();
+
+      // 2. Jalankan alur Google Sign-In
+      final googleUser = await GoogleSignIn.instance.authenticate();
+
+      // 3. Ambil detail otentikasi dari akun google
+      final googleAuth = googleUser.authentication;
+
+      // 4. Buat kredensial Firebase baru (hanya butuh idToken untuk Firebase Auth di Android/iOS)
+      final auth.AuthCredential credential = auth.GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      // 5. Masuk ke Firebase Auth menggunakan kredensial tersebut
+      final auth.UserCredential userCredential = await _auth
+          .signInWithCredential(credential);
+      final uid = userCredential.user?.uid;
+      if (uid == null) return null;
+
+      // 6. Ambil data profil dari Firestore
+      UserModelFirebase? user = await getUser(uid);
+      if (user == null) {
+        // Jika user Google baru pertama kali login, otomatis buat profil default di Firestore
+        final displayName =
+            googleUser.displayName ?? googleUser.email.split('@').first;
+        final defaultUser = UserModelFirebase(
+          id: uid,
+          nama: displayName,
+          email: googleUser.email,
+          nomorTelp: '080000000000',
+          password: '',
+          tanggalDaftar: DateFormat(
+            'd MMM yyyy',
+            'id_ID',
+          ).format(DateTime.now()),
+          tempatLahir: 'Jakarta',
+          tanggalLahir: '01 Jan 1990',
+          role: googleUser.email.toLowerCase().contains('admin')
+              ? 'admin'
+              : 'user',
+        );
+        await _db.collection('users').doc(uid).set(defaultUser.toMap());
+        user = defaultUser;
+      }
+      return user;
     } catch (e) {
       return null;
     }
@@ -122,7 +205,10 @@ class FirebaseAuthService {
   }
 
   // Verifikasi password lama dengan re-autentikasi lalu update ke password baru
-  Future<void> reauthenticateAndUpdatePassword(String oldPassword, String newPassword) async {
+  Future<void> reauthenticateAndUpdatePassword(
+    String oldPassword,
+    String newPassword,
+  ) async {
     final currentUser = _auth.currentUser;
     if (currentUser != null && currentUser.email != null) {
       final credential = auth.EmailAuthProvider.credential(
@@ -136,6 +222,38 @@ class FirebaseAuthService {
     }
   }
 
+  // Sign out dari Firebase Auth
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
+
+  // Helper untuk mengunggah file lokal ke Firebase Storage dan mengembalikan URL download
+  Future<String> uploadFile(String filePath, String folderName) async {
+    // Jika path kosong atau berupa asset / web url, kembalikan apa adanya
+    if (filePath.isEmpty || filePath.startsWith('assets/') || filePath.startsWith('http')) {
+      return filePath;
+    }
+
+    try {
+      final file = File(filePath);
+      if (!await file.exists()) {
+        return filePath;
+      }
+
+      // Buat nama file unik berdasarkan timestamp
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${filePath.split('/').last}';
+      final ref = _storage.ref().child(folderName).child(fileName);
+
+      // Mulai upload
+      final uploadTask = await ref.putFile(file);
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('DEBUG STORAGE ERROR: $e');
+      return filePath; // Fallback jika gagal upload
+    }
+  }
+
   // --- LAPORAN OPERATIONS ---
 
   // Membuat laporan baru di Firestore
@@ -144,6 +262,20 @@ class FirebaseAuthService {
     final data = laporan.toMap();
     data.remove('id');
     data['firestore_id'] = docRef.id;
+
+    // Handle multiple photos upload if any
+    if (laporan.foto.isNotEmpty) {
+      final List<String> paths = laporan.foto.split(',');
+      final List<String> uploadedUrls = [];
+      for (final path in paths) {
+        if (path.trim().isNotEmpty) {
+          final url = await uploadFile(path.trim(), 'laporan');
+          uploadedUrls.add(url);
+        }
+      }
+      data['foto'] = uploadedUrls.join(',');
+    }
+
     await docRef.set(data);
     return docRef.id;
   }
@@ -186,10 +318,25 @@ class FirebaseAuthService {
   // Update laporan di Firestore
   Future<void> updateLaporan(LaporanModel laporan) async {
     if (laporan.firestoreId != null) {
+      final data = laporan.toMap();
+
+      // Handle multiple photos upload if any
+      if (laporan.foto.isNotEmpty) {
+        final List<String> paths = laporan.foto.split(',');
+        final List<String> uploadedUrls = [];
+        for (final path in paths) {
+          if (path.trim().isNotEmpty) {
+            final url = await uploadFile(path.trim(), 'laporan');
+            uploadedUrls.add(url);
+          }
+        }
+        data['foto'] = uploadedUrls.join(',');
+      }
+
       await _db
           .collection('laporan')
           .doc(laporan.firestoreId)
-          .update(laporan.toMap());
+          .update(data);
     }
   }
 
@@ -216,6 +363,11 @@ class FirebaseAuthService {
     final data = edukasi.toMap();
     data.remove('id');
     data['firestore_id'] = docRef.id;
+
+    // Upload image if it is a local file path
+    final uploadedUrl = await uploadFile(edukasi.gambar, 'edukasi');
+    data['gambar'] = uploadedUrl;
+
     await docRef.set(data);
     return docRef.id;
   }
@@ -246,10 +398,16 @@ class FirebaseAuthService {
   // Update edukasi di Firestore
   Future<void> updateEdukasi(EdukasiModel edukasi) async {
     if (edukasi.firestoreId != null) {
+      final data = edukasi.toMap();
+
+      // Upload image if it is a local file path
+      final uploadedUrl = await uploadFile(edukasi.gambar, 'edukasi');
+      data['gambar'] = uploadedUrl;
+
       await _db
           .collection('edukasi')
           .doc(edukasi.firestoreId)
-          .update(edukasi.toMap());
+          .update(data);
     }
   }
 
@@ -262,5 +420,113 @@ class FirebaseAuthService {
   Future<int> getEdukasiCount() async {
     final aggregateQuery = await _db.collection('edukasi').count().get();
     return aggregateQuery.count ?? 0;
+  }
+
+  // --- NOTIFICATION OPERATIONS ---
+
+  // Membuat notifikasi baru di Firestore
+  Future<String> createNotification(NotificationModel notification) async {
+    final docRef = _db.collection('notifications').doc();
+    final data = notification.toMap();
+    data['id'] = docRef.id;
+    await docRef.set(data);
+    return docRef.id;
+  }
+
+  // Mendapatkan daftar notifikasi untuk user tertentu
+  Future<List<NotificationModel>> getNotifications(
+    String userFirestoreId,
+  ) async {
+    try {
+      final querySnapshot = await _db
+          .collection('notifications')
+          .where('user_firestore_id', isEqualTo: userFirestoreId)
+          .get();
+
+      final results = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return NotificationModel.fromMap(data, doc.id);
+      }).toList();
+
+      // Urutkan berdasarkan tanggal terbaru (descending)
+      results.sort((a, b) {
+        return b.tanggal.compareTo(a.tanggal);
+      });
+
+      return results;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Tandai notifikasi sebagai dibaca
+  Future<void> markNotificationAsRead(String notificationId) async {
+    await _db.collection('notifications').doc(notificationId).update({
+      'is_read': true,
+    });
+  }
+
+  // Tandai semua notifikasi user sebagai dibaca
+  Future<void> markAllNotificationsAsRead(String userFirestoreId) async {
+    final querySnapshot = await _db
+        .collection('notifications')
+        .where('user_firestore_id', isEqualTo: userFirestoreId)
+        .where('is_read', isEqualTo: false)
+        .get();
+
+    final batch = _db.batch();
+    for (final doc in querySnapshot.docs) {
+      batch.update(doc.reference, {'is_read': true});
+    }
+    await batch.commit();
+  }
+
+  // Hapus notifikasi
+  Future<void> deleteNotification(String notificationId) async {
+    await _db.collection('notifications').doc(notificationId).delete();
+  }
+
+  // Menghitung jumlah notifikasi yang belum dibaca
+  Future<int> getUnreadNotificationCount(String userFirestoreId) async {
+    try {
+      final query = _db
+          .collection('notifications')
+          .where('user_firestore_id', isEqualTo: userFirestoreId)
+          .where('is_read', isEqualTo: false);
+      final aggregateQuery = await query.count().get();
+      return aggregateQuery.count ?? 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  // Mengambil laporan berdasarkan Firestore ID (untuk navigasi/deep linking)
+  Future<LaporanModel?> getLaporanById(String firestoreId) async {
+    try {
+      final doc = await _db.collection('laporan').doc(firestoreId).get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        data['firestore_id'] = doc.id;
+        return LaporanModel.fromMap(data);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Mengambil edukasi berdasarkan Firestore ID (untuk navigasi/deep linking)
+  Future<EdukasiModel?> getEdukasiById(String firestoreId) async {
+    try {
+      final doc = await _db.collection('edukasi').doc(firestoreId).get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        data['firestore_id'] = doc.id;
+        return EdukasiModel.fromMap(data);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 }

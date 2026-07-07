@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/edukasi_model.dart';
 import 'package:project_flutter/views/edukasi/daftar_edukasi_view.dart';
@@ -19,6 +21,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
   String _userName = 'Andi Pratama';
   String _userRole = 'user';
   EdukasiModel? _featuredArticle;
+  List<EdukasiModel> _articles = [];
   bool _isLoading = true;
 
   // Categories displayed in dashboard
@@ -49,8 +52,26 @@ class _EdukasiListViewState extends State<EdukasiListView> {
     'Polusi partikulat halus (PM2.5) dapat terbawa angin hingga jarak ratusan kilometer dari sumber asalnya.',
   ];
 
-  String get _todayFunFact {
+  final List<String> _funFactsEn = [
+    'One mature tree can absorb about 22 kg of CO₂ each year to help filter the air.',
+    'Planting ornamental plants like Snake Plant indoors can absorb benzene and formaldehyde toxins.',
+    'Indoor air quality can be 2 to 5 times worse than outdoor air quality.',
+    'The Amazon rainforest produces about 20 percent of the earth\'s oxygen from all the trees there.',
+    'Riding a bicycle for 10 km every day can prevent emissions of about 1.3 tons of CO₂ per year.',
+    'Air pollution can negatively impact mental health and trigger stress or anxiety.',
+    'Using public transportation can reduce your personal carbon emissions by up to 45 percent per trip.',
+    'Most dust in our homes actually comes from dead human skin cells and clothing fibers.',
+    'Aloe Vera plants release oxygen at night, making them ideal plants to place in the bedroom.',
+    'Opening windows for 15 minutes every morning can reduce the accumulation of carbon dioxide gas inside the house.',
+    'One hectare of urban forest can produce enough oxygen for the breathing needs of 18 people every day.',
+    'Fine particulate pollution (PM2.5) can be carried by the wind up to hundreds of kilometers from its source of origin.',
+  ];
+
+  String _getFunFact(String lang) {
     final day = DateTime.now().day;
+    if (lang == 'en') {
+      return _funFactsEn[day % _funFactsEn.length];
+    }
     return _funFacts[day % _funFacts.length];
   }
 
@@ -90,6 +111,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
         _userName = name;
         _userRole = role;
         _featuredArticle = pm25Article;
+        _articles = articles;
         _isLoading = false;
       });
     }
@@ -122,26 +144,27 @@ class _EdukasiListViewState extends State<EdukasiListView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor = isDark
-        ? const Color(0xFF0F172A)
-        : const Color(0xFFF8FAFC);
-    final Color appBarBgColor = isDark
-        ? const Color(0xFF1E293B)
-        : const Color(0xFFF4F8FB);
-    final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color textColor = isDark
-        ? const Color(0xFFF8FAFC)
-        : const Color(0xFF0F172A);
-    final Color subTextColor = isDark
-        ? const Color(0xFF94A3B8)
-        : const Color(0xFF64748B);
-    final Color borderColor = isDark
-        ? const Color(0xFF334155)
-        : const Color(0xFFF1F5F9);
-    final Color iconColor = isDark
-        ? const Color(0xFFF8FAFC)
-        : const Color(0xFF1A2E44);
+    return ValueListenableBuilder<AppSettings>(
+      valueListenable: AppSettingsController.instance.settingsNotifier,
+      builder: (context, settings, _) {
+        final lang = settings.languageCode;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final Color bgColor = isDark
+            ? const Color(0xFF0F172A)
+            : const Color(0xFFF8FAFC);
+        final Color appBarBgColor = isDark
+            ? const Color(0xFF1E293B)
+            : const Color(0xFFF4F8FB);
+        final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final Color textColor = isDark
+            ? const Color(0xFFF8FAFC)
+            : const Color(0xFF0F172A);
+        final Color subTextColor = isDark
+            ? const Color(0xFF94A3B8)
+            : const Color(0xFF64748B);
+        final Color borderColor = isDark
+            ? const Color(0xFF334155)
+            : const Color(0xFFF1F5F9);
 
     return Scaffold(
       floatingActionButton: _userRole == 'admin'
@@ -199,7 +222,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Halo, $_userName 👋',
+                                  lang == 'en' ? 'Hello, $_userName 👋' : 'Halo, $_userName 👋',
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -210,7 +233,9 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Apa yang ingin kamu pelajari hari ini?',
+                                  lang == 'en'
+                                      ? 'What do you want to learn today?'
+                                      : 'Apa yang ingin kamu pelajari hari ini?',
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: subTextColor,
@@ -258,7 +283,9 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                               Icon(Icons.search, color: activeTeal, size: 20),
                               const SizedBox(width: 12),
                               Text(
-                                'Cari artikel, topik, atau kategori...',
+                                lang == 'en'
+                                    ? 'Search article, topic, or category...'
+                                    : 'Cari artikel, topik, atau kategori...',
                                 style: TextStyle(
                                   color: subTextColor,
                                   fontSize: 14,
@@ -312,7 +339,15 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      cat,
+                                      cat == 'Semua'
+                                          ? (lang == 'en' ? 'All' : 'Semua')
+                                          : (cat == 'Polusi Udara'
+                                              ? (lang == 'en' ? 'Air Pollution' : 'Polusi Udara')
+                                              : (cat == 'Lingkungan'
+                                                  ? (lang == 'en' ? 'Environment' : 'Lingkungan')
+                                                  : (cat == 'Sampah'
+                                                      ? (lang == 'en' ? 'Waste' : 'Sampah')
+                                                      : cat))),
                                       style: TextStyle(
                                         color: isSelected
                                             ? Colors.white
@@ -391,9 +426,11 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Apa itu PM2.5?',
+                                            _featuredArticle?.judul ?? 'Apa itu PM2.5?',
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              fontSize: 22,
+                                              fontSize: 20,
                                               fontWeight: FontWeight.bold,
                                               color: isDark
                                                   ? const Color(0xFFF8FAFC)
@@ -402,7 +439,10 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            'Kenali partikel berbahaya yang mengancam kesehatan kita.',
+                                            _featuredArticle?.konten ??
+                                                'Kenali partikel berbahaya yang mengancam kesehatan kita.',
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: Colors.white.withValues(
@@ -423,7 +463,11 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                '5 Menit Membaca',
+                                                _featuredArticle != null
+                                                    ? (lang == 'en'
+                                                        ? '${(_featuredArticle!.konten.split(" ").length / 150).ceil().clamp(2, 60)} Min Read'
+                                                        : '${(_featuredArticle!.konten.split(" ").length / 150).ceil().clamp(2, 60)} Menit Membaca')
+                                                    : (lang == 'en' ? '5 Min Read' : '5 Menit Membaca'),
                                                 style: TextStyle(
                                                   fontSize: 11,
                                                   color: Colors.white
@@ -474,7 +518,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildQuickNavButton(
-                            label: 'Artikel\nPopuler',
+                            label: lang == 'en' ? 'Popular\nArticles' : 'Artikel\nPopuler',
                             icon: Icons.article_rounded,
                             bgColor: isDark
                                 ? const Color(0xFF2563EB).withOpacity(0.15)
@@ -484,7 +528,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                             isDark: isDark,
                           ),
                           _buildQuickNavButton(
-                            label: 'Video\nEdukasi',
+                            label: lang == 'en' ? 'Educational\nVideos' : 'Video\nEdukasi',
                             icon: Icons.play_circle_fill_rounded,
                             bgColor: isDark
                                 ? const Color(0xFFDB2777).withOpacity(0.15)
@@ -494,7 +538,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                             isDark: isDark,
                           ),
                           _buildQuickNavButton(
-                            label: 'Infografis\nEdukasi',
+                            label: lang == 'en' ? 'Educational\nInfographics' : 'Infografis\nEdukasi',
                             icon: Icons.pie_chart_rounded,
                             bgColor: isDark
                                 ? const Color(0xFF059669).withOpacity(0.15)
@@ -504,7 +548,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                             isDark: isDark,
                           ),
                           _buildQuickNavButton(
-                            label: 'Kuis\nEdukasi',
+                            label: lang == 'en' ? 'Educational\nQuizzes' : 'Kuis\nEdukasi',
                             icon: Icons.emoji_events_rounded,
                             bgColor: isDark
                                 ? const Color(0xFFD97706).withOpacity(0.15)
@@ -517,9 +561,68 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                       ),
                       const SizedBox(height: 28),
 
+                      // 5. Daftar Edukasi Terbaru Section
+                      if (_articles.isNotEmpty) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              lang == 'en' ? 'Latest Education' : 'Daftar Edukasi Terbaru',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const DaftarEdukasiView(),
+                                  ),
+                                ).then((_) => _loadDashboardData());
+                              },
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                lang == 'en' ? 'View All' : 'Lihat Semua',
+                                style: TextStyle(
+                                  color: activeTeal,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _articles.length > 3 ? 3 : _articles.length,
+                          itemBuilder: (context, index) {
+                            final article = _articles[index];
+                            return _buildMockupArticleCard(
+                              article,
+                              cardBgColor,
+                              textColor,
+                              subTextColor,
+                              borderColor,
+                              isDark,
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+
                       // 6. Fakta Menarik Hari Ini Section
                       Text(
-                        'Fakta Menarik Hari Ini',
+                        lang == 'en' ? 'Interesting Fact Today' : 'Fakta Menarik Hari Ini',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -548,7 +651,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  _todayFunFact,
+                                  _getFunFact(lang),
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
@@ -583,6 +686,8 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                 ),
               ),
             ),
+        );
+      },
     );
   }
 
@@ -628,6 +733,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
         : Colors.grey[300]!;
     final Color txtColor = isDark ? const Color(0xFFF8FAFC) : textDark;
     final Color subTxtColor = isDark ? const Color(0xFF94A3B8) : Colors.grey;
+    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
 
     showModalBottomSheet(
       context: context,
@@ -653,7 +759,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Artikel Populer',
+              lang == 'en' ? 'Popular Articles' : 'Artikel Populer',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -662,18 +768,24 @@ class _EdukasiListViewState extends State<EdukasiListView> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Pelajari artikel populer mengenai lingkungan dan polusi udara berikut:',
+              lang == 'en'
+                  ? 'Study the following popular articles about the environment and air pollution:'
+                  : 'Pelajari artikel populer mengenai lingkungan dan polusi udara berikut:',
               style: TextStyle(color: subTxtColor, fontSize: 13),
             ),
             const SizedBox(height: 16),
             _buildArtikelRowItem(
-              title: 'Polusi Udara Perkotaan - Greenpeace Indonesia',
+              title: lang == 'en'
+                  ? 'Urban Air Pollution - Greenpeace Indonesia'
+                  : 'Polusi Udara Perkotaan - Greenpeace Indonesia',
               source: 'Greenpeace Indonesia',
               url:
                   'https://www.greenpeace.org/indonesia/kampanye/perkotaan/polusi-udara/',
             ),
             _buildArtikelRowItem(
-              title: 'Dampak Polusi Jakarta bagi Kesehatan - UGM OHCE',
+              title: lang == 'en'
+                  ? 'Impact of Jakarta Pollution on Health - UGM OHCE'
+                  : 'Dampak Polusi Jakarta bagi Kesehatan - UGM OHCE',
               source: 'OHCE UGM',
               url:
                   'https://ohce.wg.ugm.ac.id/polusi-jakarta-peringkat-1-di-dunia-bagaimana-dampaknya-pada-kesehatan/',
@@ -769,6 +881,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
         : Colors.grey[300]!;
     final Color txtColor = isDark ? const Color(0xFFF8FAFC) : textDark;
     final Color subTxtColor = isDark ? const Color(0xFF94A3B8) : Colors.grey;
+    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
 
     showModalBottomSheet(
       context: context,
@@ -794,7 +907,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Video Edukasi',
+              lang == 'en' ? 'Educational Videos' : 'Video Edukasi',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -803,26 +916,34 @@ class _EdukasiListViewState extends State<EdukasiListView> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Simak video edukasi lingkungan pilihan terbaik berikut:',
+              lang == 'en'
+                  ? 'Watch these selected environmental educational videos:'
+                  : 'Simak video edukasi lingkungan pilihan terbaik berikut:',
               style: TextStyle(color: subTxtColor, fontSize: 13),
             ),
             const SizedBox(height: 16),
             _buildVideoRowItem(
-              title: 'Solusi Polusi Udara di Indonesia',
+              title: lang == 'en'
+                  ? 'Air Pollution Solutions in Indonesia'
+                  : 'Solusi Polusi Udara di Indonesia',
               duration: 'YouTube',
-              channel: 'Edukasi Lingkungan',
+              channel: lang == 'en' ? 'Environmental Education' : 'Edukasi Lingkungan',
               url: 'https://youtu.be/ltbx_Gb4x9w?si=MoZQZ7ObKwZ9kgAL',
             ),
             _buildVideoRowItem(
-              title: 'Penyebab & Dampak Buruk Kualitas Udara',
+              title: lang == 'en'
+                  ? 'Causes & Adverse Impacts of Air Quality'
+                  : 'Penyebab & Dampak Buruk Kualitas Udara',
               duration: 'YouTube',
-              channel: 'Info Lingkungan',
+              channel: lang == 'en' ? 'Environmental Info' : 'Info Lingkungan',
               url: 'https://youtu.be/GVBeY1jSG9Y?si=wnjAn-cSth1LVehD',
             ),
             _buildVideoRowItem(
-              title: 'Cara Melindungi Diri dari Polusi Udara',
+              title: lang == 'en'
+                  ? 'How to Protect Yourself from Air Pollution'
+                  : 'Cara Melindungi Diri dari Polusi Udara',
               duration: 'YouTube',
-              channel: 'Kesehatan Masyarakat',
+              channel: lang == 'en' ? 'Public Health' : 'Kesehatan Masyarakat',
               url: 'https://youtu.be/jtiANpcpJJY?si=BNh6UBoae7YTtddh',
             ),
           ],
@@ -917,6 +1038,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
         : Colors.grey[300]!;
     final Color txtColor = isDark ? const Color(0xFFF8FAFC) : textDark;
     final Color subTxtColor = isDark ? const Color(0xFF94A3B8) : Colors.grey;
+    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
 
     showModalBottomSheet(
       context: context,
@@ -942,7 +1064,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Infografis Lingkungan',
+              lang == 'en' ? 'Environmental Infographics' : 'Infografis Lingkungan',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -951,22 +1073,30 @@ class _EdukasiListViewState extends State<EdukasiListView> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Pelajari materi lebih cepat melalui visual infografis:',
+              lang == 'en'
+                  ? 'Learn material faster through visual infographics:'
+                  : 'Pelajari materi lebih cepat melalui visual infografis:',
               style: TextStyle(color: subTxtColor, fontSize: 13),
             ),
             const SizedBox(height: 16),
             _buildInfografisRowItem(
-              title: 'Hubungan Deret Hari Kering dengan Konsentrasi Partikulat',
+              title: lang == 'en'
+                  ? 'Relationship Between Dry Days Series and Particulate Concentration'
+                  : 'Hubungan Deret Hari Kering dengan Konsentrasi Partikulat',
               size: 'PNG',
               imagePath: 'assets/images/project_akhir/infografis_1.png',
             ),
             _buildInfografisRowItem(
-              title: 'Penentuan Lokasi Lintas Batas Pencemar Udara',
+              title: lang == 'en'
+                  ? 'Location Mapping of Transboundary Air Pollutants'
+                  : 'Penentuan Lokasi Lintas Batas Pencemar Udara',
               size: 'PNG',
               imagePath: 'assets/images/project_akhir/infografis_2.png',
             ),
             _buildInfografisRowItem(
-              title: 'Kondisi Udara Jakarta 2026',
+              title: lang == 'en'
+                  ? 'Jakarta Air Condition 2026'
+                  : 'Kondisi Udara Jakarta 2026',
               size: 'JPG',
               imagePath: 'assets/images/project_akhir/infografis_3.jpg',
             ),
@@ -987,6 +1117,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
         : const Color(0xFFF8FAFC);
     final Color txtColor = isDark ? const Color(0xFFF8FAFC) : textDark;
     final Color subTxtColor = isDark ? const Color(0xFF94A3B8) : Colors.grey;
+    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1017,8 +1148,8 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                   height: 48,
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF059669).withOpacity(0.15)
-                        : const Color(0xFFECFDF5),
+                      ? const Color(0xFF059669).withOpacity(0.15)
+                      : const Color(0xFFECFDF5),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -1046,7 +1177,9 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Format: $size • Tap untuk memperbesar',
+                        lang == 'en'
+                            ? 'Format: $size • Tap to enlarge'
+                            : 'Format: $size • Tap untuk memperbesar',
                         style: TextStyle(fontSize: 11, color: subTxtColor),
                       ),
                     ],
@@ -1063,6 +1196,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
 
   // Interactive popup Quiz Dialog
   void _showKuisDialog(BuildContext context) {
+    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
     int currentQuestion = 0;
     int score = 0;
     final List<Map<String, dynamic>> questionPool = [
@@ -1154,8 +1288,105 @@ class _EdukasiListViewState extends State<EdukasiListView> {
       },
     ];
 
-    // Ambil 5 soal secara acak dari pool untuk variasi kuis yang dinamis
-    final List<Map<String, dynamic>> questions = (List<Map<String, dynamic>>.from(questionPool)..shuffle()).take(5).toList();
+    final List<Map<String, dynamic>> questionPoolEn = [
+      {
+        'q': 'What is the size limit for PM2.5 air pollution particles?',
+        'options': [
+          'Smaller than 2.5 microns',
+          'Larger than 5 microns',
+          'Exactly 10 microns',
+        ],
+        'correct': 0,
+      },
+      {
+        'q': 'Which of the following trees has the best carbon absorption?',
+        'options': ['Pine Tree', 'Trembesi Tree', 'Palm Tree'],
+        'correct': 1,
+      },
+      {
+        'q': 'What does the 3R principle stand for in waste management?',
+        'options': [
+          'Reduce, Reuse, Recycle',
+          'Restore, Repair, Recycle',
+          'Reduce, Rebuild, Remove',
+        ],
+        'correct': 0,
+      },
+      {
+        'q': 'Which chemical compound is most responsible for ozone layer depletion?',
+        'options': [
+          'Chlorofluorocarbon (CFC)',
+          'Carbon Dioxide (CO₂)',
+          'Methane (CH₄)',
+        ],
+        'correct': 0,
+      },
+      {
+        'q': 'Which greenhouse gas is produced in the largest quantity from organic waste decomposition in landfills?',
+        'options': [
+          'Oxygen (O₂)',
+          'Methane (CH₄)',
+          'Nitrous Oxide (N₂O)',
+        ],
+        'correct': 1,
+      },
+      {
+        'q': 'What is the main source of PM2.5 particulate pollutants in urban areas?',
+        'options': [
+          'Cigarette smoke and candle burning',
+          'Exhaust emissions from motor vehicles',
+          'Sea salt spray and road dust',
+        ],
+        'correct': 1,
+      },
+      {
+        'q': 'Approximately how long does it take for a plastic bottle to decompose in nature?',
+        'options': [
+          'Around 50 years',
+          'Around 100 years',
+          'Around 450 years',
+        ],
+        'correct': 2,
+      },
+      {
+        'q': 'Which type of waste is most appropriate to dispose of in a green trash container?',
+        'options': [
+          'Food scraps and dry leaves (Organic)',
+          'Plastic bottles and used cans (Inorganic)',
+          'Used batteries and light bulbs (Hazardous)',
+        ],
+        'correct': 0,
+      },
+      {
+        'q': 'What is the name of the official index used by the Indonesian government to monitor air quality?',
+        'options': [
+          'ISPU (Indeks Standar Pencemar Udara)',
+          'AQI (Air Quality Index)',
+          'API (Air Pollutant Index)',
+        ],
+        'correct': 0,
+      },
+      {
+        'q': 'Which indoor ornamental plant is highly effective at filtering air toxins like formaldehyde?',
+        'options': [
+          'Snake Plant (Sansevieria)',
+          'Rose Flower',
+          'Cambodian Tree',
+        ],
+        'correct': 0,
+      },
+    ];
+
+    // Ambil 5 soal secara acak dari pool untuk variasi kuis yang dinamis secara konsisten untuk kedua bahasa
+    final List<int> indices = List<int>.generate(questionPool.length, (i) => i)..shuffle();
+    final List<int> selectedIndices = indices.take(5).toList();
+
+    final List<Map<String, dynamic>> questions = selectedIndices.map((idx) {
+      if (lang == 'en') {
+        return questionPoolEn[idx];
+      }
+      return questionPool[idx];
+    }).toList();
 
     int selectedOptionIndex = -1;
     bool hasSubmitted = false;
@@ -1224,7 +1455,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Pertanyaan Baru',
+                              lang == 'en' ? 'New Question' : 'Pertanyaan Baru',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -1232,7 +1463,9 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                               ),
                             ),
                             Text(
-                              'Soal ${currentQuestion + 1} dari ${questions.length}',
+                              lang == 'en'
+                                  ? 'Question ${currentQuestion + 1} of ${questions.length}'
+                                  : 'Soal ${currentQuestion + 1} dari ${questions.length}',
                               style: const TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey,
@@ -1393,7 +1626,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                                       ),
                                     ),
                                   ),
-                                  ?trailingIcon,
+                                  if (trailingIcon != null) trailingIcon,
                                 ],
                               ),
                             ),
@@ -1403,9 +1636,9 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                         Center(
                           child: TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              'Keluar Kuis',
-                              style: TextStyle(
+                            child: Text(
+                              lang == 'en' ? 'Exit Quiz' : 'Keluar Kuis',
+                              style: const TextStyle(
                                 color: Colors.red,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -1426,10 +1659,12 @@ class _EdukasiListViewState extends State<EdukasiListView> {
   }
 
   void _showResultDialog(BuildContext context, int score, int total) {
+    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
     final double percentage = score / total;
-    String feedbackTitle = 'Semangat! 📚';
-    String feedbackDesc =
-        'Terus belajar tentang kebersihan lingkungan dan kualitas udara ya!';
+    String feedbackTitle = lang == 'en' ? 'Keep it up! 📚' : 'Semangat! 📚';
+    String feedbackDesc = lang == 'en'
+        ? 'Keep learning about environmental cleanliness and air quality!'
+        : 'Terus belajar tentang kebersihan lingkungan dan kualitas udara ya!';
     List<Color> headerColors = [
       const Color(0xFFF59E0B),
       const Color(0xFFD97706),
@@ -1437,18 +1672,20 @@ class _EdukasiListViewState extends State<EdukasiListView> {
     IconData medalIcon = Icons.emoji_events_rounded;
 
     if (percentage == 1.0) {
-      feedbackTitle = 'Sempurna! 🏆';
-      feedbackDesc =
-          'Luar biasa! Kamu adalah Pahlawan Udara sejati. Semua jawaban benar!';
+      feedbackTitle = lang == 'en' ? 'Perfect! 🏆' : 'Sempurna! 🏆';
+      feedbackDesc = lang == 'en'
+          ? 'Incredible! You are a true Air Hero. All answers correct!'
+          : 'Luar biasa! Kamu adalah Pahlawan Udara sejati. Semua jawaban benar!';
       headerColors = [
         const Color(0xFF10B981),
         const Color(0xFF047857),
       ]; // Emerald
       medalIcon = Icons.military_tech_rounded;
     } else if (percentage >= 0.6) {
-      feedbackTitle = 'Hebat! 🌟';
-      feedbackDesc =
-          'Bagus sekali! Kamu memiliki pengetahuan yang kuat tentang kebersihan lingkungan.';
+      feedbackTitle = lang == 'en' ? 'Great! 🌟' : 'Hebat! 🌟';
+      feedbackDesc = lang == 'en'
+          ? 'Excellent! You have a strong knowledge about environmental cleanliness.'
+          : 'Bagus sekali! Kamu memiliki pengetahuan yang kuat tentang kebersihan lingkungan.';
       headerColors = [const Color(0xFF3B82F6), const Color(0xFF1D4ED8)]; // Blue
       medalIcon = Icons.stars_rounded;
     }
@@ -1558,7 +1795,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildStatBox(
-                          'Benar',
+                          lang == 'en' ? 'Correct' : 'Benar',
                           '$score',
                           const Color(0xFF10B981),
                         ),
@@ -1568,7 +1805,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                           color: const Color(0xFFCBD5E1),
                         ),
                         _buildStatBox(
-                          'Salah',
+                          lang == 'en' ? 'Incorrect' : 'Salah',
                           '${total - score}',
                           const Color(0xFFEF4444),
                         ),
@@ -1577,7 +1814,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                           height: 32,
                           color: const Color(0xFFCBD5E1),
                         ),
-                        _buildStatBox('Soal', '$total', activeTeal),
+                        _buildStatBox(lang == 'en' ? 'Questions' : 'Soal', '$total', activeTeal),
                       ],
                     ),
                   ),
@@ -1598,7 +1835,7 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                             ),
                           ),
                           child: Text(
-                            'Ulangi Kuis',
+                            lang == 'en' ? 'Retake Quiz' : 'Ulangi Kuis',
                             style: TextStyle(
                               color: activeTeal,
                               fontWeight: FontWeight.bold,
@@ -1619,9 +1856,9 @@ class _EdukasiListViewState extends State<EdukasiListView> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child: const Text(
-                            'Tutup',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          child: Text(
+                            lang == 'en' ? 'Close' : 'Tutup',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -1657,6 +1894,143 @@ class _EdukasiListViewState extends State<EdukasiListView> {
           ),
         ),
       ],
+    );
+  }
+
+  int _estimateReadTime(String content) {
+    final words = content.trim().split(RegExp(r'\s+')).length;
+    final time = (words / 150).ceil();
+    return time < 1 ? 1 : time;
+  }
+
+  Widget _buildMockupArticleCard(
+    EdukasiModel article,
+    Color cardBg,
+    Color textColor,
+    Color subTextColor,
+    Color borderColor,
+    bool isDark,
+  ) {
+    final readTime = _estimateReadTime(article.konten);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.02),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EdukasiDetailView(article: article),
+              ),
+            ).then((_) => _loadDashboardData());
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                // Thumbnail image container
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: article.gambar.startsWith('http')
+                      ? Image.network(
+                          article.gambar,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 80,
+                            height: 80,
+                            color: isDark ? const Color(0xFF0F4C43).withValues(alpha: 0.3) : const Color(0xFFE2F1ED),
+                            child: Icon(Icons.school, color: activeTeal, size: 28),
+                          ),
+                        )
+                      : article.gambar.startsWith('assets/')
+                          ? Image.asset(
+                              article.gambar,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 80,
+                                height: 80,
+                                color: isDark ? const Color(0xFF0F4C43).withValues(alpha: 0.3) : const Color(0xFFE2F1ED),
+                                child: Icon(Icons.school, color: activeTeal, size: 28),
+                              ),
+                            )
+                          : Image.file(
+                              File(article.gambar),
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 80,
+                                height: 80,
+                                color: isDark ? const Color(0xFF0F4C43).withValues(alpha: 0.3) : const Color(0xFFE2F1ED),
+                                child: Icon(Icons.school, color: activeTeal, size: 28),
+                              ),
+                            ),
+                ),
+                const SizedBox(width: 16),
+                // Title and Read Time details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        article.judul,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                          height: 1.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.access_time_rounded,
+                            size: 14,
+                            color: subTextColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            AppSettingsController.instance.settingsNotifier.value.languageCode == 'en'
+                                ? '$readTime Min Read'
+                                : '$readTime Menit Membaca',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: subTextColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

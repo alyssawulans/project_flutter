@@ -8,6 +8,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/views/laporan/konfirmasi_laporan.dart';
@@ -581,26 +582,30 @@ class _BuatLaporanState extends State<BuatLaporan> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor = isDark
-        ? const Color(0xFF0F172A)
-        : const Color(0xFFF4F8FB);
-    final Color cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color textColor = isDark
-        ? const Color(0xFFF8FAFC)
-        : const Color(0xFF0F172A);
-    final Color subTextColor = isDark
-        ? const Color(0xFF94A3B8)
-        : const Color(0xFF64748B);
-    final Color borderColor = isDark
-        ? const Color(0xFF334155)
-        : const Color(0xFFE2E8F0);
-    final Color labelColor = isDark
-        ? const Color(0xFFE2E8F0)
-        : const Color(0xFF1E293B);
-    final Color inputFillColor = isDark
-        ? const Color(0xFF0F172A)
-        : const Color(0xFFF8FAFC);
+    return ValueListenableBuilder<AppSettings>(
+      valueListenable: AppSettingsController.instance.settingsNotifier,
+      builder: (context, settings, _) {
+        final lang = settings.languageCode;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final Color bgColor = isDark
+            ? const Color(0xFF0F172A)
+            : const Color(0xFFF4F8FB);
+        final Color cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final Color textColor = isDark
+            ? const Color(0xFFF8FAFC)
+            : const Color(0xFF0F172A);
+        final Color subTextColor = isDark
+            ? const Color(0xFF94A3B8)
+            : const Color(0xFF64748B);
+        final Color borderColor = isDark
+            ? const Color(0xFF334155)
+            : const Color(0xFFE2E8F0);
+        final Color labelColor = isDark
+            ? const Color(0xFFE2E8F0)
+            : const Color(0xFF1E293B);
+        final Color inputFillColor = isDark
+            ? const Color(0xFF0F172A)
+            : const Color(0xFFF8FAFC);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -620,9 +625,9 @@ class _BuatLaporanState extends State<BuatLaporan> {
             }
           },
         ),
-        title: const Text(
-          "Buat Laporan Baru",
-          style: TextStyle(
+        title: Text(
+          lang == 'en' ? "Create New Report" : "Buat Laporan Baru",
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
             fontSize: 18,
@@ -665,9 +670,9 @@ class _BuatLaporanState extends State<BuatLaporan> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                "Laporkan Masalah Lingkungan",
-                                style: TextStyle(
+                              Text(
+                                lang == 'en' ? "Report Environmental Issues" : "Laporkan Masalah Lingkungan",
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -675,7 +680,9 @@ class _BuatLaporanState extends State<BuatLaporan> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                "Partisipasi aktif Anda membantu kami menjaga kelestarian lingkungan.",
+                                lang == 'en'
+                                    ? "Your active participation helps us preserve the environment."
+                                    : "Partisipasi aktif Anda membantu kami menjaga kelestarian lingkungan.",
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.85),
                                   fontSize: 12,
@@ -740,7 +747,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Kategori Laporan",
+                                    lang == 'en' ? "Report Category" : "Kategori Laporan",
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -772,7 +779,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                   child: DropdownButton<String>(
                                     value: selectedDropdown,
                                     hint: Text(
-                                      "Pilih Kategori...",
+                                      lang == 'en' ? "Select Category..." : "Pilih Kategori...",
                                       style: TextStyle(
                                         color: isDark
                                             ? const Color(0xFF64748B)
@@ -804,7 +811,19 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                             ),
                                             const SizedBox(width: 10),
                                             Text(
-                                              cat["nama"] as String,
+                                              (cat["nama"] as String) == 'Pembakaran Sampah'
+                                                  ? (lang == 'en' ? 'Waste Burning' : 'Pembakaran Sampah')
+                                                  : ((cat["nama"] as String) == 'Asap Industri / Pabrik'
+                                                      ? (lang == 'en' ? 'Industrial Smoke' : 'Asap Industri / Pabrik')
+                                                      : ((cat["nama"] as String) == 'Asap Kendaraan'
+                                                          ? (lang == 'en' ? 'Vehicle Smoke' : 'Asap Kendaraan')
+                                                          : ((cat["nama"] as String) == 'Debu & Konstruksi'
+                                                              ? (lang == 'en' ? 'Dust & Construction' : 'Debu & Konstruksi')
+                                                              : ((cat["nama"] as String) == 'Polusi Bau & Gas'
+                                                                  ? (lang == 'en' ? 'Odor & Gas' : 'Polusi Bau & Gas')
+                                                                  : ((cat["nama"] as String) == 'Lainnya'
+                                                                      ? (lang == 'en' ? 'Others' : 'Lainnya')
+                                                                      : (cat["nama"] as String)))))),
                                               style: TextStyle(
                                                 fontSize: 13,
                                                 color: textColor,
@@ -834,7 +853,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Judul Laporan",
+                                    lang == 'en' ? "Report Title" : "Judul Laporan",
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -861,7 +880,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                   fontSize: 13,
                                 ),
                                 decoration: InputDecoration(
-                                  hintText: "Tulis judul laporan singkat...",
+                                  hintText: lang == 'en' ? "Write a brief report title..." : "Tulis judul laporan singkat...",
                                   hintStyle: TextStyle(
                                     fontSize: 13,
                                     color: isDark
@@ -906,7 +925,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    "Deskripsi Kejadian",
+                                    lang == 'en' ? "Event Description" : "Deskripsi Kejadian",
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -933,8 +952,9 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                   fontSize: 13,
                                 ),
                                 decoration: InputDecoration(
-                                  hintText:
-                                      "Jelaskan kronologi kejadian secara detail...",
+                                  hintText: lang == 'en'
+                                      ? "Explain the timeline of the event in detail..."
+                                      : "Jelaskan kronologi kejadian secara detail...",
                                   hintStyle: TextStyle(
                                     fontSize: 13,
                                     color: isDark
@@ -1005,7 +1025,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        "Lokasi Kejadian",
+                                        lang == 'en' ? "Event Location" : "Lokasi Kejadian",
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -1043,7 +1063,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            "Ubah Lokasi",
+                                            lang == 'en' ? "Change Location" : "Ubah Lokasi",
                                             style: TextStyle(
                                               color: activeTeal,
                                               fontSize: 11,
@@ -1099,7 +1119,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Foto Bukti Kejadian",
+                                    lang == 'en' ? "Evidence Photos" : "Foto Bukti Kejadian",
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
@@ -1255,7 +1275,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Maksimal 5 foto bukti",
+                                    lang == 'en' ? "Maximum 5 evidence photos" : "Maksimal 5 foto bukti",
                                     style: TextStyle(
                                       color: subTextColor,
                                       fontSize: 11,
@@ -1263,7 +1283,7 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                   ),
                                   if (selectedPhotos.isNotEmpty)
                                     Text(
-                                      "${selectedPhotos.length}/5 Foto Terpilih",
+                                      "${selectedPhotos.length}/5 ${lang == 'en' ? "Photos Selected" : "Foto Terpilih"}",
                                       style: TextStyle(
                                         color: activeTeal,
                                         fontSize: 11,
@@ -1449,6 +1469,8 @@ class _BuatLaporanState extends State<BuatLaporan> {
           ),
         ],
       ),
+        );
+      },
     );
   }
 }

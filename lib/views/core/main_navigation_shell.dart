@@ -34,14 +34,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     });
   }
 
-  // List of views to switch between
-  late final List<Widget> _views = [
-    const HomeView(),
-    const MapsView(),
-    const LaporanBeranda(),
-    const EdukasiListView(),
-    const ProfilView(),
-  ];
+
 
   void _onTabTapped(int index) {
     setState(() {
@@ -84,21 +77,31 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final settings = AppSettingsController.instance.settingsNotifier.value;
-    final lang = settings.languageCode;
+    return ValueListenableBuilder<AppSettings>(
+      valueListenable: AppSettingsController.instance.settingsNotifier,
+      builder: (context, settings, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final lang = settings.languageCode;
 
-    return PopScope(
-      canPop: _currentIndex == 0,
-      onPopInvoked: (didPop) {
-        if (didPop) return;
-        setState(() {
-          _currentIndex = 0;
-        });
-      },
-      child: Scaffold(
-        extendBody: true, // Crucial for floating bottom bar transparent areas
-        body: IndexedStack(index: _currentIndex, children: _views),
+        final views = [
+          const HomeView(),
+          const MapsView(),
+          const LaporanBeranda(),
+          const EdukasiListView(),
+          const ProfilView(),
+        ];
+
+        return PopScope(
+          canPop: _currentIndex == 0,
+          onPopInvoked: (didPop) {
+            if (didPop) return;
+            setState(() {
+              _currentIndex = 0;
+            });
+          },
+          child: Scaffold(
+            extendBody: true, // Crucial for floating bottom bar transparent areas
+            body: IndexedStack(index: _currentIndex, children: views),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
         child: Container(
@@ -189,8 +192,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             ],
           ),
         ),
-      ),
-    ),
+          ), // closes Padding
+        ), // closes Scaffold
+      ); // closes PopScope & returns it
+    },
   );
 }
 }

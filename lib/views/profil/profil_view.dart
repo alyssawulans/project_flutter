@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/views/profil/pengaturan_view.dart';
+import 'package:project_flutter/views/profil/notification_list_view.dart';
 import 'package:project_flutter/views/core/splash_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -234,6 +236,7 @@ class _ProfilViewState extends State<ProfilView> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
+          final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
           final dialogBg = isDark ? const Color(0xFF1E293B) : Colors.white;
           return Dialog(
             shape: RoundedRectangleBorder(
@@ -268,7 +271,7 @@ class _ProfilViewState extends State<ProfilView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Edit Profil',
+                          lang == 'en' ? 'Edit Profile' : 'Edit Profil',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -277,7 +280,9 @@ class _ProfilViewState extends State<ProfilView> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Perbarui informasi pribadi Anda untuk melengkapi profil dan meningkatkan lencana.',
+                          lang == 'en'
+                              ? 'Update your personal information to complete your profile and level up badges.'
+                              : 'Perbarui informasi pribadi Anda untuk melengkapi profil dan meningkatkan lencana.',
                           style: TextStyle(
                             color: isDark
                                 ? const Color(0xFF94A3B8)
@@ -288,20 +293,20 @@ class _ProfilViewState extends State<ProfilView> {
                         ),
                         const SizedBox(height: 18),
                         _buildInputField(
-                          'Nama Lengkap',
+                          lang == 'en' ? 'Full Name' : 'Nama Lengkap',
                           namaController,
                           Icons.person_outline,
                         ),
                         const SizedBox(height: 14),
                         _buildInputField(
-                          'Nomor Telepon',
+                          lang == 'en' ? 'Phone Number' : 'Nomor Telepon',
                           telpController,
                           Icons.phone_android_outlined,
                           keyboardType: TextInputType.phone,
                         ),
                         const SizedBox(height: 14),
                         _buildInputField(
-                          'Tempat Lahir',
+                          lang == 'en' ? 'Place of Birth' : 'Tempat Lahir',
                           tempatLahirController,
                           Icons.location_city_outlined,
                         ),
@@ -378,9 +383,9 @@ class _ProfilViewState extends State<ProfilView> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'Tanggal Lahir',
-                                        style: TextStyle(
+                                      Text(
+                                        lang == 'en' ? 'Date of Birth' : 'Tanggal Lahir',
+                                        style: const TextStyle(
                                           color: Color(0xFF64748B),
                                           fontSize: 10,
                                         ),
@@ -389,7 +394,7 @@ class _ProfilViewState extends State<ProfilView> {
                                       Text(
                                         selectedTanggalLahir.isNotEmpty
                                             ? selectedTanggalLahir
-                                            : 'Pilih Tanggal Lahir',
+                                            : (lang == 'en' ? 'Select Date of Birth' : 'Pilih Tanggal Lahir'),
                                         style: TextStyle(
                                           color: selectedTanggalLahir.isNotEmpty
                                               ? (isDark
@@ -429,27 +434,27 @@ class _ProfilViewState extends State<ProfilView> {
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Batal',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                child: Text(
+                                  lang == 'en' ? 'Cancel' : 'Batal',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () async {
-                                  if (namaController.text.trim().isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Nama tidak boleh kosong',
+                                  onPressed: () async {
+                                    if (namaController.text.trim().isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            lang == 'en' ? 'Name cannot be empty' : 'Nama tidak boleh kosong',
+                                          ),
+                                          backgroundColor: Colors.red,
                                         ),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                    return;
-                                  }
+                                      );
+                                      return;
+                                    }
 
                                   await FirebaseAuthService.instance
                                       .updateUserProfile(
@@ -466,34 +471,34 @@ class _ProfilViewState extends State<ProfilView> {
                                     namaController.text.trim(),
                                   );
 
-                                  if (mounted) {
-                                    Navigator.pop(context);
-                                    _loadUserProfile();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Profil berhasil diperbarui',
+                                    if (mounted) {
+                                      Navigator.pop(context);
+                                      _loadUserProfile();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            lang == 'en' ? 'Profile updated successfully' : 'Profil berhasil diperbarui',
+                                          ),
+                                          backgroundColor: const Color(0xFF0D9488),
                                         ),
-                                        backgroundColor: Color(0xFF0D9488),
-                                      ),
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: activeTeal,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: activeTeal,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                  child: Text(
+                                    lang == 'en' ? 'Save' : 'Simpan',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                ),
-                                child: const Text(
-                                  'Simpan',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
                               ),
                             ),
                           ],
@@ -563,6 +568,7 @@ class _ProfilViewState extends State<ProfilView> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
+          final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
           final dialogBg = isDark ? const Color(0xFF1E293B) : Colors.white;
           return Dialog(
             shape: RoundedRectangleBorder(
@@ -596,7 +602,7 @@ class _ProfilViewState extends State<ProfilView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Ubah Kata Sandi',
+                        lang == 'en' ? 'Change Password' : 'Ubah Kata Sandi',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -605,7 +611,9 @@ class _ProfilViewState extends State<ProfilView> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Masukkan kata sandi lama Anda terlebih dahulu untuk memverifikasi kepemilikan akun sebelum memperbaruinya.',
+                        lang == 'en'
+                            ? 'Enter your old password first to verify account ownership before updating it.'
+                            : 'Masukkan kata sandi lama Anda terlebih dahulu untuk memverifikasi kepemilikan akun sebelum memperbaruinya.',
                         style: TextStyle(
                           color: isDark
                               ? const Color(0xFF94A3B8)
@@ -639,14 +647,14 @@ class _ProfilViewState extends State<ProfilView> {
                                 : const Color(0xFF0F172A),
                           ),
                           decoration: InputDecoration(
-                            labelText: 'Kata Sandi Lama',
+                            labelText: lang == 'en' ? 'Old Password' : 'Kata Sandi Lama',
                             labelStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF94A3B8)
                                   : const Color(0xFF64748B),
                               fontSize: 13,
                             ),
-                            hintText: 'Masukkan kata sandi saat ini',
+                            hintText: lang == 'en' ? 'Enter current password' : 'Masukkan kata sandi saat ini',
                             hintStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF64748B)
@@ -696,14 +704,14 @@ class _ProfilViewState extends State<ProfilView> {
                                 : const Color(0xFF0F172A),
                           ),
                           decoration: InputDecoration(
-                            labelText: 'Kata Sandi Baru',
+                            labelText: lang == 'en' ? 'New Password' : 'Kata Sandi Baru',
                             labelStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF94A3B8)
                                   : const Color(0xFF64748B),
                               fontSize: 13,
                             ),
-                            hintText: 'Minimal 6 karakter',
+                            hintText: lang == 'en' ? 'Minimum 6 characters' : 'Minimal 6 karakter',
                             hintStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF64748B)
@@ -750,9 +758,9 @@ class _ProfilViewState extends State<ProfilView> {
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              child: const Text(
-                                'Batal',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                              child: Text(
+                                lang == 'en' ? 'Cancel' : 'Batal',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
@@ -762,8 +770,10 @@ class _ProfilViewState extends State<ProfilView> {
                               onPressed: isProcessing ? null : () async {
                                 if (oldPasswordController.text.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Kata sandi lama tidak boleh kosong'),
+                                    SnackBar(
+                                      content: Text(
+                                        lang == 'en' ? 'Old password cannot be empty' : 'Kata sandi lama tidak boleh kosong',
+                                      ),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
@@ -771,8 +781,10 @@ class _ProfilViewState extends State<ProfilView> {
                                 }
                                 if (passwordController.text.length < 6) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Kata sandi baru minimal 6 karakter'),
+                                    SnackBar(
+                                      content: Text(
+                                        lang == 'en' ? 'New password must be at least 6 characters' : 'Kata sandi baru minimal 6 karakter',
+                                      ),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
@@ -793,9 +805,11 @@ class _ProfilViewState extends State<ProfilView> {
                                   if (mounted) {
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Kata sandi berhasil diperbarui'),
-                                        backgroundColor: Color(0xFF0D9488),
+                                      SnackBar(
+                                        content: Text(
+                                          lang == 'en' ? 'Password updated successfully' : 'Kata sandi berhasil diperbarui',
+                                        ),
+                                        backgroundColor: const Color(0xFF0D9488),
                                       ),
                                     );
                                   }
@@ -806,7 +820,11 @@ class _ProfilViewState extends State<ProfilView> {
                                     });
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Kata sandi lama salah atau gagal memperbarui: $e'),
+                                        content: Text(
+                                          lang == 'en'
+                                              ? 'Incorrect old password or failed to update: $e'
+                                              : 'Kata sandi lama salah atau gagal memperbarui: $e',
+                                        ),
                                         backgroundColor: Colors.red,
                                       ),
                                     );
@@ -833,9 +851,9 @@ class _ProfilViewState extends State<ProfilView> {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Text(
-                                      'Perbarui',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                  : Text(
+                                      lang == 'en' ? 'Update' : 'Perbarui',
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
                                     ),
                             ),
                           ),
@@ -967,10 +985,13 @@ class _ProfilViewState extends State<ProfilView> {
       },
     );
     if (confirm == true) {
+      await FirebaseAuthService.instance.signOut();
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('current_user_id');
       await prefs.remove('current_user_name');
       await prefs.remove('current_user_email');
+      await prefs.remove('current_user_firestore_id');
+      await prefs.remove('current_user_role');
 
       if (mounted) {
         Navigator.pushAndRemoveUntil(
@@ -984,6 +1005,7 @@ class _ProfilViewState extends State<ProfilView> {
 
   void _showAllBadgesInfo() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -1015,7 +1037,7 @@ class _ProfilViewState extends State<ProfilView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Daftar Lencana Pencapaian',
+                    lang == 'en' ? 'Achievement Badges List' : 'Daftar Lencana Pencapaian',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -1024,7 +1046,9 @@ class _ProfilViewState extends State<ProfilView> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Lencana yang dapat Anda buka dengan berpartisipasi menjaga lingkungan:',
+                    lang == 'en'
+                        ? 'Badges you can unlock by participating in environmental preservation:'
+                        : 'Lencana yang dapat Anda buka dengan berpartisipasi menjaga lingkungan:',
                     style: TextStyle(
                       color: isDark
                           ? const Color(0xFF94A3B8)
@@ -1036,37 +1060,40 @@ class _ProfilViewState extends State<ProfilView> {
                   _buildBadgeDetailItem(
                     image: 'assets/images/project_akhir/badge_1.png',
                     title: 'Eco Starter',
-                    desc:
-                        'Telah bergabung dengan aplikasi RUAS untuk menjaga kelestarian lingkungan.',
+                    desc: lang == 'en'
+                        ? 'Has joined the RUAS application to preserve the environment.'
+                        : 'Telah bergabung dengan aplikasi RUAS untuk menjaga kelestarian lingkungan.',
                     bgColor: _getBadgeDetailBgColor(_ecoStarterTier),
                     borderColor: _getBadgeDetailBorderColor(_ecoStarterTier),
                     statusText: _ecoStarterTier == 'Locked'
-                        ? 'Terkunci'
-                        : 'Level: $_ecoStarterTier',
+                        ? (lang == 'en' ? 'Locked' : 'Terkunci')
+                        : (lang == 'en' ? 'Level: $_ecoStarterTier' : 'Level: $_ecoStarterTier'),
                     isLocked: _ecoStarterTier == 'Locked',
                   ),
                   _buildBadgeDetailItem(
                     image: 'assets/images/project_akhir/badge_2.png',
                     title: 'Green Reporter',
-                    desc:
-                        'Mengirimkan laporan mengenai polusi atau sampah lingkungan sekitar.',
+                    desc: lang == 'en'
+                        ? 'Submitting reports regarding pollution or waste in the surrounding environment.'
+                        : 'Mengirimkan laporan mengenai polusi atau sampah lingkungan sekitar.',
                     bgColor: _getBadgeDetailBgColor(_greenReporterTier),
                     borderColor: _getBadgeDetailBorderColor(_greenReporterTier),
                     statusText: _greenReporterTier == 'Locked'
-                        ? 'Terkunci'
-                        : 'Level: $_greenReporterTier',
+                        ? (lang == 'en' ? 'Locked' : 'Terkunci')
+                        : (lang == 'en' ? 'Level: $_greenReporterTier' : 'Level: $_greenReporterTier'),
                     isLocked: _greenReporterTier == 'Locked',
                   ),
                   _buildBadgeDetailItem(
                     image: 'assets/images/project_akhir/badge_3.png',
                     title: 'Air Guardian',
-                    desc:
-                        'Membaca artikel edukasi & memantau indeks kualitas udara.',
+                    desc: lang == 'en'
+                        ? 'Reading educational articles & monitoring the air quality index.'
+                        : 'Membaca artikel edukasi & memantau indeks kualitas udara.',
                     bgColor: _getBadgeDetailBgColor(_airGuardianTier),
                     borderColor: _getBadgeDetailBorderColor(_airGuardianTier),
                     statusText: _airGuardianTier == 'Locked'
-                        ? 'Terkunci'
-                        : 'Level: $_airGuardianTier',
+                        ? (lang == 'en' ? 'Locked' : 'Terkunci')
+                        : (lang == 'en' ? 'Level: $_airGuardianTier' : 'Level: $_airGuardianTier'),
                     isLocked: _airGuardianTier == 'Locked',
                   ),
                   const SizedBox(height: 16),
@@ -1084,9 +1111,9 @@ class _ProfilViewState extends State<ProfilView> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: const Text(
-                          'Tutup',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        child: Text(
+                          lang == 'en' ? 'Close' : 'Tutup',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -1352,27 +1379,31 @@ class _ProfilViewState extends State<ProfilView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor = isDark
-        ? const Color(0xFF0F172A)
-        : const Color(0xFFF8FAFC);
-    final Color appBarBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color textColor = isDark
-        ? const Color(0xFFF8FAFC)
-        : const Color(0xFF0F172A);
-    final Color subTextColor = isDark
-        ? const Color(0xFF94A3B8)
-        : const Color(0xFF64748B);
-    final Color borderColor = isDark
-        ? const Color(0xFF334155)
-        : const Color(0xFFF1F5F9);
-    final Color dividerColor = isDark
-        ? const Color(0xFF334155)
-        : const Color(0xFFF1F5F9);
+    return ValueListenableBuilder<AppSettings>(
+      valueListenable: AppSettingsController.instance.settingsNotifier,
+      builder: (context, settings, _) {
+        final lang = settings.languageCode;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final Color bgColor = isDark
+            ? const Color(0xFF0F172A)
+            : const Color(0xFFF8FAFC);
+        final Color appBarBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final Color textColor = isDark
+            ? const Color(0xFFF8FAFC)
+            : const Color(0xFF0F172A);
+        final Color subTextColor = isDark
+            ? const Color(0xFF94A3B8)
+            : const Color(0xFF64748B);
+        final Color borderColor = isDark
+            ? const Color(0xFF334155)
+            : const Color(0xFFF1F5F9);
+        final Color dividerColor = isDark
+            ? const Color(0xFF334155)
+            : const Color(0xFFF1F5F9);
 
-    return Scaffold(
-      backgroundColor: bgColor,
+        return Scaffold(
+          backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: appBarBgColor,
         elevation: 0,
@@ -1432,7 +1463,7 @@ class _ProfilViewState extends State<ProfilView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Profil Saya',
+                            lang == 'en' ? 'My Profile' : 'Profil Saya',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -1548,7 +1579,9 @@ class _ProfilViewState extends State<ProfilView> {
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            'Pangkat: ${_getRankName(_ecoStarterTier, _greenReporterTier, _airGuardianTier)}',
+                                            lang == 'en'
+                                                ? 'Rank: ${_getRankName(_ecoStarterTier, _greenReporterTier, _airGuardianTier)}'
+                                                : 'Pangkat: ${_getRankName(_ecoStarterTier, _greenReporterTier, _airGuardianTier)}',
                                             style: TextStyle(
                                               fontSize: 9,
                                               fontWeight: FontWeight.w800,
@@ -1575,17 +1608,17 @@ class _ProfilViewState extends State<ProfilView> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               _buildMockupStatCol(
-                                'Total Laporan',
+                                lang == 'en' ? 'Total Reports' : 'Total Laporan',
                                 '$_laporanCount',
                               ),
                               _buildMockupDivider(),
                               _buildMockupStatCol(
-                                'Laporan Diproses',
+                                lang == 'en' ? 'Reports In Progress' : 'Laporan Diproses',
                                 '$_laporanDiprosesCount',
                               ),
                               _buildMockupDivider(),
                               _buildMockupStatCol(
-                                'Laporan Selesai',
+                                lang == 'en' ? 'Reports Completed' : 'Laporan Selesai',
                                 '$_laporanSelesaiCount',
                               ),
                             ],
@@ -1600,7 +1633,7 @@ class _ProfilViewState extends State<ProfilView> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Badge Saya',
+                          lang == 'en' ? 'My Badges' : 'Badge Saya',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -1610,7 +1643,7 @@ class _ProfilViewState extends State<ProfilView> {
                         TextButton(
                           onPressed: _showAllBadgesInfo,
                           child: Text(
-                            'Lihat Semua',
+                            lang == 'en' ? 'View All' : 'Lihat Semua',
                             style: TextStyle(
                               color: activeTeal,
                               fontWeight: FontWeight.bold,
@@ -1663,19 +1696,18 @@ class _ProfilViewState extends State<ProfilView> {
                         children: [
                           _buildMenuTile(
                             Icons.person_outline_rounded,
-                            'Edit Profil',
+                            lang == 'en' ? 'Edit Profile' : 'Edit Profil',
                             onTap: _showEditProfileDialog,
                           ),
                           Divider(height: 1, color: dividerColor),
                           _buildMenuTile(
                             Icons.notifications_none_rounded,
-                            'Notifikasi',
+                            lang == 'en' ? 'Notifications' : 'Notifikasi',
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Halaman Notifikasi sedang dikembangkan.',
-                                  ),
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const NotificationListView(),
                                 ),
                               );
                             },
@@ -1683,13 +1715,13 @@ class _ProfilViewState extends State<ProfilView> {
                           Divider(height: 1, color: dividerColor),
                           _buildMenuTile(
                             Icons.lock_outline_rounded,
-                            'Ubah Kata Sandi',
+                            lang == 'en' ? 'Change Password' : 'Ubah Kata Sandi',
                             onTap: _changePassword,
                           ),
                           Divider(height: 1, color: dividerColor),
                           _buildMenuTile(
                             Icons.info_outline_rounded,
-                            'Tentang Aplikasi',
+                            lang == 'en' ? 'About App' : 'Tentang Aplikasi',
                             onTap: () {
                               showDialog(
                                 context: context,
@@ -1772,9 +1804,9 @@ class _ProfilViewState extends State<ProfilView> {
                                                         letterSpacing: 1.5,
                                                       ),
                                                     ),
-                                                    const Text(
-                                                      'Ruang Napas Untuk Semua',
-                                                      style: TextStyle(
+                                                    Text(
+                                                      lang == 'en' ? 'Breathing Space for All' : 'Ruang Napas Untuk Semua',
+                                                      style: const TextStyle(
                                                         color: Colors.white70,
                                                         fontSize: 12,
                                                         fontWeight:
@@ -1832,7 +1864,9 @@ class _ProfilViewState extends State<ProfilView> {
                                                       const SizedBox(width: 8),
                                                       Expanded(
                                                         child: Text(
-                                                          'RUAS adalah platform pemantauan kualitas udara (AQI), pelaporan kebersihan lingkungan, dan media edukasi interaktif untuk mewujudkan masyarakat Indonesia yang sehat dan bersih.',
+                                                          lang == 'en'
+                                                              ? 'RUAS is an air quality monitoring (AQI), environmental cleanliness reporting, and interactive educational media platform to achieve a healthy and clean Indonesian society.'
+                                                              : 'RUAS adalah platform pemantauan kualitas udara (AQI), pelaporan kebersihan lingkungan, dan media edukasi interaktif untuk mewujudkan masyarakat Indonesia yang sehat dan bersih.',
                                                           style: TextStyle(
                                                             fontSize: 12,
                                                             height: 1.5,
@@ -1851,7 +1885,7 @@ class _ProfilViewState extends State<ProfilView> {
                                                 ),
                                                 const SizedBox(height: 20),
                                                 Text(
-                                                  'Fitur Utama Aplikasi',
+                                                  lang == 'en' ? 'App Key Features' : 'Fitur Utama Aplikasi',
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
@@ -1864,41 +1898,49 @@ class _ProfilViewState extends State<ProfilView> {
                                                   Icons.map_rounded,
                                                   const Color(0xFFE0F2FE),
                                                   Colors.blue,
-                                                  'Peta AQI Nasional',
-                                                  'Pantau indeks standar pencemar udara terupdate di wilayah Indonesia.',
+                                                  lang == 'en' ? 'National AQI Map' : 'Peta AQI Nasional',
+                                                  lang == 'en'
+                                                      ? 'Monitor standard air pollution indices updated across Indonesia.'
+                                                      : 'Pantau indeks standar pencemar udara terupdate di wilayah Indonesia.',
                                                 ),
                                                 const SizedBox(height: 10),
                                                 _buildFeatureRow(
                                                   Icons.campaign_rounded,
                                                   const Color(0xFFFEF3C7),
                                                   Colors.amber[800]!,
-                                                  'Laporan Masyarakat',
-                                                  'Laporkan titik polusi udara dan sampah secara real-time.',
+                                                  lang == 'en' ? 'Public Reports' : 'Laporan Masyarakat',
+                                                  lang == 'en'
+                                                      ? 'Report air pollution and waste spots in real-time.'
+                                                      : 'Laporkan titik polusi udara dan sampah secara real-time.',
                                                 ),
                                                 const SizedBox(height: 10),
                                                 _buildFeatureRow(
                                                   Icons.menu_book_rounded,
                                                   const Color(0xFFEFF6F5),
                                                   primaryTeal,
-                                                  'Edukasi Interaktif',
-                                                  'Pelajari kiat-kiat kebersihan dan dampak kualitas udara bagi kesehatan.',
+                                                  lang == 'en' ? 'Interactive Education' : 'Edukasi Interaktif',
+                                                  lang == 'en'
+                                                      ? 'Learn cleanliness tips and the health impacts of air quality.'
+                                                      : 'Pelajari kiat-kiat kebersihan dan dampak kualitas udara bagi kesehatan.',
                                                 ),
                                                 const SizedBox(height: 10),
                                                 _buildFeatureRow(
                                                   Icons.quiz_rounded,
                                                   const Color(0xFFFCE7F3),
                                                   Colors.pink,
-                                                  'Kuis & Tantangan',
-                                                  'Uji pengetahuan lingkunganmu untuk mendapatkan reward pencapaian.',
+                                                  lang == 'en' ? 'Quizzes & Challenges' : 'Kuis & Tantangan',
+                                                  lang == 'en'
+                                                      ? 'Test your environmental knowledge to gain achievement rewards.'
+                                                      : 'Uji pengetahuan lingkunganmu untuk mendapatkan reward pencapaian.',
                                                 ),
                                                 const SizedBox(height: 24),
                                                 // App Metadata
                                                 Center(
                                                   child: Column(
                                                     children: [
-                                                      const Text(
-                                                        'Versi 1.0.0',
-                                                        style: TextStyle(
+                                                      Text(
+                                                        lang == 'en' ? 'Version 1.0.0' : 'Versi 1.0.0',
+                                                        style: const TextStyle(
                                                           fontSize: 11,
                                                           color: Colors.grey,
                                                           fontWeight:
@@ -1907,7 +1949,9 @@ class _ProfilViewState extends State<ProfilView> {
                                                       ),
                                                       const SizedBox(height: 4),
                                                       Text(
-                                                        'Dikembangkan dengan 💚 oleh Tim RUAS',
+                                                        lang == 'en'
+                                                            ? 'Developed with 💚 by RUAS Team'
+                                                            : 'Dikembangkan dengan 💚 oleh Tim RUAS',
                                                         style: TextStyle(
                                                           fontSize: 11,
                                                           color: activeTeal,
@@ -1942,9 +1986,9 @@ class _ProfilViewState extends State<ProfilView> {
                                                             ),
                                                       ),
                                                     ),
-                                                    child: const Text(
-                                                      'Tutup',
-                                                      style: TextStyle(
+                                                    child: Text(
+                                                      lang == 'en' ? 'Close' : 'Tutup',
+                                                      style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
                                                       ),
@@ -1965,12 +2009,14 @@ class _ProfilViewState extends State<ProfilView> {
                           const Divider(height: 1, color: Color(0xFFF1F5F9)),
                           _buildMenuTile(
                             Icons.help_outline_rounded,
-                            'Bantuan',
+                            lang == 'en' ? 'Help' : 'Bantuan',
                             onTap: () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
-                                    'Hubungi support@ruas.id untuk bantuan.',
+                                    lang == 'en'
+                                        ? 'Contact support@ruas.id for help.'
+                                        : 'Hubungi support@ruas.id untuk bantuan.',
                                   ),
                                 ),
                               );
@@ -1979,7 +2025,7 @@ class _ProfilViewState extends State<ProfilView> {
                           const Divider(height: 1, color: Color(0xFFF1F5F9)),
                           _buildMenuTile(
                             Icons.logout_rounded,
-                            'Keluar',
+                            lang == 'en' ? 'Log Out' : 'Keluar',
                             iconColor: Colors.red,
                             textColor: Colors.red,
                             onTap: _logout,
@@ -1992,6 +2038,8 @@ class _ProfilViewState extends State<ProfilView> {
                 ),
               ),
             ),
+        );
+      },
     );
   }
 
@@ -2155,7 +2203,9 @@ class _ProfilViewState extends State<ProfilView> {
           ),
         ),
         Text(
-          isLocked ? 'Terkunci' : 'Tingkat: $tier',
+          isLocked
+              ? (AppSettingsController.instance.settingsNotifier.value.languageCode == 'en' ? 'Locked' : 'Terkunci')
+              : (AppSettingsController.instance.settingsNotifier.value.languageCode == 'en' ? 'Level: $tier' : 'Tingkat: $tier'),
           style: TextStyle(
             fontSize: 9,
             fontWeight: FontWeight.w500,

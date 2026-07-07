@@ -788,10 +788,13 @@ class _PengaturanViewState extends State<PengaturanView> {
       },
     );
     if (confirm == true) {
+      await FirebaseAuthService.instance.signOut();
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('current_user_id');
       await prefs.remove('current_user_name');
       await prefs.remove('current_user_email');
+      await prefs.remove('current_user_firestore_id');
+      await prefs.remove('current_user_role');
 
       if (mounted) {
         Navigator.pushAndRemoveUntil(

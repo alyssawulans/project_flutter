@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class EdukasiImageViewer extends StatefulWidget {
@@ -98,34 +99,90 @@ class _EdukasiImageViewerState extends State<EdukasiImageViewer> {
                     maxScale: 4.0,
                     boundaryMargin: const EdgeInsets.all(20),
                     child: Hero(
-                      tag: widget.imagePath,
-                      child: Image.asset(
-                        widget.imagePath,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.broken_image_rounded,
-                                  color: Colors.grey.shade600,
-                                  size: 64,
-                                ),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  'Gagal memuat gambar infografis',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                       tag: widget.imagePath,
+                      child: widget.imagePath.startsWith('http')
+                          ? Image.network(
+                              widget.imagePath,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image_rounded,
+                                        color: Colors.grey.shade600,
+                                        size: 64,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'Gagal memuat gambar infografis',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                );
+                              },
+                            )
+                          : widget.imagePath.startsWith('assets/')
+                              ? Image.asset(
+                                  widget.imagePath,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.broken_image_rounded,
+                                            color: Colors.grey.shade600,
+                                            size: 64,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'Gagal memuat gambar infografis',
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Image.file(
+                                  File(widget.imagePath),
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.broken_image_rounded,
+                                            color: Colors.grey.shade600,
+                                            size: 64,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text(
+                                            'Gagal memuat gambar infografis',
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
                     ),
                   ),
                 ),

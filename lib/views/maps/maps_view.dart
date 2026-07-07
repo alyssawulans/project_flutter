@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
+import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/models/aqi_station_model.dart';
 
 class MapsView extends StatefulWidget {
@@ -212,14 +213,18 @@ class _MapsViewState extends State<MapsView> {
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filteredStations;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
-    final Color appBarBgColor = isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC);
-    final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color textColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
-    final Color subTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-    final Color borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    return ValueListenableBuilder<AppSettings>(
+      valueListenable: AppSettingsController.instance.settingsNotifier,
+      builder: (context, settings, _) {
+        final isEn = settings.languageCode == 'en';
+        final filtered = _filteredStations;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final Color bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+        final Color appBarBgColor = isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC);
+        final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final Color textColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
+        final Color subTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+        final Color borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
 
     final List<Marker> mapMarkers = filtered.map((s) {
       final isSelected =
@@ -400,7 +405,7 @@ class _MapsViewState extends State<MapsView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Peta Kualitas Udara',
+                            isEn ? 'Air Quality Map' : 'Peta Kualitas Udara',
                             style: TextStyle(
                               color: isDark ? activeTeal : primaryTeal,
                               fontWeight: FontWeight.w900,
@@ -446,7 +451,7 @@ class _MapsViewState extends State<MapsView> {
                             fontWeight: FontWeight.bold,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'Cari alamat, kota, atau provinsi...',
+                            hintText: isEn ? 'Search address, city, or province...' : 'Cari alamat, kota, atau provinsi...',
                             hintStyle: TextStyle(
                               color: subTextColor,
                               fontSize: 12,
@@ -555,7 +560,7 @@ class _MapsViewState extends State<MapsView> {
                                 vertical: 4,
                               ),
                               child: Text(
-                                'Stasiun Pemantau AQI (${filtered.length})',
+                                isEn ? 'AQI Monitoring Stations (${filtered.length})' : 'Stasiun Pemantau AQI (${filtered.length})',
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w900,
@@ -583,7 +588,7 @@ class _MapsViewState extends State<MapsView> {
                                   ),
                                 const SizedBox(height: 12),
                                   Text(
-                                    'Tidak ada stasiun ditemukan',
+                                    isEn ? 'No stations found' : 'Tidak ada stasiun ditemukan',
                                     style: TextStyle(
                                       color: subTextColor,
                                       fontWeight: FontWeight.bold,
@@ -605,6 +610,30 @@ class _MapsViewState extends State<MapsView> {
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {
                                 final station = filtered[index];
+                                final displayRegion = isEn
+                                    ? (station.region == 'Jawa Tengah'
+                                        ? 'Central Java'
+                                        : (station.region == 'Jawa Barat'
+                                            ? 'West Java'
+                                            : (station.region == 'Jawa Timur'
+                                                ? 'East Java'
+                                                : (station.region == 'Sumatera Utara'
+                                                    ? 'North Sumatra'
+                                                    : station.region))))
+                                    : station.region;
+                                final displayDistance = isEn
+                                    ? (station.distance == 'Wilayah Tengah'
+                                        ? 'Central Region'
+                                        : (station.distance == 'Wilayah Barat'
+                                            ? 'West Region'
+                                            : (station.distance == 'Wilayah Timur'
+                                                ? 'East Region'
+                                                : (station.distance == 'Wilayah Utara'
+                                                    ? 'North Region'
+                                                    : (station.distance == 'Wilayah Selatan'
+                                                        ? 'South Region'
+                                                        : station.distance)))))
+                                    : station.distance;
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 8),
                                   decoration: BoxDecoration(
@@ -635,7 +664,7 @@ class _MapsViewState extends State<MapsView> {
                                       ),
                                     ),
                                     subtitle: Text(
-                                      '${station.region} • ${station.distance}',
+                                      '$displayRegion • $displayDistance',
                                       style: TextStyle(
                                         color: subTextColor,
                                         fontSize: 11,
@@ -685,6 +714,8 @@ class _MapsViewState extends State<MapsView> {
             ),
         ],
       ),
+        );
+      },
     );
   }
 
@@ -729,7 +760,15 @@ class _MapsViewState extends State<MapsView> {
                 decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
             Text(
-              label,
+              AppSettingsController.instance.settingsNotifier.value.languageCode == 'en'
+                  ? (label == 'Semua'
+                      ? 'All'
+                      : (label == 'Baik'
+                          ? 'Good'
+                          : (label == 'Sedang'
+                              ? 'Moderate'
+                              : (label == 'Tidak Sehat' ? 'Unhealthy' : label))))
+                  : label,
               style: TextStyle(
                 color: chipTextColor,
                 fontSize: 12,
@@ -743,6 +782,8 @@ class _MapsViewState extends State<MapsView> {
   }
 
   Widget _buildStationDetailsCard(AqiStation station) {
+    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
+    final isEn = lang == 'en';
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     final Color dividerColor = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
@@ -901,11 +942,7 @@ class _MapsViewState extends State<MapsView> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              isUnhealthy
-                                  ? 'Kualitas udara tidak sehat bagi kelompok sensitif atau umum. Harap waspada.'
-                                  : (isModerate
-                                        ? 'Kualitas udara sedang. Orang yang sensitif disarankan mengurangi aktivitas luar.'
-                                        : 'Kualitas udara sangat baik. Aman untuk beraktivitas di luar ruangan.'),
+                              station.description,
                               style: TextStyle(
                                 color: textSecondary,
                                 fontSize: 11,
@@ -921,7 +958,7 @@ class _MapsViewState extends State<MapsView> {
                   const SizedBox(height: 16),
 
                   Text(
-                    'Kandungan Partikulat (Polutan)',
+                    isEn ? 'Particulate Matter (Pollutants)' : 'Kandungan Partikulat (Polutan)',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -964,7 +1001,7 @@ class _MapsViewState extends State<MapsView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'CUACA',
+                                isEn ? 'WEATHER' : 'CUACA',
                                 style: TextStyle(
                                   fontSize: 8,
                                   color: textSecondary,
@@ -999,7 +1036,7 @@ class _MapsViewState extends State<MapsView> {
                   const SizedBox(height: 16),
 
                   Text(
-                    'Rekomendasi Kesehatan',
+                    isEn ? 'Health Recommendations' : 'Rekomendasi Kesehatan',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -1012,29 +1049,37 @@ class _MapsViewState extends State<MapsView> {
                     children: [
                       _buildRecommendationItem(
                         Icons.masks_rounded,
-                        'Masker',
+                        isEn ? 'Mask' : 'Masker',
                         isUnhealthy ? const Color(0xFFEF4444) : const Color(0xFF10B981),
-                        isUnhealthy ? 'Wajib' : 'Opsional',
+                        isUnhealthy
+                            ? (isEn ? 'Required' : 'Wajib')
+                            : (isEn ? 'Optional' : 'Opsional'),
                       ),
                       _buildRecommendationItem(
                         Icons.sensor_window_rounded,
-                        'Tutup Jendela',
+                        isEn ? 'Close Windows' : 'Tutup Jendela',
                         isUnhealthy ? const Color(0xFFEF4444) : const Color(0xFF10B981),
-                        isUnhealthy ? 'Ya' : 'Tidak',
+                        isUnhealthy
+                            ? (isEn ? 'Yes' : 'Ya')
+                            : (isEn ? 'No' : 'Tidak'),
                       ),
                       _buildRecommendationItem(
                         Icons.directions_run_rounded,
-                        'Luar Ruangan',
+                        isEn ? 'Outdoor' : 'Luar Ruangan',
                         isUnhealthy ? const Color(0xFFEF4444) : const Color(0xFF10B981),
-                        isUnhealthy ? 'Hindari' : 'Aman',
+                        isUnhealthy
+                            ? (isEn ? 'Avoid' : 'Hindari')
+                            : (isEn ? 'Safe' : 'Aman'),
                       ),
                       _buildRecommendationItem(
                         Icons.air,
-                        'Purifier',
+                        isEn ? 'Air Purifier' : 'Purifier',
                         isUnhealthy || isModerate
                             ? const Color(0xFF10B981)
                             : const Color(0xFF64748B),
-                        isUnhealthy || isModerate ? 'Nyalakan' : 'Tidak Perlu',
+                        isUnhealthy || isModerate
+                            ? (isEn ? 'Turn On' : 'Nyalakan')
+                            : (isEn ? 'Not Needed' : 'Tidak Perlu'),
                       ),
                     ],
                   ),

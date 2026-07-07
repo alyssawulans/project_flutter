@@ -10,6 +10,7 @@ import 'package:project_flutter/views/laporan/buat_laporan.dart';
 import 'package:project_flutter/views/laporan/detail_laporan.dart';
 import 'package:project_flutter/views/laporan/riwayat_laporan.dart';
 import 'package:project_flutter/views/laporan/kategori_detail_view.dart';
+import 'package:project_flutter/views/profil/notification_list_view.dart';
 
 class LaporanBeranda extends StatefulWidget {
   const LaporanBeranda({super.key});
@@ -136,21 +137,22 @@ class _LaporanBerandaState extends State<LaporanBeranda> {
       );
     }
 
-    // Deteksi tema gelap/terang untuk penyesuaian warna komponen
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final settings = AppSettingsController.instance.settingsNotifier.value;
-    final lang = settings.languageCode;
+    return ValueListenableBuilder<AppSettings>(
+      valueListenable: AppSettingsController.instance.settingsNotifier,
+      builder: (context, settings, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final lang = settings.languageCode;
 
-    final Color bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
-    final Color appBarBgColor = isDark ? const Color(0xFF1E293B) : const Color(0xFFF4F8FB);
-    final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color textColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
-    final Color subTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-    final Color borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
-    final Color iconColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF1A2E44);
+        final Color bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+        final Color appBarBgColor = isDark ? const Color(0xFF1E293B) : const Color(0xFFF4F8FB);
+        final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final Color textColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
+        final Color subTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+        final Color borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
+        final Color iconColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF1A2E44);
 
-    return Scaffold(
-      backgroundColor: bgColor,
+        return Scaffold(
+          backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: appBarBgColor,
         elevation: 0,
@@ -174,7 +176,14 @@ class _LaporanBerandaState extends State<LaporanBeranda> {
                 color: iconColor,
                 size: 24,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationListView(),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -368,8 +377,20 @@ class _LaporanBerandaState extends State<LaporanBeranda> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          cat['nama'],
+                         Text(
+                           cat['nama'] == 'Pembakaran Sampah'
+                               ? (lang == 'en' ? 'Waste Burning' : 'Pembakaran Sampah')
+                               : (cat['nama'] == 'Asap Industri / Pabrik'
+                                   ? (lang == 'en' ? 'Industrial Smoke' : 'Asap Industri / Pabrik')
+                                   : (cat['nama'] == 'Asap Kendaraan'
+                                       ? (lang == 'en' ? 'Vehicle Smoke' : 'Asap Kendaraan')
+                                       : (cat['nama'] == 'Debu & Konstruksi'
+                                           ? (lang == 'en' ? 'Dust & Construction' : 'Debu & Konstruksi')
+                                           : (cat['nama'] == 'Polusi Bau & Gas'
+                                               ? (lang == 'en' ? 'Odor & Gas' : 'Polusi Bau & Gas')
+                                               : (cat['nama'] == 'Lainnya'
+                                                   ? (lang == 'en' ? 'Others' : 'Lainnya')
+                                                   : cat['nama']))))),
                           textAlign: TextAlign.center,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -602,6 +623,8 @@ class _LaporanBerandaState extends State<LaporanBeranda> {
           ],
         ),
       ),
+        );
+      },
     );
   }
 

@@ -11,6 +11,7 @@ import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/config/app_translations.dart';
 import 'package:project_flutter/config/debug_config.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
+import 'package:project_flutter/views/profil/notification_list_view.dart';
 import 'package:project_flutter/models/aqi_station_model.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/views/admin/database_viewer_view.dart';
@@ -32,6 +33,7 @@ class _HomeViewState extends State<HomeView> {
   int _edukasiCount = 0;
   List<LaporanModel> _recentLaporan = [];
   bool _isLoading = true;
+  int _unreadNotifCount = 0;
 
   String _currentLocationName = 'Tanah Abang, Jakarta Pusat';
   AqiStation? _nearestStation;
@@ -250,6 +252,10 @@ class _HomeViewState extends State<HomeView> {
     }
     final recent = allReports.take(3).toList();
 
+    // Get unread notification count
+    final uCount = await FirebaseAuthService.instance
+        .getUnreadNotificationCount(userFirestoreId ?? '');
+
     if (mounted) {
       setState(() {
         _userName = name;
@@ -257,6 +263,7 @@ class _HomeViewState extends State<HomeView> {
         _laporanCount = lCount;
         _edukasiCount = eCount;
         _recentLaporan = recent;
+        _unreadNotifCount = uCount;
         // Cari stasiun terdekat ke default lokasi 'Cibadak, Sukabumi' (lat -6.8916, lon 106.7876)
         _nearestStation ??= _findNearestStation(-6.1818, 106.8223);
         _isLoading = false;
@@ -293,27 +300,29 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final settings = AppSettingsController.instance.settingsNotifier.value;
-    final lang = settings.languageCode;
+    return ValueListenableBuilder<AppSettings>(
+      valueListenable: AppSettingsController.instance.settingsNotifier,
+      builder: (context, settings, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final lang = settings.languageCode;
 
-    final Color bgColor = isDark
-        ? const Color(0xFF0F172A)
-        : const Color(0xFFF8FAFC);
-    final Color cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color textColor = isDark
-        ? const Color(0xFFF8FAFC)
-        : const Color(0xFF0F172A);
-    final Color subTextColor = isDark
-        ? const Color(0xFF94A3B8)
-        : const Color(0xFF64748B);
-    final Color borderColor = isDark
-        ? const Color(0xFF334155)
-        : const Color(0xFFF1F5F9);
+        final Color bgColor = isDark
+            ? const Color(0xFF0F172A)
+            : const Color(0xFFF8FAFC);
+        final Color cardColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final Color textColor = isDark
+            ? const Color(0xFFF8FAFC)
+            : const Color(0xFF0F172A);
+        final Color subTextColor = isDark
+            ? const Color(0xFF94A3B8)
+            : const Color(0xFF64748B);
+        final Color borderColor = isDark
+            ? const Color(0xFF334155)
+            : const Color(0xFFF1F5F9);
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: _isLoading
+        return Scaffold(
+          backgroundColor: bgColor,
+          body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: Color(0xFF0D9488)),
             )
@@ -381,19 +390,58 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              CircleAvatar(
-                                radius: 22,
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.2,
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.notifications_none_outlined,
-                                    color: Colors.white,
-                                    size: 24,
+                              Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 22,
+                                    backgroundColor: Colors.white.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.notifications_none_outlined,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const NotificationListView(),
+                                          ),
+                                        ).then((_) => _loadData());
+                                      },
+                                    ),
                                   ),
-                                  onPressed: () {},
-                                ),
+                                  if (_unreadNotifCount > 0)
+                                    Positioned(
+                                      right: -2,
+                                      top: -2,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '$_unreadNotifCount',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 8,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ],
                           ),
@@ -477,27 +525,36 @@ class _HomeViewState extends State<HomeView> {
                                           ),
                                           if (_nearestStation != null) ...[
                                             const SizedBox(width: 6),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 6,
-                                                    vertical: 2,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: isDark
-                                                    ? const Color(0xFF334155)
-                                                    : const Color(0xFFE2E8F0),
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                _nearestStation!.name,
-                                                style: TextStyle(
-                                                  fontSize: 9,
-                                                  fontWeight: FontWeight.bold,
+                                            Flexible(
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2,
+                                                    ),
+                                                decoration: BoxDecoration(
                                                   color: isDark
-                                                      ? const Color(0xFFE2E8F0)
-                                                      : const Color(0xFF475569),
+                                                      ? const Color(0xFF334155)
+                                                      : const Color(0xFFE2E8F0),
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                ),
+                                                child: Text(
+                                                  _nearestStation!.name,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: isDark
+                                                        ? const Color(
+                                                            0xFFE2E8F0,
+                                                          )
+                                                        : const Color(
+                                                            0xFF475569,
+                                                          ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -616,17 +673,17 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                                 _buildMiniParam(
                                   Icons.thermostat,
-                                  'Suhu',
+                                  lang == 'en' ? 'Temp' : 'Suhu',
                                   '${_nearestStation?.temp ?? 28}°C',
                                 ),
                                 _buildMiniParam(
                                   Icons.water_drop_outlined,
-                                  'Lembab',
+                                  lang == 'en' ? 'Humidity' : 'Lembab',
                                   '${_nearestStation?.humidity ?? 65}%',
                                 ),
                                 _buildMiniParam(
                                   Icons.air,
-                                  'Ozon (O³)',
+                                  lang == 'en' ? 'Ozone (O³)' : 'Ozon (O³)',
                                   '${(_nearestStation?.o3 ?? 0.02).toStringAsFixed(3)} ppm',
                                 ),
                               ],
@@ -887,6 +944,8 @@ class _HomeViewState extends State<HomeView> {
               ),
             )
           : null,
+        );
+      },
     );
   }
 
