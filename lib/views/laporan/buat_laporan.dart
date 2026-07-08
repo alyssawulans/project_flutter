@@ -563,15 +563,12 @@ class _BuatLaporanState extends State<BuatLaporan> {
     try {
       final XFile? image = await _picker.pickImage(
         source: source,
-        imageQuality: 40, // Mengurangi kualitas agar ukuran string Base64 kecil
-        maxWidth: 600,    // Membatasi lebar gambar maks 600px
+        imageQuality: 80, // Kualitas ditingkatkan untuk upload Firebase Storage
+        maxWidth: 1024,
       );
       if (image != null) {
-        final bytes = await image.readAsBytes();
-        final base64String = base64Encode(bytes);
-        final base64Url = 'data:image/jpeg;base64,$base64String';
         setState(() {
-          selectedPhotos.add(base64Url);
+          selectedPhotos.add(image.path); // Simpan path lokal, upload ke Firebase Storage saat submit
         });
       }
     } catch (e) {

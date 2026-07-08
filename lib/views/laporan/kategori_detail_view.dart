@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/views/laporan/buat_laporan.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryDetailInfo {
   final String titleId;
@@ -197,7 +198,13 @@ class _KategoriDetailViewState extends State<KategoriDetailView> {
 
   Future<void> _loadReportStats() async {
     try {
-      final reports = await FirebaseAuthService.instance.getLaporans();
+      final prefs = await SharedPreferences.getInstance();
+      final role = prefs.getString('current_user_role') ?? 'user';
+      final userFirestoreId = prefs.getString('current_user_firestore_id');
+
+      final reports = role == 'admin'
+          ? await FirebaseAuthService.instance.getLaporans()
+          : await FirebaseAuthService.instance.getLaporans(userFirestoreId: userFirestoreId);
       final count = reports
           .where(
             (r) =>

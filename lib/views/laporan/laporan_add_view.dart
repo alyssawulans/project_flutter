@@ -104,16 +104,13 @@ class _LaporanAddViewState extends State<LaporanAddView> {
       final picker = ImagePicker();
       final image = await picker.pickImage(
         source: source,
-        imageQuality: 40, // Mengurangi kualitas agar ukuran string Base64 kecil
-        maxWidth: 600,    // Membatasi lebar gambar maks 600px
+        imageQuality: 80, // Kualitas ditingkatkan untuk upload Firebase Storage
+        maxWidth: 1024,
       );
 
       if (image != null) {
-        final bytes = await image.readAsBytes();
-        final base64String = base64Encode(bytes);
-        final base64Url = 'data:image/jpeg;base64,$base64String';
         setState(() {
-          _pickedImagePath = base64Url;
+          _pickedImagePath = image.path; // Simpan path lokal, upload ke Firebase Storage saat submit
         });
       }
     } catch (e) {

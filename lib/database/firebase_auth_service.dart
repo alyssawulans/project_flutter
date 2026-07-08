@@ -102,17 +102,18 @@ class FirebaseAuthService {
   // Login menggunakan Google Sign-In
   Future<UserModelFirebase?> signInWithGoogle() async {
     try {
-      // 1. Jalankan inisialisasi google sign in
-      await GoogleSignIn.instance.initialize();
+      // 1. Jalankan alur Google Sign-In
+      final googleSignIn = GoogleSignIn();
+      final googleUser = await googleSignIn.signIn();
 
-      // 2. Jalankan alur Google Sign-In
-      final googleUser = await GoogleSignIn.instance.authenticate();
+      if (googleUser == null) return null;
 
-      // 3. Ambil detail otentikasi dari akun google
-      final googleAuth = googleUser.authentication;
+      // 2. Ambil detail otentikasi dari akun google
+      final googleAuth = await googleUser.authentication;
 
-      // 4. Buat kredensial Firebase baru (hanya butuh idToken untuk Firebase Auth di Android/iOS)
-      final auth.AuthCredential credential = auth.GoogleAuthProvider.credential(
+      // 3. Buat kredensial Firebase baru
+      final credential = auth.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
@@ -245,7 +246,8 @@ class FirebaseAuthService {
       }
 
       // Buat nama file unik berdasarkan timestamp
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${filePath.split('/').last}';
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${filePath.split('/').last}';
       final ref = _storage.ref().child(folderName).child(fileName);
 
       // Mulai upload
@@ -283,7 +285,7 @@ class FirebaseAuthService {
       } else {
         paths = laporan.foto.split(',');
       }
-      
+
       final List<String> uploadedUrls = [];
       for (final path in paths) {
         if (path.trim().isNotEmpty) {
@@ -365,10 +367,7 @@ class FirebaseAuthService {
         data['foto'] = uploadedUrls.join(',');
       }
 
-      await _db
-          .collection('laporan')
-          .doc(laporan.firestoreId)
-          .update(data);
+      await _db.collection('laporan').doc(laporan.firestoreId).update(data);
     }
   }
 
@@ -436,10 +435,7 @@ class FirebaseAuthService {
       final uploadedUrl = await uploadFile(edukasi.gambar, 'edukasi');
       data['gambar'] = uploadedUrl;
 
-      await _db
-          .collection('edukasi')
-          .doc(edukasi.firestoreId)
-          .update(data);
+      await _db.collection('edukasi').doc(edukasi.firestoreId).update(data);
     }
   }
 
@@ -533,7 +529,9 @@ class FirebaseAuthService {
   }
 
   // Mendapatkan stream daftar notifikasi untuk user tertentu (real-time)
-  Stream<List<NotificationModel>> getNotificationsStream(String userFirestoreId) {
+  Stream<List<NotificationModel>> getNotificationsStream(
+    String userFirestoreId,
+  ) {
     return _db
         .collection('notifications')
         .where('user_firestore_id', isEqualTo: userFirestoreId)

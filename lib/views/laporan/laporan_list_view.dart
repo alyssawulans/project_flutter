@@ -5,6 +5,7 @@ import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/views/laporan/laporan_add_view.dart';
 import 'package:project_flutter/views/laporan/laporan_detail_view.dart';
 import 'package:project_flutter/widgets/report_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LaporanListView extends StatefulWidget {
   const LaporanListView({super.key});
@@ -18,11 +19,24 @@ class _LaporanListViewState extends State<LaporanListView> {
   String _selectedStatus = 'Semua';
   List<LaporanModel> _reports = [];
   bool _isLoading = true;
+  String _userRole = 'user';
+  String? _userFirestoreId;
 
   @override
   void initState() {
     super.initState();
-    _fetchReports();
+    _loadUserAndFetchReports();
+  }
+
+  Future<void> _loadUserAndFetchReports() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _userRole = prefs.getString('current_user_role') ?? 'user';
+        _userFirestoreId = prefs.getString('current_user_firestore_id');
+      });
+      _fetchReports();
+    }
   }
 
   Future<void> _fetchReports() async {
@@ -31,9 +45,14 @@ class _LaporanListViewState extends State<LaporanListView> {
     });
 
     // Get reports from DB with selected status filter
-    final results = await FirebaseAuthService.instance.getLaporans(
-      status: _selectedStatus == 'Semua' ? null : _selectedStatus,
-    );
+    final results = _userRole == 'admin' 
+        ? await FirebaseAuthService.instance.getLaporans(
+            status: _selectedStatus == 'Semua' ? null : _selectedStatus,
+          )
+        : await FirebaseAuthService.instance.getLaporans(
+            status: _selectedStatus == 'Semua' ? null : _selectedStatus,
+            userFirestoreId: _userFirestoreId,
+          );
 
     // Apply search filter if query is not empty
     List<LaporanModel> filtered = results;
