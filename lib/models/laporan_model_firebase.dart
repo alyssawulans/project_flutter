@@ -89,11 +89,31 @@ class LaporanModelFirebase {
 
   String get firstFoto {
     if (foto.isEmpty) return '';
+    if (foto.startsWith('data:image/')) {
+      final index = foto.indexOf(',data:image/');
+      if (index == -1) {
+        return foto;
+      } else {
+        return foto.substring(0, index);
+      }
+    }
     return foto.split(',').first;
   }
 
   List<String> get listFoto {
     if (foto.isEmpty) return [];
+    if (foto.startsWith('data:image/')) {
+      final parts = foto.split(',data:image/');
+      final List<String> list = [];
+      for (int i = 0; i < parts.length; i++) {
+        if (i == 0) {
+          list.add(parts[i]);
+        } else {
+          list.add('data:image/' + parts[i]);
+        }
+      }
+      return list.where((url) => url.isNotEmpty).toList();
+    }
     return foto.split(',').where((url) => url.isNotEmpty).toList();
   }
 }

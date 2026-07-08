@@ -7,6 +7,7 @@ import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/models/notification_model.dart';
 import 'package:project_flutter/views/laporan/laporan_edit_view.dart';
 import 'package:project_flutter/views/laporan/riwayat_laporan.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 
 class DetailLaporan extends StatefulWidget {
   final LaporanModel report;
@@ -231,25 +232,10 @@ class _DetailLaporanState extends State<DetailLaporan> {
         children: [
           Center(
             child: InteractiveViewer(
-              child: url.startsWith('http')
-                  ? Image.network(
-                      url,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.broken_image,
-                        color: Colors.white,
-                        size: 64,
-                      ),
-                    )
-                  : Image.file(
-                      File(url),
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.broken_image,
-                        color: Colors.white,
-                        size: 64,
-                      ),
-                    ),
+              child: ReportImage(
+                path: url,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
           Positioned(
@@ -431,39 +417,12 @@ class _DetailLaporanState extends State<DetailLaporan> {
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(16.0),
                       ),
-                      child: report.imageUrl.startsWith('http')
-                          ? Image.network(
-                              report.imageUrl,
-                              height: 180,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    height: 180,
-                                    color: isDark ? const Color(0xFF334155) : Colors.grey[200],
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      size: 48,
-                                      color: isDark ? Colors.white30 : Colors.grey,
-                                    ),
-                                  ),
-                            )
-                          : Image.file(
-                              File(report.imageUrl),
-                              height: 180,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    height: 180,
-                                    color: isDark ? const Color(0xFF334155) : Colors.grey[200],
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      size: 48,
-                                      color: isDark ? Colors.white30 : Colors.grey,
-                                    ),
-                                  ),
-                            ),
+                      child: ReportImage(
+                        path: report.imageUrl,
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -621,25 +580,10 @@ class _DetailLaporanState extends State<DetailLaporan> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: imgUrl.startsWith('http')
-                              ? Image.network(
-                                  imgUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Icon(
-                                        Icons.broken_image,
-                                        color: isDark ? Colors.white30 : Colors.grey,
-                                      ),
-                                )
-                              : Image.file(
-                                  File(imgUrl),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Icon(
-                                        Icons.broken_image,
-                                        color: isDark ? Colors.white30 : Colors.grey,
-                                      ),
-                                ),
+                          child: ReportImage(
+                            path: imgUrl,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     );

@@ -11,6 +11,7 @@ import 'package:project_flutter/views/laporan/detail_laporan.dart';
 import 'package:project_flutter/views/laporan/riwayat_laporan.dart';
 import 'package:project_flutter/views/laporan/kategori_detail_view.dart';
 import 'package:project_flutter/views/profil/notification_list_view.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 
 class LaporanBeranda extends StatefulWidget {
   const LaporanBeranda({super.key});
@@ -170,21 +171,78 @@ class _LaporanBerandaState extends State<LaporanBeranda> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: IconButton(
-              icon: Icon(
-                Icons.notifications_none_outlined,
-                color: iconColor,
-                size: 24,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NotificationListView(),
+            child: _isLoadingUser || _userFirestoreId == null
+                ? IconButton(
+                    icon: Icon(
+                      Icons.notifications_none_outlined,
+                      color: iconColor,
+                      size: 24,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationListView(),
+                        ),
+                      ).then((_) => _refreshLaporans());
+                    },
+                  )
+                : StreamBuilder<int>(
+                    stream: FirebaseAuthService.instance
+                        .getUnreadNotificationCountStream(_userFirestoreId!),
+                    builder: (context, snapshot) {
+                      final count = snapshot.data ?? 0;
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.center,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              count > 0
+                                  ? Icons.notifications_active_outlined
+                                  : Icons.notifications_none_outlined,
+                              color: iconColor,
+                              size: 24,
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotificationListView(),
+                                ),
+                              ).then((_) => _refreshLaporans());
+                            },
+                          ),
+                          if (count > 0)
+                            Positioned(
+                              right: 2,
+                              top: 2,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 16,
+                                  minHeight: 16,
+                                ),
+                                child: Text(
+                                  '$count',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -629,33 +687,12 @@ class _LaporanBerandaState extends State<LaporanBeranda> {
   }
 
   Widget _buildReportImage(String path) {
-    if (path.startsWith('http')) {
-      return Image.network(
-        path,
-        width: 68,
-        height: 68,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _errorImage(),
-      );
-    } else if (path.startsWith('assets/')) {
-      return Image.asset(
-        path,
-        width: 68,
-        height: 68,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _errorImage(),
-      );
-    } else if (path.isNotEmpty) {
-      return Image.file(
-        File(path),
-        width: 68,
-        height: 68,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _errorImage(),
-      );
-    } else {
-      return _errorImage();
-    }
+    return ReportImage(
+      path: path,
+      width: 68,
+      height: 68,
+      fit: BoxFit.cover,
+    );
   }
 
   Widget _errorImage() {

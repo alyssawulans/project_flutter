@@ -17,7 +17,7 @@ class Alatpantau {
 
 class AppImage1 {
   static const String logo = 'assets/images/logo_ruas.png';
-  static const String avatar = 'assets/images/profile.webp';
+  static const String avatar = 'assets/images/profile.png';
 }
 
 // --- DATA SOURCE REPOSITORY ---
@@ -39,7 +39,10 @@ class RuasData {
   // Level 2: List of Maps
   static final List<Map<String, dynamic>> listofMap = [
     {"nama": "Pembakaran Sampah", "gambar": "assets/images/sensor_indoor.png"},
-    {"nama": "Asap Industri / Pabrik", "gambar": "assets/images/sensor_indoor.png"},
+    {
+      "nama": "Asap Industri / Pabrik",
+      "gambar": "assets/images/sensor_indoor.png",
+    },
     {"nama": "Asap Kendaraan", "gambar": "assets/images/sensor_indoor.png"},
     {"nama": "Debu & Konstruksi", "gambar": "assets/images/sensor_indoor.png"},
     {"nama": "Polusi Bau & Gas", "gambar": "assets/images/sensor_indoor.png"},
@@ -64,4 +67,3 @@ class RuasData {
     ),
   ];
 }
-

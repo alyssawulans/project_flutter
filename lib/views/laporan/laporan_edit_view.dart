@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/models/notification_model.dart';
 import 'package:project_flutter/widgets/dashed_border_painter.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 
 class LaporanEditView extends StatefulWidget {
   final LaporanModel laporan;
@@ -110,12 +112,16 @@ class _LaporanEditViewState extends State<LaporanEditView> {
       final picker = ImagePicker();
       final image = await picker.pickImage(
         source: source,
-        imageQuality: 85,
+        imageQuality: 40, // Mengurangi kualitas agar ukuran string Base64 kecil
+        maxWidth: 600,    // Membatasi lebar gambar maks 600px
       );
 
       if (image != null) {
+        final bytes = await image.readAsBytes();
+        final base64String = base64Encode(bytes);
+        final base64Url = 'data:image/jpeg;base64,$base64String';
         setState(() {
-          _selectedPhotos.add(image.path);
+          _selectedPhotos.add(base64Url);
         });
       }
     } catch (e) {
@@ -203,7 +209,7 @@ class _LaporanEditViewState extends State<LaporanEditView> {
       userFirestoreId: widget.laporan.userFirestoreId,
       foto: _selectedPhotos.isNotEmpty
           ? _selectedPhotos.join(',')
-          : 'assets/images/kota_1.jpg',
+          : 'assets/images/logo_ruas.png',
     );
 
     await FirebaseAuthService.instance.updateLaporan(updated);
@@ -577,19 +583,10 @@ class _LaporanEditViewState extends State<LaporanEditView> {
                                     ),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(16),
-                                      child: imgUrl.startsWith('assets/')
-                                          ? Image.asset(
-                                              imgUrl,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) =>
-                                                  const Icon(Icons.broken_image),
-                                            )
-                                          : Image.file(
-                                              File(imgUrl),
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) =>
-                                                  const Icon(Icons.broken_image),
-                                            ),
+                                      child: ReportImage(
+                                        path: imgUrl,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                   // Remove photo badge button

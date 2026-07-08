@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,6 +9,7 @@ import 'package:project_flutter/config/app_settings.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/widgets/dashed_border_painter.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 
 class LaporanAddView extends StatefulWidget {
   const LaporanAddView({super.key});
@@ -102,13 +104,16 @@ class _LaporanAddViewState extends State<LaporanAddView> {
       final picker = ImagePicker();
       final image = await picker.pickImage(
         source: source,
-        imageQuality: 70,
-        maxWidth: 800,
+        imageQuality: 40, // Mengurangi kualitas agar ukuran string Base64 kecil
+        maxWidth: 600,    // Membatasi lebar gambar maks 600px
       );
 
       if (image != null) {
+        final bytes = await image.readAsBytes();
+        final base64String = base64Encode(bytes);
+        final base64Url = 'data:image/jpeg;base64,$base64String';
         setState(() {
-          _pickedImagePath = image.path;
+          _pickedImagePath = base64Url;
         });
       }
     } catch (e) {
@@ -187,7 +192,7 @@ class _LaporanAddViewState extends State<LaporanAddView> {
       tanggal: formattedDate,
       userId: userId,
       userFirestoreId: userFirestoreId,
-      foto: _pickedImagePath ?? 'assets/images/kota_1.jpg',
+      foto: _pickedImagePath ?? 'assets/images/logo_ruas.png',
     );
 
     await FirebaseAuthService.instance.createLaporan(newReport);
@@ -440,19 +445,12 @@ class _LaporanAddViewState extends State<LaporanAddView> {
                             )
                           : ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: _pickedImagePath!.startsWith('assets/')
-                                  ? Image.asset(
-                                      _pickedImagePath!,
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.file(
-                                      File(_pickedImagePath!),
-                                      width: double.infinity,
-                                      height: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
+                              child: ReportImage(
+                                path: _pickedImagePath!,
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                     ),
                   ),

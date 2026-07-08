@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -18,6 +19,7 @@ import 'package:project_flutter/views/admin/database_viewer_view.dart';
 import 'package:project_flutter/views/laporan/detail_laporan.dart';
 import 'package:project_flutter/views/core/main_navigation_shell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -34,6 +36,7 @@ class _HomeViewState extends State<HomeView> {
   List<LaporanModel> _recentLaporan = [];
   bool _isLoading = true;
   int _unreadNotifCount = 0;
+  StreamSubscription<int>? _unreadNotifSubscription;
 
   String _currentLocationName = 'Tanah Abang, Jakarta Pusat';
   AqiStation? _nearestStation;
@@ -220,6 +223,12 @@ class _HomeViewState extends State<HomeView> {
     _loadData();
   }
 
+  @override
+  void dispose() {
+    _unreadNotifSubscription?.cancel();
+    super.dispose();
+  }
+
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
@@ -252,9 +261,19 @@ class _HomeViewState extends State<HomeView> {
     }
     final recent = allReports.take(3).toList();
 
-    // Get unread notification count
-    final uCount = await FirebaseAuthService.instance
-        .getUnreadNotificationCount(userFirestoreId ?? '');
+    // Subscribe to real-time unread notification count
+    if (userFirestoreId != null && userFirestoreId.isNotEmpty) {
+      _unreadNotifSubscription?.cancel();
+      _unreadNotifSubscription = FirebaseAuthService.instance
+          .getUnreadNotificationCountStream(userFirestoreId)
+          .listen((count) {
+        if (mounted) {
+          setState(() {
+            _unreadNotifCount = count;
+          });
+        }
+      });
+    }
 
     if (mounted) {
       setState(() {
@@ -263,7 +282,6 @@ class _HomeViewState extends State<HomeView> {
         _laporanCount = lCount;
         _edukasiCount = eCount;
         _recentLaporan = recent;
-        _unreadNotifCount = uCount;
         // Cari stasiun terdekat ke default lokasi 'Cibadak, Sukabumi' (lat -6.8916, lon 106.7876)
         _nearestStation ??= _findNearestStation(-6.1818, 106.8223);
         _isLoading = false;
@@ -323,323 +341,340 @@ class _HomeViewState extends State<HomeView> {
         return Scaffold(
           backgroundColor: bgColor,
           body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF0D9488)),
-            )
-          : RefreshIndicator(
-              onRefresh: _loadData,
-              color: activeTeal,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 1. Curved Header Gradient
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [primaryTeal, activeTeal],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(32),
-                        ),
-                      ),
-                      padding: const EdgeInsets.only(
-                        top: 54,
-                        left: 24,
-                        right: 24,
-                        bottom: 48,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ? const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF0D9488)),
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadData,
+                  color: activeTeal,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 1. Curved Header Gradient
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [primaryTeal, activeTeal],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(32),
+                            ),
+                          ),
+                          padding: const EdgeInsets.only(
+                            top: 54,
+                            left: 24,
+                            right: 24,
+                            bottom: 48,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${_getGreeting(lang)}, \n$_userName 👋',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _getDynamicQuote(lang),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.8,
-                                        ),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Stack(
-                                clipBehavior: Clip.none,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  CircleAvatar(
-                                    radius: 22,
-                                    backgroundColor: Colors.white.withValues(
-                                      alpha: 0.2,
-                                    ),
-                                    child: IconButton(
-                                      icon: const Icon(
-                                        Icons.notifications_none_outlined,
-                                        color: Colors.white,
-                                        size: 24,
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const NotificationListView(),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${_getGreeting(lang)}, \n$_userName 👋',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ).then((_) => _loadData());
-                                      },
-                                    ),
-                                  ),
-                                  if (_unreadNotifCount > 0)
-                                    Positioned(
-                                      right: -2,
-                                      top: -2,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
                                         ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 16,
-                                          minHeight: 16,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '$_unreadNotifCount',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.bold,
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          _getDynamicQuote(lang),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.8,
                                             ),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          // Sub Location Indicator inside header
-                          // Diposisikan agar selaras secara vertikal dengan konten di dalam kartu AQI
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    '$_currentLocationName  •  ${DateFormat('dd MMM yyyy', 'id_ID').format(DateTime.now())}',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white.withValues(
-                                        alpha: 0.9,
-                                      ),
-                                      fontWeight: FontWeight.w500,
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // 2. Floating AQI Panel Card (Beautified like mockup)
-                    Transform.translate(
-                      offset: const Offset(0, -28),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 24),
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: borderColor),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? Colors.black.withValues(alpha: 0.3)
-                                  : Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Left details column
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  const SizedBox(width: 12),
+                                  Stack(
+                                    clipBehavior: Clip.none,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            AppTranslations.translate(
-                                              'current_aqi',
-                                              lang,
-                                            ),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: subTextColor,
-                                            ),
+                                      CircleAvatar(
+                                        radius: 22,
+                                        backgroundColor: Colors.white
+                                            .withValues(alpha: 0.2),
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.notifications_none_outlined,
+                                            color: Colors.white,
+                                            size: 24,
                                           ),
-                                          if (_nearestStation != null) ...[
-                                            const SizedBox(width: 6),
-                                            Flexible(
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 2,
-                                                    ),
-                                                decoration: BoxDecoration(
-                                                  color: isDark
-                                                      ? const Color(0xFF334155)
-                                                      : const Color(0xFFE2E8F0),
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                ),
-                                                child: Text(
-                                                  _nearestStation!.name,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: 9,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: isDark
-                                                        ? const Color(
-                                                            0xFFE2E8F0,
-                                                          )
-                                                        : const Color(
-                                                            0xFF475569,
-                                                          ),
-                                                  ),
-                                                ),
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const NotificationListView(),
                                               ),
-                                            ),
-                                          ],
-                                        ],
+                                            ).then((_) => _loadData());
+                                          },
+                                        ),
                                       ),
-                                      const SizedBox(height: 8),
-                                      // AQI value + status chip — pakai Wrap agar tidak overflow
-                                      // saat status 'Tidak Sehat' (teks panjang)
-                                      Wrap(
-                                        spacing: 8,
-                                        runSpacing: 6,
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        children: [
-                                          Text(
-                                            '${_nearestStation?.aqi ?? 32}',
-                                            style: TextStyle(
-                                              fontSize: 40,
-                                              fontWeight: FontWeight.w900,
-                                              color:
-                                                  _nearestStation?.color ??
-                                                  const Color(0xFF10B981),
+                                      if (_unreadNotifCount > 0)
+                                        Positioned(
+                                          right: -2,
+                                          top: -2,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: const BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
                                             ),
-                                          ),
-                                          // Status chip dikasih maxWidth agar tidak overflow
-                                          ConstrainedBox(
                                             constraints: const BoxConstraints(
-                                              maxWidth: 110,
+                                              minWidth: 16,
+                                              minHeight: 16,
                                             ),
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 5,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    _nearestStation?.color ??
-                                                    const Color(0xFF10B981),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
+                                            child: Center(
                                               child: Text(
-                                                _nearestStation?.status ??
-                                                    'Baik',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
+                                                '$_unreadNotifCount',
                                                 style: const TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: 11,
+                                                  fontSize: 8,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        _nearestStation?.description ??
-                                            'Kualitas udara baik untuk aktivitas luar ruangan.',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: textColor,
-                                          height: 1.4,
                                         ),
-                                      ),
                                     ],
                                   ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              // Sub Location Indicator inside header
+                              // Diposisikan agar selaras secara vertikal dengan konten di dalam kartu AQI
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        '$_currentLocationName  •  ${DateFormat('dd MMM yyyy', 'id_ID').format(DateTime.now())}',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white.withValues(
+                                            alpha: 0.9,
+                                          ),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 12),
-                                // Gambar ilustrasi — ukuran dikecilkan agar
-                                // kolom kiri punya cukup ruang untuk chip status
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Lottie.asset(
-                                    'assets/animations/maskothi.json',
-                                    width: 110,
-                                    height: 130,
-                                    fit: BoxFit.cover,
-                                    alignment: Alignment.bottomCenter,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // 2. Floating AQI Panel Card (Beautified like mockup)
+                        Transform.translate(
+                          offset: const Offset(0, -28),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 24),
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: borderColor),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: isDark
+                                      ? Colors.black.withValues(alpha: 0.3)
+                                      : Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Left details column
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Text(
+                                                AppTranslations.translate(
+                                                  'current_aqi',
+                                                  lang,
+                                                ),
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: subTextColor,
+                                                ),
+                                              ),
+                                              if (_nearestStation != null) ...[
+                                                const SizedBox(width: 6),
+                                                Flexible(
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 6,
+                                                          vertical: 2,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: isDark
+                                                          ? const Color(
+                                                              0xFF334155,
+                                                            )
+                                                          : const Color(
+                                                              0xFFE2E8F0,
+                                                            ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            6,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      _nearestStation!.name,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize: 9,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: isDark
+                                                            ? const Color(
+                                                                0xFFE2E8F0,
+                                                              )
+                                                            : const Color(
+                                                                0xFF475569,
+                                                              ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                          // AQI value + status chip — pakai Wrap agar tidak overflow
+                                          // saat status 'Tidak Sehat' (teks panjang)
+                                          Wrap(
+                                            spacing: 8,
+                                            runSpacing: 6,
+                                            crossAxisAlignment:
+                                                WrapCrossAlignment.center,
+                                            children: [
+                                              Text(
+                                                '${_nearestStation?.aqi ?? 32}',
+                                                style: TextStyle(
+                                                  fontSize: 40,
+                                                  fontWeight: FontWeight.w900,
+                                                  color:
+                                                      _nearestStation?.color ??
+                                                      const Color(0xFF10B981),
+                                                ),
+                                              ),
+                                              // Status chip dikasih maxWidth agar tidak overflow
+                                              ConstrainedBox(
+                                                constraints:
+                                                    const BoxConstraints(
+                                                      maxWidth: 110,
+                                                    ),
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 5,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        _nearestStation
+                                                            ?.color ??
+                                                        const Color(0xFF10B981),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    _nearestStation?.status ??
+                                                        'Baik',
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            _nearestStation?.description ??
+                                                'Kualitas udara baik untuk aktivitas luar ruangan.',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: textColor,
+                                              height: 1.4,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    // Gambar ilustrasi — ukuran dikecilkan agar
+                                    // kolom kiri punya cukup ruang untuk chip status
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Lottie.asset(
+                                        'assets/animations/maskothi.json',
+                                        width: 110,
+                                        height: 130,
+                                        fit: BoxFit.cover,
+                                        alignment: Alignment.bottomCenter,
+                                        errorBuilder:
+                                            (
+                                              context,
+                                              error,
+                                              stackTrace,
+                                            ) => Container(
                                               width: 90,
                                               height: 90,
                                               decoration: BoxDecoration(
@@ -655,85 +690,211 @@ class _HomeViewState extends State<HomeView> {
                                                 size: 32,
                                               ),
                                             ),
-                                  ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                                const SizedBox(height: 12),
+                                Divider(height: 1, color: borderColor),
+                                const SizedBox(height: 16),
+                                // Metrics details row grid
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildMiniParam(
+                                      Icons.eco_outlined,
+                                      'PM2.5',
+                                      '${_nearestStation?.pm25 ?? 12} µg/m³',
+                                    ),
+                                    _buildMiniParam(
+                                      Icons.thermostat,
+                                      lang == 'en' ? 'Temp' : 'Suhu',
+                                      '${_nearestStation?.temp ?? 28}°C',
+                                    ),
+                                    _buildMiniParam(
+                                      Icons.water_drop_outlined,
+                                      lang == 'en' ? 'Humidity' : 'Lembab',
+                                      '${_nearestStation?.humidity ?? 65}%',
+                                    ),
+                                    _buildMiniParam(
+                                      Icons.air,
+                                      lang == 'en' ? 'Ozone (O³)' : 'Ozon (O³)',
+                                      '${(_nearestStation?.o3 ?? 0.02).toStringAsFixed(3)} ppm',
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Divider(height: 1, color: borderColor),
+                                const SizedBox(height: 16),
+                                _buildHealthRecommendations(lang, subTextColor),
                               ],
-                            ),
-                            const SizedBox(height: 12),
-                            Divider(height: 1, color: borderColor),
-                            const SizedBox(height: 16),
-                            // Metrics details row grid
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _buildMiniParam(
-                                  Icons.eco_outlined,
-                                  'PM2.5',
-                                  '${_nearestStation?.pm25 ?? 12} µg/m³',
-                                ),
-                                _buildMiniParam(
-                                  Icons.thermostat,
-                                  lang == 'en' ? 'Temp' : 'Suhu',
-                                  '${_nearestStation?.temp ?? 28}°C',
-                                ),
-                                _buildMiniParam(
-                                  Icons.water_drop_outlined,
-                                  lang == 'en' ? 'Humidity' : 'Lembab',
-                                  '${_nearestStation?.humidity ?? 65}%',
-                                ),
-                                _buildMiniParam(
-                                  Icons.air,
-                                  lang == 'en' ? 'Ozone (O³)' : 'Ozon (O³)',
-                                  '${(_nearestStation?.o3 ?? 0.02).toStringAsFixed(3)} ppm',
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Divider(height: 1, color: borderColor),
-                            const SizedBox(height: 16),
-                            _buildHealthRecommendations(lang, subTextColor),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // 3. Quick Stats Cards Grid ("Ringkasan")
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppTranslations.translate('summary', lang),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          GridView.count(
-                            crossAxisCount: 2,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.zero,
-                            mainAxisSpacing: 12,
-                            crossAxisSpacing: 12,
-                            childAspectRatio: 1.45,
+                        ),
+
+                        // 3. Quick Stats Cards Grid ("Ringkasan")
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildRedesignedStatCard(
-                                title: AppTranslations.translate(
-                                  'my_reports',
+                              Text(
+                                AppTranslations.translate('summary', lang),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: textColor,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              GridView.count(
+                                crossAxisCount: 2,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding: EdgeInsets.zero,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                                childAspectRatio: 1.45,
+                                children: [
+                                  _buildRedesignedStatCard(
+                                    title: AppTranslations.translate(
+                                      'my_reports',
+                                      lang,
+                                    ),
+                                    value: '$_laporanCount',
+                                    desc: lang == 'id'
+                                        ? 'Ajuan laporan Anda'
+                                        : 'Your submitted reports',
+                                    icon: Icons.description_outlined,
+                                    color: const Color(0xFFFFF7ED),
+                                    iconColor: const Color(0xFFEA580C),
+                                    onTap: () {
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MainNavigationShell(
+                                                initialTab: 2,
+                                              ),
+                                        ),
+                                        (route) => false,
+                                      );
+                                    },
+                                  ),
+                                  _buildRedesignedStatCard(
+                                    title: AppTranslations.translate(
+                                      'nav_education',
+                                      lang,
+                                    ),
+                                    value: '$_edukasiCount',
+                                    desc: lang == 'id'
+                                        ? 'Artikel kebersihan'
+                                        : 'Cleanliness articles',
+                                    icon: Icons.menu_book_outlined,
+                                    color: const Color(0xFFEFF6F5),
+                                    iconColor: activeTeal,
+                                    onTap: () {
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MainNavigationShell(
+                                                initialTab: 3,
+                                              ),
+                                        ),
+                                        (route) => false,
+                                      );
+                                    },
+                                  ),
+                                  _buildRedesignedStatCard(
+                                    title: AppTranslations.translate(
+                                      'location_map',
+                                      lang,
+                                    ),
+                                    value:
+                                        '${AqiStation.defaultStations.length}',
+                                    desc: lang == 'id'
+                                        ? 'Titik pantau AQI'
+                                        : 'AQI monitoring points',
+                                    icon: Icons.map_outlined,
+                                    color: const Color(0xFFEFF6FF),
+                                    iconColor: const Color(0xFF2563EB),
+                                    onTap: () {
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MainNavigationShell(
+                                                initialTab: 1,
+                                              ),
+                                        ),
+                                        (route) => false,
+                                      );
+                                    },
+                                  ),
+                                  _buildRedesignedStatCard(
+                                    title: AppTranslations.translate(
+                                      'average_aqi',
+                                      lang,
+                                    ),
+                                    value: '${_nearestStation?.aqi ?? 32}',
+                                    desc: lang == 'id'
+                                        ? 'Tingkat ${_nearestStation?.name ?? "Jakarta"}'
+                                        : '${_nearestStation?.name ?? "Jakarta"} Level',
+                                    icon: Icons.air_outlined,
+                                    color:
+                                        (_nearestStation?.color ??
+                                                const Color(0xFFECFDF5))
+                                            .withValues(alpha: 0.12),
+                                    iconColor:
+                                        _nearestStation?.color ??
+                                        const Color(0xFF10B981),
+                                    onTap: () {},
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // 4. Grafik AQI 7 Hari Terakhir
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: AqiLineChart(
+                            values: _get7DayAqiValues(),
+                            dates: _get7DayAqiDates(),
+                            chartColor:
+                                _nearestStation?.color ??
+                                const Color(0xFF10B981),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // 5. Aktivitas & Tips
+                        _buildAktivitasDanTips(),
+                        const SizedBox(height: 20),
+
+                        // 6. Recent Laporan Feed
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                AppTranslations.translate(
+                                  'recent_reports',
                                   lang,
                                 ),
-                                value: '$_laporanCount',
-                                desc: lang == 'id'
-                                    ? 'Ajuan laporan Anda'
-                                    : 'Your submitted reports',
-                                icon: Icons.description_outlined,
-                                color: const Color(0xFFFFF7ED),
-                                iconColor: const Color(0xFFEA580C),
-                                onTap: () {
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: textColor,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
@@ -745,205 +906,89 @@ class _HomeViewState extends State<HomeView> {
                                     (route) => false,
                                   );
                                 },
-                              ),
-                              _buildRedesignedStatCard(
-                                title: AppTranslations.translate(
-                                  'nav_education',
-                                  lang,
+                                child: Text(
+                                  AppTranslations.translate('view_all', lang),
+                                  style: TextStyle(
+                                    color: activeTeal,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
                                 ),
-                                value: '$_edukasiCount',
-                                desc: lang == 'id'
-                                    ? 'Artikel kebersihan'
-                                    : 'Cleanliness articles',
-                                icon: Icons.menu_book_outlined,
-                                color: const Color(0xFFEFF6F5),
-                                iconColor: activeTeal,
-                                onTap: () {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const MainNavigationShell(
-                                            initialTab: 3,
-                                          ),
-                                    ),
-                                    (route) => false,
-                                  );
-                                },
-                              ),
-                              _buildRedesignedStatCard(
-                                title: AppTranslations.translate(
-                                  'location_map',
-                                  lang,
-                                ),
-                                value: '${AqiStation.defaultStations.length}',
-                                desc: lang == 'id'
-                                    ? 'Titik pantau AQI'
-                                    : 'AQI monitoring points',
-                                icon: Icons.map_outlined,
-                                color: const Color(0xFFEFF6FF),
-                                iconColor: const Color(0xFF2563EB),
-                                onTap: () {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const MainNavigationShell(
-                                            initialTab: 1,
-                                          ),
-                                    ),
-                                    (route) => false,
-                                  );
-                                },
-                              ),
-                              _buildRedesignedStatCard(
-                                title: AppTranslations.translate(
-                                  'average_aqi',
-                                  lang,
-                                ),
-                                value: '${_nearestStation?.aqi ?? 32}',
-                                desc: lang == 'id'
-                                    ? 'Tingkat ${_nearestStation?.name ?? "Jakarta"}'
-                                    : '${_nearestStation?.name ?? "Jakarta"} Level',
-                                icon: Icons.air_outlined,
-                                color:
-                                    (_nearestStation?.color ??
-                                            const Color(0xFFECFDF5))
-                                        .withValues(alpha: 0.12),
-                                iconColor:
-                                    _nearestStation?.color ??
-                                    const Color(0xFF10B981),
-                                onTap: () {},
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                        ),
+                        const SizedBox(height: 6),
 
-                    // 4. Grafik AQI 7 Hari Terakhir
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: AqiLineChart(
-                        values: _get7DayAqiValues(),
-                        dates: _get7DayAqiDates(),
-                        chartColor:
-                            _nearestStation?.color ?? const Color(0xFF10B981),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // 5. Aktivitas & Tips
-                    _buildAktivitasDanTips(),
-                    const SizedBox(height: 20),
-
-                    // 6. Recent Laporan Feed
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppTranslations.translate('recent_reports', lang),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const MainNavigationShell(initialTab: 2),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: _recentLaporan.isEmpty
+                              ? Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 32,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: cardColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: borderColor),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.description_outlined,
+                                        color: isDark
+                                            ? Colors.white24
+                                            : Colors.grey[300],
+                                        size: 44,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        AppTranslations.translate(
+                                          'belum_ada_laporan',
+                                          lang,
+                                        ),
+                                        style: TextStyle(color: subTextColor),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.zero,
+                                  itemCount: _recentLaporan.length,
+                                  itemBuilder: (context, index) {
+                                    final report = _recentLaporan[index];
+                                    return _buildRedesignedReportItem(report);
+                                  },
                                 ),
-                                (route) => false,
-                              );
-                            },
-                            child: Text(
-                              AppTranslations.translate('view_all', lang),
-                              style: TextStyle(
-                                color: activeTeal,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 110),
+                      ],
                     ),
-                    const SizedBox(height: 6),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: _recentLaporan.isEmpty
-                          ? Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 32),
-                              decoration: BoxDecoration(
-                                color: cardColor,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: borderColor),
-                              ),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.description_outlined,
-                                    color: isDark
-                                        ? Colors.white24
-                                        : Colors.grey[300],
-                                    size: 44,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    AppTranslations.translate(
-                                      'belum_ada_laporan',
-                                      lang,
-                                    ),
-                                    style: TextStyle(color: subTextColor),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              padding: EdgeInsets.zero,
-                              itemCount: _recentLaporan.length,
-                              itemBuilder: (context, index) {
-                                final report = _recentLaporan[index];
-                                return _buildRedesignedReportItem(report);
-                              },
-                            ),
-                    ),
-                    const SizedBox(height: 110),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-      floatingActionButton:
-          (DebugConfig.showDatabaseViewer && _userRole == 'admin')
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 90.0),
-              child: FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DatabaseViewerView(),
-                    ),
-                  );
-                },
-                backgroundColor: const Color(0xFF0D9488),
-                shape: const CircleBorder(),
-                elevation: 4,
-                child: const Icon(Icons.storage, color: Colors.white),
-              ),
-            )
-          : null,
+          floatingActionButton:
+              (DebugConfig.showDatabaseViewer && _userRole == 'admin')
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 90.0),
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DatabaseViewerView(),
+                        ),
+                      );
+                    },
+                    backgroundColor: const Color(0xFF0D9488),
+                    shape: const CircleBorder(),
+                    elevation: 4,
+                    child: const Icon(Icons.storage, color: Colors.white),
+                  ),
+                )
+              : null,
         );
       },
     );
@@ -972,7 +1017,18 @@ class _HomeViewState extends State<HomeView> {
       AppTranslations.translate('quotes_6', lang),
     ];
     final day = DateTime.now().day;
-    return quotes[day % quotes.length];
+    final selectedQuote = quotes[day % quotes.length];
+
+    // Jika kualitas udara tidak sehat/buruk (AQI > 100) dan quote yang terpilih menyarankan aktivitas luar,
+    // berikan peringatan untuk membatasi aktivitas luar ruangan.
+    final aqi = _nearestStation?.aqi ?? 32;
+    if (aqi > 100 && selectedQuote == AppTranslations.translate('quotes_3', lang)) {
+      return lang == 'id'
+          ? 'Kualitas udara saat ini sedang kurang sehat, harap batasi aktivitas luar ruangan.'
+          : 'Air quality is currently unhealthy, please limit outdoor activities.';
+    }
+
+    return selectedQuote;
   }
 
   Widget _buildHealthRecommendations(String lang, Color labelColor) {
@@ -1356,68 +1412,10 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(14),
-                        child: report.firstFoto.startsWith('http')
-                            ? Image.network(
-                                report.firstFoto,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      color: isDark
-                                          ? const Color(0xFF1E293B)
-                                          : const Color(0xFFE6F4F1),
-                                      child: Icon(
-                                        Icons.image,
-                                        color: isDark
-                                            ? subTextColor
-                                            : const Color(0xFF0D9488),
-                                      ),
-                                    ),
-                              )
-                            : report.firstFoto.startsWith('assets/')
-                            ? Image.asset(
-                                report.firstFoto,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      color: isDark
-                                          ? const Color(0xFF1E293B)
-                                          : const Color(0xFFE6F4F1),
-                                      child: Icon(
-                                        Icons.image,
-                                        color: isDark
-                                            ? subTextColor
-                                            : const Color(0xFF0D9488),
-                                      ),
-                                    ),
-                              )
-                            : report.firstFoto.isNotEmpty
-                            ? Image.file(
-                                File(report.firstFoto),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      color: isDark
-                                          ? const Color(0xFF1E293B)
-                                          : const Color(0xFFE6F4F1),
-                                      child: Icon(
-                                        Icons.image,
-                                        color: isDark
-                                            ? subTextColor
-                                            : const Color(0xFF0D9488),
-                                      ),
-                                    ),
-                              )
-                            : Container(
-                                color: isDark
-                                    ? const Color(0xFF1E293B)
-                                    : const Color(0xFFE6F4F1),
-                                child: Icon(
-                                  Icons.photo_library_outlined,
-                                  color: isDark
-                                      ? subTextColor
-                                      : const Color(0xFF0D9488),
-                                ),
-                              ),
+                        child: ReportImage(
+                          path: report.firstFoto,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -1615,7 +1613,7 @@ class _HomeViewState extends State<HomeView> {
       activitySubtitle = lang == 'id'
           ? 'Kualitas udara sedang, aman untuk beraktivitas luar ruangan santai.'
           : 'Air quality is moderate, safe for relaxed outdoor activities.';
-      activityImage = 'assets/images/project_akhir/aktivitas_3.png';
+      activityImage = 'assets/images/project_akhir/aktivitas_4.png';
       activityBorderColor = isDark
           ? const Color(0xFF78350F)
           : const Color(0xFFFEF3C7);

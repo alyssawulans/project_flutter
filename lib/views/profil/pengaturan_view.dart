@@ -37,7 +37,9 @@ class _PengaturanViewState extends State<PengaturanView> {
   Future<void> _loadUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final userFirestoreId = prefs.getString('current_user_firestore_id');
-    final user = userFirestoreId != null ? await FirebaseAuthService.instance.getUser(userFirestoreId) : null;
+    final user = userFirestoreId != null
+        ? await FirebaseAuthService.instance.getUser(userFirestoreId)
+        : null;
 
     if (mounted && user != null) {
       setState(() {
@@ -422,7 +424,9 @@ class _PengaturanViewState extends State<PengaturanView> {
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: isProcessing ? null : () => Navigator.pop(context),
+                              onPressed: isProcessing
+                                  ? null
+                                  : () => Navigator.pop(context),
                               style: OutlinedButton.styleFrom(
                                 side: BorderSide(
                                   color: isDark
@@ -448,80 +452,93 @@ class _PengaturanViewState extends State<PengaturanView> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: isProcessing ? null : () async {
-                                if (oldPasswordController.text.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        AppTranslations.translate(
-                                          'change_password_old_error',
-                                          lang,
-                                        ),
-                                      ),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                  return;
-                                }
-                                if (passwordController.text.length < 6) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        AppTranslations.translate(
-                                          'change_password_error',
-                                          lang,
-                                        ),
-                                      ),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                setDialogState(() {
-                                  isProcessing = true;
-                                });
-
-                                try {
-                                  await FirebaseAuthService.instance
-                                      .reauthenticateAndUpdatePassword(
-                                        oldPasswordController.text,
-                                        passwordController.text,
-                                      );
-
-                                  if (mounted) {
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          AppTranslations.translate(
-                                            'change_password_success',
-                                            lang,
+                              onPressed: isProcessing
+                                  ? null
+                                  : () async {
+                                      if (oldPasswordController.text.isEmpty) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              AppTranslations.translate(
+                                                'change_password_old_error',
+                                                lang,
+                                              ),
+                                            ),
+                                            backgroundColor: Colors.red,
                                           ),
-                                        ),
-                                        backgroundColor: const Color(0xFF0D9488),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (mounted) {
-                                    setDialogState(() {
-                                      isProcessing = false;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          AppTranslations.translate(
-                                            'change_password_old_wrong',
-                                            lang,
-                                          ) + " ($e)",
-                                        ),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
+                                        );
+                                        return;
+                                      }
+                                      if (passwordController.text.length < 6) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              AppTranslations.translate(
+                                                'change_password_error',
+                                                lang,
+                                              ),
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                        return;
+                                      }
+
+                                      setDialogState(() {
+                                        isProcessing = true;
+                                      });
+
+                                      try {
+                                        await FirebaseAuthService.instance
+                                            .reauthenticateAndUpdatePassword(
+                                              oldPasswordController.text,
+                                              passwordController.text,
+                                            );
+
+                                        if (mounted) {
+                                          Navigator.pop(context);
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                AppTranslations.translate(
+                                                  'change_password_success',
+                                                  lang,
+                                                ),
+                                              ),
+                                              backgroundColor: const Color(
+                                                0xFF0D9488,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          setDialogState(() {
+                                            isProcessing = false;
+                                          });
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                AppTranslations.translate(
+                                                      'change_password_old_wrong',
+                                                      lang,
+                                                    ) +
+                                                    " ($e)",
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: activeTeal,
                                 foregroundColor: Colors.white,
@@ -544,7 +561,9 @@ class _PengaturanViewState extends State<PengaturanView> {
                                     )
                                   : Text(
                                       AppTranslations.translate('save', lang),
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                             ),
                           ),
@@ -1188,8 +1207,8 @@ class _PengaturanViewState extends State<PengaturanView> {
                             SnackBar(
                               content: Text(
                                 lang == 'id'
-                                    ? 'Bantuan: hubungi support@ruas.id'
-                                    : 'Help: contact support@ruas.id',
+                                    ? 'Bantuan: hubungi alyssawulans@gmail.com'
+                                    : 'Help: contact alyssawulans@gmail.com',
                               ),
                             ),
                           );

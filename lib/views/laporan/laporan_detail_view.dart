@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/views/laporan/laporan_edit_view.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 
 class LaporanDetailView extends StatefulWidget {
   final LaporanModel laporan;
@@ -141,39 +142,10 @@ class _LaporanDetailViewState extends State<LaporanDetailView> {
                     height: 220,
                     width: double.infinity,
                     color: isDark ? const Color(0xFF1E293B) : Colors.grey.shade100,
-                    child: _currentLaporan.firstFoto.startsWith('http')
-                        ? Image.network(
-                            _currentLaporan.firstFoto,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => const Icon(
-                              Icons.broken_image_outlined,
-                              size: 60,
-                              color: Colors.grey,
-                            ),
-                          )
-                        : _currentLaporan.firstFoto.startsWith('assets/')
-                            ? Image.asset(
-                                _currentLaporan.firstFoto,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => const Icon(
-                                  Icons.broken_image_outlined,
-                                  size: 60,
-                                  color: Colors.grey,
-                                ),
-                              )
-                            : _currentLaporan.firstFoto.isNotEmpty
-                                ? Image.file(
-                                    File(_currentLaporan.firstFoto),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => const Icon(
-                                      Icons.broken_image_outlined,
-                                      size: 60,
-                                      color: Colors.grey,
-                                    ),
-                                  )
-                                : const Center(
-                                    child: Icon(Icons.photo_outlined, size: 60, color: Colors.black26),
-                                  ),
+                    child: ReportImage(
+                      path: _currentLaporan.firstFoto,
+                      fit: BoxFit.cover,
+                    ),
                   ),
 
                   Padding(

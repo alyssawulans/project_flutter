@@ -475,28 +475,28 @@ class _LoginViewState extends State<LoginView> {
                             return null;
                           },
                         ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Fitur lupa kata sandi belum tersedia.',
-                                  ),
-                                ),
-                              );
-                            },
-                            child: const Text(
-                              "Lupa Kata Sandi?",
-                              style: TextStyle(
-                                color: Colors.teal,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Align(
+                        //   alignment: Alignment.centerRight,
+                        //   child: TextButton(
+                        //     onPressed: () {
+                        //       ScaffoldMessenger.of(context).showSnackBar(
+                        //         const SnackBar(
+                        //           content: Text(
+                        //             'Fitur lupa kata sandi belum tersedia.',
+                        //           ),
+                        //         ),
+                        //       );
+                        //     },
+                        //     child: const Text(
+                        //       "Lupa Kata Sandi?",
+                        //       style: TextStyle(
+                        //         color: Colors.teal,
+                        //         fontWeight: FontWeight.bold,
+                        //         fontSize: 12,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         const SizedBox(height: 8),
                         SizedBox(
                           width: double.infinity,
@@ -561,35 +561,7 @@ class _LoginViewState extends State<LoginView> {
                               //     ),
                               //   ),
                               // ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: SizedBox(
-                                  height: 50,
-
-                                  child: OutlinedButton.icon(
-                                    onPressed: _fillDemoAdminAccount,
-                                    icon: const Icon(
-                                      Icons.admin_panel_settings_outlined,
-                                      size: 16,
-                                    ),
-                                    label: const Text('Demo Admin'),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: isDark
-                                          ? const Color(0xFF0D9488)
-                                          : const Color(0xFF0F4C43),
-                                      side: BorderSide(
-                                        color: isDark
-                                            ? const Color(0xFF0D9488)
-                                            : const Color(0xFF0F4C43),
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      padding: EdgeInsets.zero,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              //
                             ],
                           ),
                         ],
@@ -622,13 +594,13 @@ class _LoginViewState extends State<LoginView> {
                           isDark: isDark,
                           onPressed: _loginWithGoogle,
                         ),
-                        const SizedBox(height: 12),
-                        _buildSocialButton(
-                          label: "Masuk dengan Apple",
-                          icon: Icons.apple,
-                          iconColor: isDark ? Colors.white : Colors.black,
-                          isDark: isDark,
-                        ),
+                        // const SizedBox(height: 12),
+                        // _buildSocialButton(
+                        //   label: "Masuk dengan Apple",
+                        //   icon: Icons.apple,
+                        //   iconColor: isDark ? Colors.white : Colors.black,
+                        //   isDark: isDark,
+                        // ),
                       ],
                     ),
                   ),

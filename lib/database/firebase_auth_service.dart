@@ -229,8 +229,12 @@ class FirebaseAuthService {
 
   // Helper untuk mengunggah file lokal ke Firebase Storage dan mengembalikan URL download
   Future<String> uploadFile(String filePath, String folderName) async {
-    // Jika path kosong atau berupa asset / web url, kembalikan apa adanya
-    if (filePath.isEmpty || filePath.startsWith('assets/') || filePath.startsWith('http')) {
+    // Jika path kosong, berupa asset, web url, atau data Base64, kembalikan apa adanya
+    if (filePath.isEmpty ||
+        filePath.startsWith('assets/') ||
+        filePath.startsWith('http') ||
+        filePath.startsWith('data:image/') ||
+        filePath.length > 1000) {
       return filePath;
     }
 
@@ -265,7 +269,21 @@ class FirebaseAuthService {
 
     // Handle multiple photos upload if any
     if (laporan.foto.isNotEmpty) {
-      final List<String> paths = laporan.foto.split(',');
+      final List<String> paths;
+      if (laporan.foto.startsWith('data:image/')) {
+        final parts = laporan.foto.split(',data:image/');
+        paths = [];
+        for (int i = 0; i < parts.length; i++) {
+          if (i == 0) {
+            paths.add(parts[i]);
+          } else {
+            paths.add('data:image/' + parts[i]);
+          }
+        }
+      } else {
+        paths = laporan.foto.split(',');
+      }
+      
       final List<String> uploadedUrls = [];
       for (final path in paths) {
         if (path.trim().isNotEmpty) {
@@ -322,7 +340,21 @@ class FirebaseAuthService {
 
       // Handle multiple photos upload if any
       if (laporan.foto.isNotEmpty) {
-        final List<String> paths = laporan.foto.split(',');
+        final List<String> paths;
+        if (laporan.foto.startsWith('data:image/')) {
+          final parts = laporan.foto.split(',data:image/');
+          paths = [];
+          for (int i = 0; i < parts.length; i++) {
+            if (i == 0) {
+              paths.add(parts[i]);
+            } else {
+              paths.add('data:image/' + parts[i]);
+            }
+          }
+        } else {
+          paths = laporan.foto.split(',');
+        }
+
         final List<String> uploadedUrls = [];
         for (final path in paths) {
           if (path.trim().isNotEmpty) {
@@ -498,6 +530,34 @@ class FirebaseAuthService {
     } catch (e) {
       return 0;
     }
+  }
+
+  // Mendapatkan stream daftar notifikasi untuk user tertentu (real-time)
+  Stream<List<NotificationModel>> getNotificationsStream(String userFirestoreId) {
+    return _db
+        .collection('notifications')
+        .where('user_firestore_id', isEqualTo: userFirestoreId)
+        .snapshots()
+        .map((snapshot) {
+          final results = snapshot.docs.map((doc) {
+            final data = doc.data();
+            return NotificationModel.fromMap(data, doc.id);
+          }).toList();
+
+          // Urutkan berdasarkan tanggal terbaru (descending)
+          results.sort((a, b) => b.tanggal.compareTo(a.tanggal));
+          return results;
+        });
+  }
+
+  // Mendapatkan stream jumlah notifikasi yang belum dibaca (real-time)
+  Stream<int> getUnreadNotificationCountStream(String userFirestoreId) {
+    return _db
+        .collection('notifications')
+        .where('user_firestore_id', isEqualTo: userFirestoreId)
+        .where('is_read', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
   }
 
   // Mengambil laporan berdasarkan Firestore ID (untuk navigasi/deep linking)

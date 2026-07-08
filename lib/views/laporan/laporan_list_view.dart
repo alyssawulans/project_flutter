@@ -4,6 +4,7 @@ import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/views/laporan/laporan_add_view.dart';
 import 'package:project_flutter/views/laporan/laporan_detail_view.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 
 class LaporanListView extends StatefulWidget {
   const LaporanListView({super.key});
@@ -241,51 +242,12 @@ class _LaporanListViewState extends State<LaporanListView> {
               // Photo Thumbnail
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: report.firstFoto.startsWith('http')
-                    ? Image.network(
-                        report.firstFoto,
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          width: 80,
-                          height: 80,
-                          color: isDark ? const Color(0xFF334155) : Colors.teal.shade50,
-                          child: const Icon(Icons.image, color: Color(0xFF0D9488)),
-                        ),
-                      )
-                    : report.firstFoto.startsWith('assets/')
-                        ? Image.asset(
-                            report.firstFoto,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              width: 80,
-                              height: 80,
-                              color: isDark ? const Color(0xFF334155) : Colors.teal.shade50,
-                              child: const Icon(Icons.image, color: Color(0xFF0D9488)),
-                            ),
-                          )
-                        : report.firstFoto.isNotEmpty
-                            ? Image.file(
-                                File(report.firstFoto),
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
-                                  width: 80,
-                                  height: 80,
-                                  color: isDark ? const Color(0xFF334155) : Colors.teal.shade50,
-                                  child: const Icon(Icons.image, color: Color(0xFF0D9488)),
-                                ),
-                              )
-                            : Container(
-                                width: 80,
-                                height: 80,
-                                color: isDark ? const Color(0xFF334155) : Colors.teal.shade50,
-                                child: const Icon(Icons.photo_library_outlined, color: Color(0xFF0D9488)),
-                              ),
+                child: ReportImage(
+                  path: report.firstFoto,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

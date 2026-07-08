@@ -236,7 +236,11 @@ class _ProfilViewState extends State<ProfilView> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
-          final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
+          final lang = AppSettingsController
+              .instance
+              .settingsNotifier
+              .value
+              .languageCode;
           final dialogBg = isDark ? const Color(0xFF1E293B) : Colors.white;
           return Dialog(
             shape: RoundedRectangleBorder(
@@ -384,7 +388,9 @@ class _ProfilViewState extends State<ProfilView> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        lang == 'en' ? 'Date of Birth' : 'Tanggal Lahir',
+                                        lang == 'en'
+                                            ? 'Date of Birth'
+                                            : 'Tanggal Lahir',
                                         style: const TextStyle(
                                           color: Color(0xFF64748B),
                                           fontSize: 10,
@@ -394,7 +400,9 @@ class _ProfilViewState extends State<ProfilView> {
                                       Text(
                                         selectedTanggalLahir.isNotEmpty
                                             ? selectedTanggalLahir
-                                            : (lang == 'en' ? 'Select Date of Birth' : 'Pilih Tanggal Lahir'),
+                                            : (lang == 'en'
+                                                  ? 'Select Date of Birth'
+                                                  : 'Pilih Tanggal Lahir'),
                                         style: TextStyle(
                                           color: selectedTanggalLahir.isNotEmpty
                                               ? (isDark
@@ -436,25 +444,29 @@ class _ProfilViewState extends State<ProfilView> {
                                 ),
                                 child: Text(
                                   lang == 'en' ? 'Cancel' : 'Batal',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (namaController.text.trim().isEmpty) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            lang == 'en' ? 'Name cannot be empty' : 'Nama tidak boleh kosong',
-                                          ),
-                                          backgroundColor: Colors.red,
+                                onPressed: () async {
+                                  if (namaController.text.trim().isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          lang == 'en'
+                                              ? 'Name cannot be empty'
+                                              : 'Nama tidak boleh kosong',
                                         ),
-                                      );
-                                      return;
-                                    }
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
 
                                   await FirebaseAuthService.instance
                                       .updateUserProfile(
@@ -471,34 +483,40 @@ class _ProfilViewState extends State<ProfilView> {
                                     namaController.text.trim(),
                                   );
 
-                                    if (mounted) {
-                                      Navigator.pop(context);
-                                      _loadUserProfile();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            lang == 'en' ? 'Profile updated successfully' : 'Profil berhasil diperbarui',
-                                          ),
-                                          backgroundColor: const Color(0xFF0D9488),
+                                  if (mounted) {
+                                    Navigator.pop(context);
+                                    _loadUserProfile();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          lang == 'en'
+                                              ? 'Profile updated successfully'
+                                              : 'Profil berhasil diperbarui',
                                         ),
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: activeTeal,
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
+                                        backgroundColor: const Color(
+                                          0xFF0D9488,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: activeTeal,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
                                   ),
-                                  child: Text(
-                                    lang == 'en' ? 'Save' : 'Simpan',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
+                                ),
+                                child: Text(
+                                  lang == 'en' ? 'Save' : 'Simpan',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -568,7 +586,11 @@ class _ProfilViewState extends State<ProfilView> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
-          final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
+          final lang = AppSettingsController
+              .instance
+              .settingsNotifier
+              .value
+              .languageCode;
           final dialogBg = isDark ? const Color(0xFF1E293B) : Colors.white;
           return Dialog(
             shape: RoundedRectangleBorder(
@@ -647,14 +669,18 @@ class _ProfilViewState extends State<ProfilView> {
                                 : const Color(0xFF0F172A),
                           ),
                           decoration: InputDecoration(
-                            labelText: lang == 'en' ? 'Old Password' : 'Kata Sandi Lama',
+                            labelText: lang == 'en'
+                                ? 'Old Password'
+                                : 'Kata Sandi Lama',
                             labelStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF94A3B8)
                                   : const Color(0xFF64748B),
                               fontSize: 13,
                             ),
-                            hintText: lang == 'en' ? 'Enter current password' : 'Masukkan kata sandi saat ini',
+                            hintText: lang == 'en'
+                                ? 'Enter current password'
+                                : 'Masukkan kata sandi saat ini',
                             hintStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF64748B)
@@ -704,14 +730,18 @@ class _ProfilViewState extends State<ProfilView> {
                                 : const Color(0xFF0F172A),
                           ),
                           decoration: InputDecoration(
-                            labelText: lang == 'en' ? 'New Password' : 'Kata Sandi Baru',
+                            labelText: lang == 'en'
+                                ? 'New Password'
+                                : 'Kata Sandi Baru',
                             labelStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF94A3B8)
                                   : const Color(0xFF64748B),
                               fontSize: 13,
                             ),
-                            hintText: lang == 'en' ? 'Minimum 6 characters' : 'Minimal 6 karakter',
+                            hintText: lang == 'en'
+                                ? 'Minimum 6 characters'
+                                : 'Minimal 6 karakter',
                             hintStyle: TextStyle(
                               color: isDark
                                   ? const Color(0xFF64748B)
@@ -741,7 +771,9 @@ class _ProfilViewState extends State<ProfilView> {
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: isProcessing ? null : () => Navigator.pop(context),
+                              onPressed: isProcessing
+                                  ? null
+                                  : () => Navigator.pop(context),
                               style: OutlinedButton.styleFrom(
                                 side: BorderSide(
                                   color: isDark
@@ -760,77 +792,97 @@ class _ProfilViewState extends State<ProfilView> {
                               ),
                               child: Text(
                                 lang == 'en' ? 'Cancel' : 'Batal',
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: isProcessing ? null : () async {
-                                if (oldPasswordController.text.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        lang == 'en' ? 'Old password cannot be empty' : 'Kata sandi lama tidak boleh kosong',
-                                      ),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                  return;
-                                }
-                                if (passwordController.text.length < 6) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        lang == 'en' ? 'New password must be at least 6 characters' : 'Kata sandi baru minimal 6 karakter',
-                                      ),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                  return;
-                                }
+                              onPressed: isProcessing
+                                  ? null
+                                  : () async {
+                                      if (oldPasswordController.text.isEmpty) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              lang == 'en'
+                                                  ? 'Old password cannot be empty'
+                                                  : 'Kata sandi lama tidak boleh kosong',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                      if (passwordController.text.length < 6) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              lang == 'en'
+                                                  ? 'New password must be at least 6 characters'
+                                                  : 'Kata sandi baru minimal 6 karakter',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                        return;
+                                      }
 
-                                setDialogState(() {
-                                  isProcessing = true;
-                                });
+                                      setDialogState(() {
+                                        isProcessing = true;
+                                      });
 
-                                try {
-                                  await FirebaseAuthService.instance
-                                      .reauthenticateAndUpdatePassword(
-                                        oldPasswordController.text,
-                                        passwordController.text,
-                                      );
+                                      try {
+                                        await FirebaseAuthService.instance
+                                            .reauthenticateAndUpdatePassword(
+                                              oldPasswordController.text,
+                                              passwordController.text,
+                                            );
 
-                                  if (mounted) {
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          lang == 'en' ? 'Password updated successfully' : 'Kata sandi berhasil diperbarui',
-                                        ),
-                                        backgroundColor: const Color(0xFF0D9488),
-                                      ),
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (mounted) {
-                                    setDialogState(() {
-                                      isProcessing = false;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          lang == 'en'
-                                              ? 'Incorrect old password or failed to update: $e'
-                                              : 'Kata sandi lama salah atau gagal memperbarui: $e',
-                                        ),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
+                                        if (mounted) {
+                                          Navigator.pop(context);
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                lang == 'en'
+                                                    ? 'Password updated successfully'
+                                                    : 'Kata sandi berhasil diperbarui',
+                                              ),
+                                              backgroundColor: const Color(
+                                                0xFF0D9488,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          setDialogState(() {
+                                            isProcessing = false;
+                                          });
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                lang == 'en'
+                                                    ? 'Incorrect old password or failed to update: $e'
+                                                    : 'Kata sandi lama salah atau gagal memperbarui: $e',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: activeTeal,
                                 foregroundColor: Colors.white,
@@ -853,7 +905,9 @@ class _ProfilViewState extends State<ProfilView> {
                                     )
                                   : Text(
                                       lang == 'en' ? 'Update' : 'Perbarui',
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                             ),
                           ),
@@ -1005,7 +1059,8 @@ class _ProfilViewState extends State<ProfilView> {
 
   void _showAllBadgesInfo() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final lang = AppSettingsController.instance.settingsNotifier.value.languageCode;
+    final lang =
+        AppSettingsController.instance.settingsNotifier.value.languageCode;
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -1037,7 +1092,9 @@ class _ProfilViewState extends State<ProfilView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    lang == 'en' ? 'Achievement Badges List' : 'Daftar Lencana Pencapaian',
+                    lang == 'en'
+                        ? 'Achievement Badges List'
+                        : 'Daftar Lencana Pencapaian',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -1067,7 +1124,9 @@ class _ProfilViewState extends State<ProfilView> {
                     borderColor: _getBadgeDetailBorderColor(_ecoStarterTier),
                     statusText: _ecoStarterTier == 'Locked'
                         ? (lang == 'en' ? 'Locked' : 'Terkunci')
-                        : (lang == 'en' ? 'Level: $_ecoStarterTier' : 'Level: $_ecoStarterTier'),
+                        : (lang == 'en'
+                              ? 'Level: $_ecoStarterTier'
+                              : 'Level: $_ecoStarterTier'),
                     isLocked: _ecoStarterTier == 'Locked',
                   ),
                   _buildBadgeDetailItem(
@@ -1080,7 +1139,9 @@ class _ProfilViewState extends State<ProfilView> {
                     borderColor: _getBadgeDetailBorderColor(_greenReporterTier),
                     statusText: _greenReporterTier == 'Locked'
                         ? (lang == 'en' ? 'Locked' : 'Terkunci')
-                        : (lang == 'en' ? 'Level: $_greenReporterTier' : 'Level: $_greenReporterTier'),
+                        : (lang == 'en'
+                              ? 'Level: $_greenReporterTier'
+                              : 'Level: $_greenReporterTier'),
                     isLocked: _greenReporterTier == 'Locked',
                   ),
                   _buildBadgeDetailItem(
@@ -1093,7 +1154,9 @@ class _ProfilViewState extends State<ProfilView> {
                     borderColor: _getBadgeDetailBorderColor(_airGuardianTier),
                     statusText: _airGuardianTier == 'Locked'
                         ? (lang == 'en' ? 'Locked' : 'Terkunci')
-                        : (lang == 'en' ? 'Level: $_airGuardianTier' : 'Level: $_airGuardianTier'),
+                        : (lang == 'en'
+                              ? 'Level: $_airGuardianTier'
+                              : 'Level: $_airGuardianTier'),
                     isLocked: _airGuardianTier == 'Locked',
                   ),
                   const SizedBox(height: 16),
@@ -1368,7 +1431,7 @@ class _ProfilViewState extends State<ProfilView> {
       }
     }
     return Image.asset(
-      'assets/images/profile.webp',
+      'assets/images/profile.png',
       width: 76,
       height: 76,
       fit: BoxFit.cover,
@@ -1387,8 +1450,12 @@ class _ProfilViewState extends State<ProfilView> {
         final Color bgColor = isDark
             ? const Color(0xFF0F172A)
             : const Color(0xFFF8FAFC);
-        final Color appBarBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-        final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+        final Color appBarBgColor = isDark
+            ? const Color(0xFF1E293B)
+            : Colors.white;
+        final Color cardBgColor = isDark
+            ? const Color(0xFF1E293B)
+            : Colors.white;
         final Color textColor = isDark
             ? const Color(0xFFF8FAFC)
             : const Color(0xFF0F172A);
@@ -1404,379 +1471,396 @@ class _ProfilViewState extends State<ProfilView> {
 
         return Scaffold(
           backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: appBarBgColor,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Profil',
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+          appBar: AppBar(
+            backgroundColor: appBarBgColor,
+            elevation: 0,
+            centerTitle: true,
+            title: Text(
+              'Profil',
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.settings_outlined, color: textColor),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PengaturanView(),
+                    ),
+                  ).then((_) => _loadUserProfile());
+                },
+              ),
+            ],
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings_outlined, color: textColor),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PengaturanView()),
-              ).then((_) => _loadUserProfile());
-            },
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF0D9488)),
-            )
-          : RefreshIndicator(
-              onRefresh: _loadUserProfile,
-              color: activeTeal,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 1. Profil Saya Card
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: cardBgColor,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: borderColor),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDark
-                                ? Colors.black.withOpacity(0.3)
-                                : Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 16,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            lang == 'en' ? 'My Profile' : 'Profil Saya',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              // Avatar Stack with Verified Badge & Edit Button
-                              Stack(
-                                children: [
-                                  GestureDetector(
-                                    onTap: _showImageSourcePicker,
-                                    child: CircleAvatar(
-                                      radius: 38,
-                                      backgroundColor: isDark
-                                          ? const Color(0xFF0F4C43)
-                                          : const Color(0xFFE2F1ED),
-                                      child: ClipOval(
-                                        child: _buildProfileImage(),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(3),
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF10B981),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 14,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    left: 0,
-                                    child: GestureDetector(
-                                      onTap: _showImageSourcePicker,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF0D9488),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.camera_alt,
-                                          color: Colors.white,
-                                          size: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+          body: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF0D9488)),
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadUserProfile,
+                  color: activeTeal,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 1. Profil Saya Card
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: cardBgColor,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: borderColor),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.black.withOpacity(0.3)
+                                    : Colors.black.withValues(alpha: 0.02),
+                                blurRadius: 16,
+                                offset: const Offset(0, 8),
                               ),
-                              const SizedBox(width: 18),
-                              // Name & Email
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _userName,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: textColor,
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                lang == 'en' ? 'My Profile' : 'Profil Saya',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: textColor,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  // Avatar Stack with Verified Badge & Edit Button
+                                  Stack(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: _showImageSourcePicker,
+                                        child: CircleAvatar(
+                                          radius: 38,
+                                          backgroundColor: isDark
+                                              ? const Color(0xFF0F4C43)
+                                              : const Color(0xFFE2F1ED),
+                                          child: ClipOval(
+                                            child: _buildProfileImage(),
+                                          ),
+                                        ),
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _userEmail,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: subTextColor,
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(3),
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFF10B981),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 14,
+                                          ),
+                                        ),
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 3,
+                                      Positioned(
+                                        bottom: 0,
+                                        left: 0,
+                                        child: GestureDetector(
+                                          onTap: _showImageSourcePicker,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFF0D9488),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.white,
+                                              size: 12,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: _getTopBadgeColor(
-                                          _ecoStarterTier,
-                                          _greenReporterTier,
-                                          _airGuardianTier,
-                                        ).withValues(alpha: 0.12),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.verified_rounded,
-                                            size: 12,
+                                    ],
+                                  ),
+                                  const SizedBox(width: 18),
+                                  // Name & Email
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _userName,
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: textColor,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          _userEmail,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: subTextColor,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
                                             color: _getTopBadgeColor(
                                               _ecoStarterTier,
                                               _greenReporterTier,
                                               _airGuardianTier,
+                                            ).withValues(alpha: 0.12),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
                                             ),
                                           ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            lang == 'en'
-                                                ? 'Rank: ${_getRankName(_ecoStarterTier, _greenReporterTier, _airGuardianTier)}'
-                                                : 'Pangkat: ${_getRankName(_ecoStarterTier, _greenReporterTier, _airGuardianTier)}',
-                                            style: TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.w800,
-                                              color: _getTopBadgeColor(
-                                                _ecoStarterTier,
-                                                _greenReporterTier,
-                                                _airGuardianTier,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.verified_rounded,
+                                                size: 12,
+                                                color: _getTopBadgeColor(
+                                                  _ecoStarterTier,
+                                                  _greenReporterTier,
+                                                  _airGuardianTier,
+                                                ),
                                               ),
-                                            ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                lang == 'en'
+                                                    ? 'Rank: ${_getRankName(_ecoStarterTier, _greenReporterTier, _airGuardianTier)}'
+                                                    : 'Pangkat: ${_getRankName(_ecoStarterTier, _greenReporterTier, _airGuardianTier)}',
+                                                style: TextStyle(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: _getTopBadgeColor(
+                                                    _ecoStarterTier,
+                                                    _greenReporterTier,
+                                                    _airGuardianTier,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Divider(color: dividerColor, height: 1),
+                              const SizedBox(height: 16),
+                              // Stats row
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _buildMockupStatCol(
+                                    lang == 'en'
+                                        ? 'Total Reports'
+                                        : 'Total Laporan',
+                                    '$_laporanCount',
+                                  ),
+                                  _buildMockupDivider(),
+                                  _buildMockupStatCol(
+                                    lang == 'en'
+                                        ? 'Reports In Progress'
+                                        : 'Laporan Diproses',
+                                    '$_laporanDiprosesCount',
+                                  ),
+                                  _buildMockupDivider(),
+                                  _buildMockupStatCol(
+                                    lang == 'en'
+                                        ? 'Reports Completed'
+                                        : 'Laporan Selesai',
+                                    '$_laporanSelesaiCount',
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 20),
-                          Divider(color: dividerColor, height: 1),
-                          const SizedBox(height: 16),
-                          // Stats row
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildMockupStatCol(
-                                lang == 'en' ? 'Total Reports' : 'Total Laporan',
-                                '$_laporanCount',
-                              ),
-                              _buildMockupDivider(),
-                              _buildMockupStatCol(
-                                lang == 'en' ? 'Reports In Progress' : 'Laporan Diproses',
-                                '$_laporanDiprosesCount',
-                              ),
-                              _buildMockupDivider(),
-                              _buildMockupStatCol(
-                                lang == 'en' ? 'Reports Completed' : 'Laporan Selesai',
-                                '$_laporanSelesaiCount',
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // 2. Badge Saya Section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          lang == 'en' ? 'My Badges' : 'Badge Saya',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
                           ),
                         ),
-                        TextButton(
-                          onPressed: _showAllBadgesInfo,
-                          child: Text(
-                            lang == 'en' ? 'View All' : 'Lihat Semua',
-                            style: TextStyle(
-                              color: activeTeal,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                        const SizedBox(height: 24),
+
+                        // 2. Badge Saya Section
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              lang == 'en' ? 'My Badges' : 'Badge Saya',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildMockupBadgeItem(
-                          image: 'assets/images/project_akhir/badge_1.png',
-                          label: 'Eco Starter',
-                          tier: _ecoStarterTier,
-                        ),
-                        _buildMockupBadgeItem(
-                          image: 'assets/images/project_akhir/badge_2.png',
-                          label: 'Green Reporter',
-                          tier: _greenReporterTier,
-                        ),
-                        _buildMockupBadgeItem(
-                          image: 'assets/images/project_akhir/badge_3.png',
-                          label: 'Air Guardian',
-                          tier: _airGuardianTier,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 28),
-
-                    // 3. Menu List Options
-                    Container(
-                      decoration: BoxDecoration(
-                        color: cardBgColor,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: borderColor),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDark
-                                ? Colors.black.withOpacity(0.3)
-                                : Colors.black.withValues(alpha: 0.01),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          _buildMenuTile(
-                            Icons.person_outline_rounded,
-                            lang == 'en' ? 'Edit Profile' : 'Edit Profil',
-                            onTap: _showEditProfileDialog,
-                          ),
-                          Divider(height: 1, color: dividerColor),
-                          _buildMenuTile(
-                            Icons.notifications_none_rounded,
-                            lang == 'en' ? 'Notifications' : 'Notifikasi',
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const NotificationListView(),
+                            TextButton(
+                              onPressed: _showAllBadgesInfo,
+                              child: Text(
+                                lang == 'en' ? 'View All' : 'Lihat Semua',
+                                style: TextStyle(
+                                  color: activeTeal,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
                                 ),
-                              );
-                            },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildMockupBadgeItem(
+                              image: 'assets/images/project_akhir/badge_1.png',
+                              label: 'Eco Starter',
+                              tier: _ecoStarterTier,
+                            ),
+                            _buildMockupBadgeItem(
+                              image: 'assets/images/project_akhir/badge_2.png',
+                              label: 'Green Reporter',
+                              tier: _greenReporterTier,
+                            ),
+                            _buildMockupBadgeItem(
+                              image: 'assets/images/project_akhir/badge_3.png',
+                              label: 'Air Guardian',
+                              tier: _airGuardianTier,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 28),
+
+                        // 3. Menu List Options
+                        Container(
+                          decoration: BoxDecoration(
+                            color: cardBgColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: borderColor),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.black.withOpacity(0.3)
+                                    : Colors.black.withValues(alpha: 0.01),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          Divider(height: 1, color: dividerColor),
-                          _buildMenuTile(
-                            Icons.lock_outline_rounded,
-                            lang == 'en' ? 'Change Password' : 'Ubah Kata Sandi',
-                            onTap: _changePassword,
-                          ),
-                          Divider(height: 1, color: dividerColor),
-                          _buildMenuTile(
-                            Icons.info_outline_rounded,
-                            lang == 'en' ? 'About App' : 'Tentang Aplikasi',
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  final isDark =
-                                      Theme.of(context).brightness ==
-                                      Brightness.dark;
-                                  return Dialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(28),
+                          child: Column(
+                            children: [
+                              _buildMenuTile(
+                                Icons.person_outline_rounded,
+                                lang == 'en' ? 'Edit Profile' : 'Edit Profil',
+                                onTap: _showEditProfileDialog,
+                              ),
+                              Divider(height: 1, color: dividerColor),
+                              _buildMenuTile(
+                                Icons.notifications_none_rounded,
+                                lang == 'en' ? 'Notifications' : 'Notifikasi',
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const NotificationListView(),
                                     ),
-                                    clipBehavior: Clip.antiAlias,
-                                    backgroundColor: isDark
-                                        ? const Color(0xFF1E293B)
-                                        : Colors.white,
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          // Header Gradient Banner with decorative shapes
-                                          Container(
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  activeTeal,
-                                                  primaryTeal,
-                                                ],
-                                                begin: Alignment.topLeft,
-                                                end: Alignment.bottomRight,
-                                              ),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 28,
-                                            ),
-                                            child: Stack(
-                                              alignment: Alignment.center,
-                                              children: [
-                                                Column(
+                                  );
+                                },
+                              ),
+                              Divider(height: 1, color: dividerColor),
+                              _buildMenuTile(
+                                Icons.lock_outline_rounded,
+                                lang == 'en'
+                                    ? 'Change Password'
+                                    : 'Ubah Kata Sandi',
+                                onTap: _changePassword,
+                              ),
+                              Divider(height: 1, color: dividerColor),
+                              _buildMenuTile(
+                                Icons.info_outline_rounded,
+                                lang == 'en' ? 'About App' : 'Tentang Aplikasi',
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      final isDark =
+                                          Theme.of(context).brightness ==
+                                          Brightness.dark;
+                                      return Dialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            28,
+                                          ),
+                                        ),
+                                        clipBehavior: Clip.antiAlias,
+                                        backgroundColor: isDark
+                                            ? const Color(0xFF1E293B)
+                                            : Colors.white,
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              // Header Gradient Banner with decorative shapes
+                                              Container(
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      activeTeal,
+                                                      primaryTeal,
+                                                    ],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 28,
+                                                    ),
+                                                child: Stack(
+                                                  alignment: Alignment.center,
                                                   children: [
-                                                    Image.asset(
-                                                      'assets/images/logo_ruas.png',
-                                                      height: 72,
-                                                      errorBuilder:
-                                                          (
-                                                            context,
-                                                            error,
-                                                            stackTrace,
-                                                          ) => Container(
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  12,
-                                                                ),
-                                                            decoration:
-                                                                BoxDecoration(
+                                                    Column(
+                                                      children: [
+                                                        Image.asset(
+                                                          'assets/images/logo_ruas.png',
+                                                          height: 72,
+                                                          errorBuilder:
+                                                              (
+                                                                context,
+                                                                error,
+                                                                stackTrace,
+                                                              ) => Container(
+                                                                padding:
+                                                                    const EdgeInsets.all(
+                                                                      12,
+                                                                    ),
+                                                                decoration: BoxDecoration(
                                                                   color: Colors
                                                                       .white
                                                                       .withOpacity(
@@ -1785,259 +1869,308 @@ class _ProfilViewState extends State<ProfilView> {
                                                                   shape: BoxShape
                                                                       .circle,
                                                                 ),
-                                                            child: const Icon(
-                                                              Icons.air_rounded,
-                                                              color:
-                                                                  Colors.white,
-                                                              size: 48,
-                                                            ),
+                                                                child: const Icon(
+                                                                  Icons
+                                                                      .air_rounded,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 48,
+                                                                ),
+                                                              ),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 12,
+                                                        ),
+                                                        const Text(
+                                                          'RUAS',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 24,
+                                                            fontWeight:
+                                                                FontWeight.w900,
+                                                            letterSpacing: 1.5,
                                                           ),
-                                                    ),
-                                                    const SizedBox(height: 12),
-                                                    const Text(
-                                                      'RUAS',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 24,
-                                                        fontWeight:
-                                                            FontWeight.w900,
-                                                        letterSpacing: 1.5,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      lang == 'en' ? 'Breathing Space for All' : 'Ruang Napas Untuk Semua',
-                                                      style: const TextStyle(
-                                                        color: Colors.white70,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
+                                                        ),
+                                                        Text(
+                                                          lang == 'en'
+                                                              ? 'Breathing Space for All'
+                                                              : 'Ruang Napas Untuk Semua',
+                                                          style:
+                                                              const TextStyle(
+                                                                color: Colors
+                                                                    .white70,
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(24.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                // Description Card
-                                                Container(
-                                                  padding: const EdgeInsets.all(
-                                                    14,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: isDark
-                                                        ? const Color(
-                                                            0xFF0D9488,
-                                                          ).withOpacity(0.15)
-                                                        : const Color(
-                                                            0xFFEFF6F5,
-                                                          ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          16,
-                                                        ),
-                                                    border: Border.all(
-                                                      color: isDark
-                                                          ? const Color(
-                                                              0xFF0D9488,
-                                                            ).withOpacity(0.3)
-                                                          : const Color(
-                                                              0xFFCCECE7,
-                                                            ),
-                                                    ),
-                                                  ),
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.spa_rounded,
-                                                        color: activeTeal,
-                                                        size: 20,
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Expanded(
-                                                        child: Text(
-                                                          lang == 'en'
-                                                              ? 'RUAS is an air quality monitoring (AQI), environmental cleanliness reporting, and interactive educational media platform to achieve a healthy and clean Indonesian society.'
-                                                              : 'RUAS adalah platform pemantauan kualitas udara (AQI), pelaporan kebersihan lingkungan, dan media edukasi interaktif untuk mewujudkan masyarakat Indonesia yang sehat dan bersih.',
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            height: 1.5,
-                                                            color: isDark
-                                                                ? const Color(
-                                                                    0xFFF8FAFC,
-                                                                  )
-                                                                : textDark,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.all(
+                                                  24.0,
                                                 ),
-                                                const SizedBox(height: 20),
-                                                Text(
-                                                  lang == 'en' ? 'App Key Features' : 'Fitur Utama Aplikasi',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: activeTeal,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 12),
-                                                // Feature Rows inline
-                                                _buildFeatureRow(
-                                                  Icons.map_rounded,
-                                                  const Color(0xFFE0F2FE),
-                                                  Colors.blue,
-                                                  lang == 'en' ? 'National AQI Map' : 'Peta AQI Nasional',
-                                                  lang == 'en'
-                                                      ? 'Monitor standard air pollution indices updated across Indonesia.'
-                                                      : 'Pantau indeks standar pencemar udara terupdate di wilayah Indonesia.',
-                                                ),
-                                                const SizedBox(height: 10),
-                                                _buildFeatureRow(
-                                                  Icons.campaign_rounded,
-                                                  const Color(0xFFFEF3C7),
-                                                  Colors.amber[800]!,
-                                                  lang == 'en' ? 'Public Reports' : 'Laporan Masyarakat',
-                                                  lang == 'en'
-                                                      ? 'Report air pollution and waste spots in real-time.'
-                                                      : 'Laporkan titik polusi udara dan sampah secara real-time.',
-                                                ),
-                                                const SizedBox(height: 10),
-                                                _buildFeatureRow(
-                                                  Icons.menu_book_rounded,
-                                                  const Color(0xFFEFF6F5),
-                                                  primaryTeal,
-                                                  lang == 'en' ? 'Interactive Education' : 'Edukasi Interaktif',
-                                                  lang == 'en'
-                                                      ? 'Learn cleanliness tips and the health impacts of air quality.'
-                                                      : 'Pelajari kiat-kiat kebersihan dan dampak kualitas udara bagi kesehatan.',
-                                                ),
-                                                const SizedBox(height: 10),
-                                                _buildFeatureRow(
-                                                  Icons.quiz_rounded,
-                                                  const Color(0xFFFCE7F3),
-                                                  Colors.pink,
-                                                  lang == 'en' ? 'Quizzes & Challenges' : 'Kuis & Tantangan',
-                                                  lang == 'en'
-                                                      ? 'Test your environmental knowledge to gain achievement rewards.'
-                                                      : 'Uji pengetahuan lingkunganmu untuk mendapatkan reward pencapaian.',
-                                                ),
-                                                const SizedBox(height: 24),
-                                                // App Metadata
-                                                Center(
-                                                  child: Column(
-                                                    children: [
-                                                      Text(
-                                                        lang == 'en' ? 'Version 1.0.0' : 'Versi 1.0.0',
-                                                        style: const TextStyle(
-                                                          fontSize: 11,
-                                                          color: Colors.grey,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        lang == 'en'
-                                                            ? 'Developed with 💚 by RUAS Team'
-                                                            : 'Dikembangkan dengan 💚 oleh Tim RUAS',
-                                                        style: TextStyle(
-                                                          fontSize: 11,
-                                                          color: activeTeal,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 20),
-                                                // Close Button
-                                                SizedBox(
-                                                  width: double.infinity,
-                                                  child: ElevatedButton(
-                                                    onPressed: () =>
-                                                        Navigator.pop(context),
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          activeTeal,
-                                                      foregroundColor:
-                                                          Colors.white,
-                                                      elevation: 0,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    // Description Card
+                                                    Container(
                                                       padding:
-                                                          const EdgeInsets.symmetric(
-                                                            vertical: 14,
+                                                          const EdgeInsets.all(
+                                                            14,
                                                           ),
-                                                      shape: RoundedRectangleBorder(
+                                                      decoration: BoxDecoration(
+                                                        color: isDark
+                                                            ? const Color(
+                                                                0xFF0D9488,
+                                                              ).withOpacity(
+                                                                0.15,
+                                                              )
+                                                            : const Color(
+                                                                0xFFEFF6F5,
+                                                              ),
                                                         borderRadius:
                                                             BorderRadius.circular(
                                                               16,
                                                             ),
+                                                        border: Border.all(
+                                                          color: isDark
+                                                              ? const Color(
+                                                                  0xFF0D9488,
+                                                                ).withOpacity(
+                                                                  0.3,
+                                                                )
+                                                              : const Color(
+                                                                  0xFFCCECE7,
+                                                                ),
+                                                        ),
+                                                      ),
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Icon(
+                                                            Icons.spa_rounded,
+                                                            color: activeTeal,
+                                                            size: 20,
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 8,
+                                                          ),
+                                                          Expanded(
+                                                            child: Text(
+                                                              lang == 'en'
+                                                                  ? 'RUAS is an air quality monitoring (AQI), environmental cleanliness reporting, and interactive educational media platform to achieve a healthy and clean Indonesian society.'
+                                                                  : 'RUAS adalah platform pemantauan kualitas udara (AQI), pelaporan kebersihan lingkungan, dan media edukasi interaktif untuk mewujudkan masyarakat Indonesia yang sehat dan bersih.',
+                                                              style: TextStyle(
+                                                                fontSize: 12,
+                                                                height: 1.5,
+                                                                color: isDark
+                                                                    ? const Color(
+                                                                        0xFFF8FAFC,
+                                                                      )
+                                                                    : textDark,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
-                                                    child: Text(
-                                                      lang == 'en' ? 'Close' : 'Tutup',
-                                                      style: const TextStyle(
+                                                    const SizedBox(height: 20),
+                                                    Text(
+                                                      lang == 'en'
+                                                          ? 'App Key Features'
+                                                          : 'Fitur Utama Aplikasi',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
                                                         fontWeight:
                                                             FontWeight.bold,
+                                                        color: activeTeal,
                                                       ),
                                                     ),
-                                                  ),
+                                                    const SizedBox(height: 12),
+                                                    // Feature Rows inline
+                                                    _buildFeatureRow(
+                                                      Icons.map_rounded,
+                                                      const Color(0xFFE0F2FE),
+                                                      Colors.blue,
+                                                      lang == 'en'
+                                                          ? 'National AQI Map'
+                                                          : 'Peta AQI Nasional',
+                                                      lang == 'en'
+                                                          ? 'Monitor standard air pollution indices updated across Indonesia.'
+                                                          : 'Pantau indeks standar pencemar udara terupdate di wilayah Indonesia.',
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    _buildFeatureRow(
+                                                      Icons.campaign_rounded,
+                                                      const Color(0xFFFEF3C7),
+                                                      Colors.amber[800]!,
+                                                      lang == 'en'
+                                                          ? 'Public Reports'
+                                                          : 'Laporan Masyarakat',
+                                                      lang == 'en'
+                                                          ? 'Report air pollution and waste spots in real-time.'
+                                                          : 'Laporkan titik polusi udara dan sampah secara real-time.',
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    _buildFeatureRow(
+                                                      Icons.menu_book_rounded,
+                                                      const Color(0xFFEFF6F5),
+                                                      primaryTeal,
+                                                      lang == 'en'
+                                                          ? 'Interactive Education'
+                                                          : 'Edukasi Interaktif',
+                                                      lang == 'en'
+                                                          ? 'Learn cleanliness tips and the health impacts of air quality.'
+                                                          : 'Pelajari kiat-kiat kebersihan dan dampak kualitas udara bagi kesehatan.',
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    _buildFeatureRow(
+                                                      Icons.quiz_rounded,
+                                                      const Color(0xFFFCE7F3),
+                                                      Colors.pink,
+                                                      lang == 'en'
+                                                          ? 'Quizzes & Challenges'
+                                                          : 'Kuis & Tantangan',
+                                                      lang == 'en'
+                                                          ? 'Test your environmental knowledge to gain achievement rewards.'
+                                                          : 'Uji pengetahuan lingkunganmu untuk mendapatkan reward pencapaian.',
+                                                    ),
+                                                    const SizedBox(height: 24),
+                                                    // App Metadata
+                                                    Center(
+                                                      child: Column(
+                                                        children: [
+                                                          Text(
+                                                            lang == 'en'
+                                                                ? 'Version 1.0.0'
+                                                                : 'Versi 1.0.0',
+                                                            style:
+                                                                const TextStyle(
+                                                                  fontSize: 11,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 4,
+                                                          ),
+                                                          Text(
+                                                            lang == 'en'
+                                                                ? 'Developed with 💚 by RUAS Team'
+                                                                : 'Dikembangkan dengan 💚 oleh Tim RUAS',
+                                                            style: TextStyle(
+                                                              fontSize: 11,
+                                                              color: activeTeal,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    // Close Button
+                                                    SizedBox(
+                                                      width: double.infinity,
+                                                      child: ElevatedButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                              context,
+                                                            ),
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              activeTeal,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          elevation: 0,
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 14,
+                                                              ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  16,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        child: Text(
+                                                          lang == 'en'
+                                                              ? 'Close'
+                                                              : 'Tutup',
+                                                          style:
+                                                              const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                              const Divider(
+                                height: 1,
+                                color: Color(0xFFF1F5F9),
+                              ),
+                              _buildMenuTile(
+                                Icons.help_outline_rounded,
+                                lang == 'en' ? 'Help' : 'Bantuan',
+                                onTap: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        lang == 'en'
+                                            ? 'Contact alyssawulans@gmail.com for help.'
+                                            : 'Hubungi alyssawulans@gmail.com untuk bantuan.',
                                       ),
                                     ),
                                   );
                                 },
-                              );
-                            },
+                              ),
+                              const Divider(
+                                height: 1,
+                                color: Color(0xFFF1F5F9),
+                              ),
+                              _buildMenuTile(
+                                Icons.logout_rounded,
+                                lang == 'en' ? 'Log Out' : 'Keluar',
+                                iconColor: Colors.red,
+                                textColor: Colors.red,
+                                onTap: _logout,
+                              ),
+                            ],
                           ),
-                          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                          _buildMenuTile(
-                            Icons.help_outline_rounded,
-                            lang == 'en' ? 'Help' : 'Bantuan',
-                            onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    lang == 'en'
-                                        ? 'Contact support@ruas.id for help.'
-                                        : 'Hubungi support@ruas.id untuk bantuan.',
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                          _buildMenuTile(
-                            Icons.logout_rounded,
-                            lang == 'en' ? 'Log Out' : 'Keluar',
-                            iconColor: Colors.red,
-                            textColor: Colors.red,
-                            onTap: _logout,
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 110),
+                      ],
                     ),
-                    const SizedBox(height: 110),
-                  ],
+                  ),
                 ),
-              ),
-            ),
         );
       },
     );
@@ -2204,8 +2337,22 @@ class _ProfilViewState extends State<ProfilView> {
         ),
         Text(
           isLocked
-              ? (AppSettingsController.instance.settingsNotifier.value.languageCode == 'en' ? 'Locked' : 'Terkunci')
-              : (AppSettingsController.instance.settingsNotifier.value.languageCode == 'en' ? 'Level: $tier' : 'Tingkat: $tier'),
+              ? (AppSettingsController
+                            .instance
+                            .settingsNotifier
+                            .value
+                            .languageCode ==
+                        'en'
+                    ? 'Locked'
+                    : 'Terkunci')
+              : (AppSettingsController
+                            .instance
+                            .settingsNotifier
+                            .value
+                            .languageCode ==
+                        'en'
+                    ? 'Level: $tier'
+                    : 'Tingkat: $tier'),
           style: TextStyle(
             fontSize: 9,
             fontWeight: FontWeight.w500,

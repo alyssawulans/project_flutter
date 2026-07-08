@@ -8,7 +8,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart' hide Marker;
 import 'package:project_flutter/config/app_settings.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/views/laporan/konfirmasi_laporan.dart';
@@ -561,12 +563,15 @@ class _BuatLaporanState extends State<BuatLaporan> {
     try {
       final XFile? image = await _picker.pickImage(
         source: source,
-        imageQuality: 85,
-        maxWidth: 1080,
+        imageQuality: 40, // Mengurangi kualitas agar ukuran string Base64 kecil
+        maxWidth: 600,    // Membatasi lebar gambar maks 600px
       );
       if (image != null) {
+        final bytes = await image.readAsBytes();
+        final base64String = base64Encode(bytes);
+        final base64Url = 'data:image/jpeg;base64,$base64String';
         setState(() {
-          selectedPhotos.add(image.path);
+          selectedPhotos.add(base64Url);
         });
       }
     } catch (e) {
@@ -578,6 +583,66 @@ class _BuatLaporanState extends State<BuatLaporan> {
         ),
       );
     }
+  }
+
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return PopScope(
+          canPop: false,
+          child: Dialog(
+            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Lottie.asset(
+                    'assets/animations/confuse.json',
+                    height: 150,
+                    width: 150,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const SizedBox(
+                        height: 100,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF0D9488),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Tolong tunggu...",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Sedang mengirim laporan Anda ke sistem.",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -607,868 +672,957 @@ class _BuatLaporanState extends State<BuatLaporan> {
             ? const Color(0xFF0F172A)
             : const Color(0xFFF8FAFC);
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF1E293B) : primaryTeal,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            } else {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LaporanBeranda()),
-              );
-            }
-          },
-        ),
-        title: Text(
-          lang == 'en' ? "Create New Report" : "Buat Laporan Baru",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: 18,
+        return Scaffold(
+          backgroundColor: bgColor,
+          appBar: AppBar(
+            backgroundColor: isDark ? const Color(0xFF1E293B) : primaryTeal,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LaporanBeranda(),
+                    ),
+                  );
+                }
+              },
+            ),
+            title: Text(
+              lang == 'en' ? "Create New Report" : "Buat Laporan Baru",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
           ),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Gradient Curved Header Banner
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isDark
-                            ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
-                            : [primaryTeal, activeTeal],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(32),
-                        bottomRight: Radius.circular(32),
-                      ),
-                    ),
-                    padding: const EdgeInsets.only(
-                      left: 24,
-                      right: 24,
-                      bottom: 32,
-                      top: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                lang == 'en' ? "Report Environmental Issues" : "Laporkan Masalah Lingkungan",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                lang == 'en'
-                                    ? "Your active participation helps us preserve the environment."
-                                    : "Partisipasi aktif Anda membantu kami menjaga kelestarian lingkungan.",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.85),
-                                  fontSize: 12,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Gradient Curved Header Banner
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: isDark
+                                ? [
+                                    const Color(0xFF1E293B),
+                                    const Color(0xFF0F172A),
+                                  ]
+                                : [primaryTeal, activeTeal],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(32),
+                            bottomRight: Radius.circular(32),
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.add_task_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
+                        padding: const EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          bottom: 32,
+                          top: 12,
                         ),
-                      ],
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 20,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Card 1: Informasi Detail Laporan
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: borderColor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(
-                                  isDark ? 0.3 : 0.02,
-                                ),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 1. Kategori Dropdown
-                              Row(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.category_outlined,
-                                    color: activeTeal,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 8),
                                   Text(
-                                    lang == 'en' ? "Report Category" : "Kategori Laporan",
-                                    style: TextStyle(
-                                      fontSize: 13,
+                                    lang == 'en'
+                                        ? "Report Environmental Issues"
+                                        : "Laporkan Masalah Lingkungan",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: labelColor,
                                     ),
                                   ),
-                                  const SizedBox(width: 4),
-                                  const Text(
-                                    "*",
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    lang == 'en'
+                                        ? "Your active participation helps us preserve the environment."
+                                        : "Partisipasi aktif Anda membantu kami menjaga kelestarian lingkungan.",
                                     style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white.withOpacity(0.85),
+                                      fontSize: 12,
+                                      height: 1.4,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: inputFillColor,
-                                  border: Border.all(color: borderColor),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: selectedDropdown,
-                                    hint: Text(
-                                      lang == 'en' ? "Select Category..." : "Pilih Kategori...",
-                                      style: TextStyle(
-                                        color: isDark
-                                            ? const Color(0xFF64748B)
-                                            : Colors.grey[400],
-                                        fontSize: 13,
+                            ),
+                            const SizedBox(width: 16),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.add_task_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 20,
+                          horizontal: 20,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Card 1: Informasi Detail Laporan
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: borderColor),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(
+                                      isDark ? 0.3 : 0.02,
+                                    ),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 1. Kategori Dropdown
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.category_outlined,
+                                        color: activeTeal,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        lang == 'en'
+                                            ? "Report Category"
+                                            : "Kategori Laporan",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: labelColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const Text(
+                                        "*",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: inputFillColor,
+                                      border: Border.all(color: borderColor),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: selectedDropdown,
+                                        hint: Text(
+                                          lang == 'en'
+                                              ? "Select Category..."
+                                              : "Pilih Kategori...",
+                                          style: TextStyle(
+                                            color: isDark
+                                                ? const Color(0xFF64748B)
+                                                : Colors.grey[400],
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                        isExpanded: true,
+                                        dropdownColor: cardColor,
+                                        icon: const Icon(
+                                          Icons.keyboard_arrow_down_rounded,
+                                          color: Colors.grey,
+                                        ),
+                                        style: TextStyle(
+                                          color: textColor,
+                                          fontSize: 13,
+                                        ),
+                                        items: _daftarKategori.map((
+                                          Map<String, dynamic> cat,
+                                        ) {
+                                          return DropdownMenuItem<String>(
+                                            value: cat["nama"] as String,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  cat["icon"] as IconData,
+                                                  color: cat["color"] as Color,
+                                                  size: 18,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                  (cat["nama"] as String) ==
+                                                          'Pembakaran Sampah'
+                                                      ? (lang == 'en'
+                                                            ? 'Waste Burning'
+                                                            : 'Pembakaran Sampah')
+                                                      : ((cat["nama"]
+                                                                    as String) ==
+                                                                'Asap Industri / Pabrik'
+                                                            ? (lang == 'en'
+                                                                  ? 'Industrial Smoke'
+                                                                  : 'Asap Industri / Pabrik')
+                                                            : ((cat["nama"]
+                                                                          as String) ==
+                                                                      'Asap Kendaraan'
+                                                                  ? (lang ==
+                                                                            'en'
+                                                                        ? 'Vehicle Smoke'
+                                                                        : 'Asap Kendaraan')
+                                                                  : ((cat["nama"]
+                                                                                as String) ==
+                                                                            'Debu & Konstruksi'
+                                                                        ? (lang ==
+                                                                                  'en'
+                                                                              ? 'Dust & Construction'
+                                                                              : 'Debu & Konstruksi')
+                                                                        : ((cat["nama"] as String) ==
+                                                                                  'Polusi Bau & Gas'
+                                                                              ? (lang ==
+                                                                                        'en'
+                                                                                    ? 'Odor & Gas'
+                                                                                    : 'Polusi Bau & Gas')
+                                                                              : ((cat["nama"] as String) ==
+                                                                                        'Lainnya'
+                                                                                    ? (lang ==
+                                                                                              'en'
+                                                                                          ? 'Others'
+                                                                                          : 'Lainnya')
+                                                                                    : (cat["nama"] as String)))))),
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: textColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String? value) {
+                                          setState(() {
+                                            selectedDropdown = value;
+                                          });
+                                        },
                                       ),
                                     ),
-                                    isExpanded: true,
-                                    dropdownColor: cardColor,
-                                    icon: const Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      color: Colors.grey,
-                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+
+                                  // 2. Judul Laporan
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.title_rounded,
+                                        color: activeTeal,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        lang == 'en'
+                                            ? "Report Title"
+                                            : "Judul Laporan",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: labelColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const Text(
+                                        "*",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: judulController,
+                                    maxLength: 100,
+                                    maxLines: 2,
                                     style: TextStyle(
                                       color: textColor,
                                       fontSize: 13,
                                     ),
-                                    items: _daftarKategori.map((
-                                      Map<String, dynamic> cat,
-                                    ) {
-                                      return DropdownMenuItem<String>(
-                                        value: cat["nama"] as String,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              cat["icon"] as IconData,
-                                              color: cat["color"] as Color,
-                                              size: 18,
+                                    decoration: InputDecoration(
+                                      hintText: lang == 'en'
+                                          ? "Write a brief report title..."
+                                          : "Tulis judul laporan singkat...",
+                                      hintStyle: TextStyle(
+                                        fontSize: 13,
+                                        color: isDark
+                                            ? const Color(0xFF64748B)
+                                            : Colors.grey[400],
+                                      ),
+                                      counterText: "$titleLength/100",
+                                      counterStyle: TextStyle(
+                                        color: isDark
+                                            ? const Color(0xFF64748B)
+                                            : Colors.grey[400],
+                                        fontSize: 11,
+                                      ),
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            vertical: 14,
+                                            horizontal: 16,
+                                          ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: borderColor,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: activeTeal,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // 3. Deskripsi
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.edit_note_rounded,
+                                        color: activeTeal,
+                                        size: 22,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        lang == 'en'
+                                            ? "Event Description"
+                                            : "Deskripsi Kejadian",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: labelColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const Text(
+                                        "*",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: deskripsiController,
+                                    maxLines: 5,
+                                    maxLength: 500,
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 13,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: lang == 'en'
+                                          ? "Explain the timeline of the event in detail..."
+                                          : "Jelaskan kronologi kejadian secara detail...",
+                                      hintStyle: TextStyle(
+                                        fontSize: 13,
+                                        color: isDark
+                                            ? const Color(0xFF64748B)
+                                            : Colors.grey[400],
+                                      ),
+                                      counterText: "$descLength/500",
+                                      counterStyle: TextStyle(
+                                        color: isDark
+                                            ? const Color(0xFF64748B)
+                                            : Colors.grey[400],
+                                        fontSize: 11,
+                                      ),
+                                      filled: true,
+                                      fillColor: inputFillColor,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            vertical: 14,
+                                            horizontal: 16,
+                                          ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: borderColor,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: activeTeal,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Card 2: Lokasi Kejadian
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: borderColor),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(
+                                      isDark ? 0.3 : 0.02,
+                                    ),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.location_on_rounded,
+                                            color: activeTeal,
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            lang == 'en'
+                                                ? "Event Location"
+                                                : "Lokasi Kejadian",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: labelColor,
                                             ),
-                                            const SizedBox(width: 10),
-                                            Text(
-                                              (cat["nama"] as String) == 'Pembakaran Sampah'
-                                                  ? (lang == 'en' ? 'Waste Burning' : 'Pembakaran Sampah')
-                                                  : ((cat["nama"] as String) == 'Asap Industri / Pabrik'
-                                                      ? (lang == 'en' ? 'Industrial Smoke' : 'Asap Industri / Pabrik')
-                                                      : ((cat["nama"] as String) == 'Asap Kendaraan'
-                                                          ? (lang == 'en' ? 'Vehicle Smoke' : 'Asap Kendaraan')
-                                                          : ((cat["nama"] as String) == 'Debu & Konstruksi'
-                                                              ? (lang == 'en' ? 'Dust & Construction' : 'Debu & Konstruksi')
-                                                              : ((cat["nama"] as String) == 'Polusi Bau & Gas'
-                                                                  ? (lang == 'en' ? 'Odor & Gas' : 'Polusi Bau & Gas')
-                                                                  : ((cat["nama"] as String) == 'Lainnya'
-                                                                      ? (lang == 'en' ? 'Others' : 'Lainnya')
-                                                                      : (cat["nama"] as String)))))),
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: textColor,
+                                          ),
+                                        ],
+                                      ),
+                                      InkWell(
+                                        onTap: _showLocationPicker,
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isDark
+                                                ? const Color(
+                                                    0xFF0F4C43,
+                                                  ).withOpacity(0.3)
+                                                : const Color(0xFFF0FDFA),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                            border: Border.all(
+                                              color: activeTeal.withOpacity(
+                                                0.2,
                                               ),
                                             ),
-                                          ],
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.gps_fixed_rounded,
+                                                color: activeTeal,
+                                                size: 12,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                lang == 'en'
+                                                    ? "Change Location"
+                                                    : "Ubah Lokasi",
+                                                style: TextStyle(
+                                                  color: activeTeal,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (String? value) {
-                                      setState(() {
-                                        selectedDropdown = value;
-                                      });
-                                    },
+                                      ),
+                                    ],
                                   ),
-                                ),
+                                  const SizedBox(height: 16),
+                                  // Real Interactive Map
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: SimulatedMapWidget(
+                                        key: ValueKey(currentKoordinat),
+                                        locationName: currentLokasi,
+                                        koordinatStr: currentKoordinat,
+                                      ),
+                                    ),
+                                ],
                               ),
-                              const SizedBox(height: 20),
+                            ),
+                            const SizedBox(height: 20),
 
-                              // 2. Judul Laporan
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.title_rounded,
-                                    color: activeTeal,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    lang == 'en' ? "Report Title" : "Judul Laporan",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: labelColor,
+                            // Card 3: Foto Bukti
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: borderColor),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(
+                                      isDark ? 0.3 : 0.02,
                                     ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Text(
-                                    "*",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 8),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10),
-                              TextFormField(
-                                controller: judulController,
-                                maxLength: 100,
-                                maxLines: 2,
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontSize: 13,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: lang == 'en' ? "Write a brief report title..." : "Tulis judul laporan singkat...",
-                                  hintStyle: TextStyle(
-                                    fontSize: 13,
-                                    color: isDark
-                                        ? const Color(0xFF64748B)
-                                        : Colors.grey[400],
-                                  ),
-                                  counterText: "$titleLength/100",
-                                  counterStyle: TextStyle(
-                                    color: isDark
-                                        ? const Color(0xFF64748B)
-                                        : Colors.grey[400],
-                                    fontSize: 11,
-                                  ),
-                                  filled: true,
-                                  fillColor: inputFillColor,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                    horizontal: 16,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(color: borderColor),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: activeTeal,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-
-                              // 3. Deskripsi
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.edit_note_rounded,
-                                    color: activeTeal,
-                                    size: 22,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    lang == 'en' ? "Event Description" : "Deskripsi Kejadian",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: labelColor,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Text(
-                                    "*",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              TextFormField(
-                                controller: deskripsiController,
-                                maxLines: 5,
-                                maxLength: 500,
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontSize: 13,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: lang == 'en'
-                                      ? "Explain the timeline of the event in detail..."
-                                      : "Jelaskan kronologi kejadian secara detail...",
-                                  hintStyle: TextStyle(
-                                    fontSize: 13,
-                                    color: isDark
-                                        ? const Color(0xFF64748B)
-                                        : Colors.grey[400],
-                                  ),
-                                  counterText: "$descLength/500",
-                                  counterStyle: TextStyle(
-                                    color: isDark
-                                        ? const Color(0xFF64748B)
-                                        : Colors.grey[400],
-                                    fontSize: 11,
-                                  ),
-                                  filled: true,
-                                  fillColor: inputFillColor,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 14,
-                                    horizontal: 16,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(color: borderColor),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: activeTeal,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Card 2: Lokasi Kejadian
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: borderColor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(
-                                  isDark ? 0.3 : 0.02,
-                                ),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     children: [
                                       Icon(
-                                        Icons.location_on_rounded,
+                                        Icons.photo_camera_rounded,
                                         color: activeTeal,
                                         size: 20,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        lang == 'en' ? "Event Location" : "Lokasi Kejadian",
+                                        lang == 'en'
+                                            ? "Evidence Photos"
+                                            : "Foto Bukti Kejadian",
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                           color: labelColor,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  InkWell(
-                                    onTap: _showLocationPicker,
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isDark
-                                            ? const Color(
-                                                0xFF0F4C43,
-                                              ).withOpacity(0.3)
-                                            : const Color(0xFFF0FDFA),
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: activeTeal.withOpacity(0.2),
+                                      const SizedBox(width: 4),
+                                      const Text(
+                                        "*",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 14),
+
+                                  if (selectedPhotos.isEmpty)
+                                    DashedUploadArea(
+                                      activeTeal: activeTeal,
+                                      onTap: _showPhotoSourcePicker,
+                                    )
+                                  else
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      physics: const BouncingScrollPhysics(),
                                       child: Row(
-                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(
-                                            Icons.gps_fixed_rounded,
-                                            color: activeTeal,
-                                            size: 12,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            lang == 'en' ? "Change Location" : "Ubah Lokasi",
-                                            style: TextStyle(
-                                              color: activeTeal,
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
+                                          ...List.generate(selectedPhotos.length, (
+                                            index,
+                                          ) {
+                                            final imgUrl =
+                                                selectedPhotos[index];
+                                            return Stack(
+                                              children: [
+                                                Container(
+                                                  margin: const EdgeInsets.only(
+                                                    right: 12,
+                                                    top: 6,
+                                                    bottom: 6,
+                                                  ),
+                                                  width: 80,
+                                                  height: 80,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          16,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: borderColor,
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(
+                                                              isDark
+                                                                  ? 0.2
+                                                                  : 0.05,
+                                                            ),
+                                                        blurRadius: 6,
+                                                        offset: const Offset(
+                                                          0,
+                                                          3,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          16,
+                                                        ),
+                                                    child: ReportImage(
+                                                      path: imgUrl,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Remove photo badge button
+                                                Positioned(
+                                                  top: 0,
+                                                  right: 6,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        selectedPhotos.removeAt(
+                                                          index,
+                                                        );
+                                                      });
+                                                    },
+                                                    child: const CircleAvatar(
+                                                      radius: 10,
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      child: Icon(
+                                                        Icons.close,
+                                                        size: 12,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                          // Tambah foto button with dashed design
+                                          if (selectedPhotos.length < 5)
+                                            GestureDetector(
+                                              onTap: _showPhotoSourcePicker,
+                                              child: CustomPaint(
+                                                painter: DashedBorderPainter(
+                                                  color: activeTeal.withOpacity(
+                                                    0.4,
+                                                  ),
+                                                  strokeWidth: 1.5,
+                                                  gap: 4,
+                                                ),
+                                                child: Container(
+                                                  width: 80,
+                                                  height: 80,
+                                                  decoration: BoxDecoration(
+                                                    color: inputFillColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          16,
+                                                        ),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.add_a_photo_outlined,
+                                                    color: activeTeal,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              // Real Interactive Map
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: SimulatedMapWidget(
-                                  locationName: currentLokasi,
-                                  koordinatStr: currentKoordinat,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Card 3: Foto Bukti
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: borderColor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(
-                                  isDark ? 0.3 : 0.02,
-                                ),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.photo_camera_rounded,
-                                    color: activeTeal,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    lang == 'en' ? "Evidence Photos" : "Foto Bukti Kejadian",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: labelColor,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  const Text(
-                                    "*",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 14),
-
-                              if (selectedPhotos.isEmpty)
-                                DashedUploadArea(
-                                  activeTeal: activeTeal,
-                                  onTap: _showPhotoSourcePicker,
-                                )
-                              else
-                                SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const BouncingScrollPhysics(),
-                                  child: Row(
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      ...List.generate(selectedPhotos.length, (
-                                        index,
-                                      ) {
-                                        final imgUrl = selectedPhotos[index];
-                                        return Stack(
-                                          children: [
-                                            Container(
-                                              margin: const EdgeInsets.only(
-                                                right: 12,
-                                                top: 6,
-                                                bottom: 6,
-                                              ),
-                                              width: 80,
-                                              height: 80,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                border: Border.all(
-                                                  color: borderColor,
-                                                ),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(
-                                                          isDark ? 0.2 : 0.05,
-                                                        ),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                child: imgUrl.startsWith('http')
-                                                    ? Image.network(
-                                                        imgUrl,
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder:
-                                                            (
-                                                              context,
-                                                              error,
-                                                              stackTrace,
-                                                            ) => const Icon(
-                                                              Icons
-                                                                  .broken_image,
-                                                            ),
-                                                      )
-                                                    : Image.file(
-                                                        File(imgUrl),
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder:
-                                                            (
-                                                              context,
-                                                              error,
-                                                              stackTrace,
-                                                            ) => const Icon(
-                                                              Icons
-                                                                  .broken_image,
-                                                            ),
-                                                      ),
-                                              ),
-                                            ),
-                                            // Remove photo badge button
-                                            Positioned(
-                                              top: 0,
-                                              right: 6,
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    selectedPhotos.removeAt(
-                                                      index,
-                                                    );
-                                                  });
-                                                },
-                                                child: const CircleAvatar(
-                                                  radius: 10,
-                                                  backgroundColor: Colors.red,
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    size: 12,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }),
-                                      // Tambah foto button with dashed design
-                                      if (selectedPhotos.length < 5)
-                                        GestureDetector(
-                                          onTap: _showPhotoSourcePicker,
-                                          child: CustomPaint(
-                                            painter: DashedBorderPainter(
-                                              color: activeTeal.withOpacity(
-                                                0.4,
-                                              ),
-                                              strokeWidth: 1.5,
-                                              gap: 4,
-                                            ),
-                                            child: Container(
-                                              width: 80,
-                                              height: 80,
-                                              decoration: BoxDecoration(
-                                                color: inputFillColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                              ),
-                                              child: Icon(
-                                                Icons.add_a_photo_outlined,
-                                                color: activeTeal,
-                                                size: 20,
-                                              ),
-                                            ),
+                                      Text(
+                                        lang == 'en'
+                                            ? "Maximum 5 evidence photos"
+                                            : "Maksimal 5 foto bukti",
+                                        style: TextStyle(
+                                          color: subTextColor,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                      if (selectedPhotos.isNotEmpty)
+                                        Text(
+                                          "${selectedPhotos.length}/5 ${lang == 'en' ? "Photos Selected" : "Foto Terpilih"}",
+                                          style: TextStyle(
+                                            color: activeTeal,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                     ],
                                   ),
-                                ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    lang == 'en' ? "Maximum 5 evidence photos" : "Maksimal 5 foto bukti",
-                                    style: TextStyle(
-                                      color: subTextColor,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  if (selectedPhotos.isNotEmpty)
-                                    Text(
-                                      "${selectedPhotos.length}/5 ${lang == 'en' ? "Photos Selected" : "Foto Terpilih"}",
-                                      style: TextStyle(
-                                        color: activeTeal,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Gradient Submit Button
-                        Container(
-                          width: double.infinity,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [primaryTeal, activeTeal],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: primaryTeal.withOpacity(0.35),
-                                blurRadius: 15,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
+                            const SizedBox(height: 32),
+
+                            // Gradient Submit Button
+                            Container(
+                              width: double.infinity,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [primaryTeal, activeTeal],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
                                 borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: primaryTeal.withOpacity(0.35),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  if (selectedDropdown == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Silakan pilih kategori laporan terlebih dahulu!",
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (judulController.text.trim().isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Judul laporan tidak boleh kosong!",
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (deskripsiController.text.trim().isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Deskripsi laporan tidak boleh kosong!",
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (selectedPhotos.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Harap tambahkan minimal 1 foto bukti!",
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  final DateTime now = DateTime.now();
+                                  final String formattedDateStr = DateFormat(
+                                    'dd MMM yyyy',
+                                    'id_ID',
+                                  ).format(now);
+                                  final String formattedTimeStr = DateFormat(
+                                    'dd MMMM yyyy, HH:mm',
+                                    'id_ID',
+                                  ).format(now);
+
+                                  // Tampilkan loading dialog dengan animasi Lottie
+                                  _showLoadingDialog(context);
+                                  await Future.delayed(const Duration(milliseconds: 250));
+
+                                  try {
+                                    final count = await FirebaseAuthService
+                                        .instance
+                                        .getLaporanCount();
+                                    final String reportNum =
+                                        "#LP${DateFormat('yyMMdd').format(now)}${100 + (count % 900)}";
+
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    final userId =
+                                        prefs.getInt('current_user_id') ?? 1;
+                                    final userFirestoreId = prefs.getString(
+                                      'current_user_firestore_id',
+                                    );
+
+                                    // Build LaporanModel object
+                                    final newReport = LaporanModel(
+                                      judul: judulController.text.trim(),
+                                      kategori: selectedDropdown!,
+                                      lokasi: currentLokasi,
+                                      koordinat: currentKoordinat,
+                                      deskripsi: deskripsiController.text
+                                          .trim(),
+                                      status: "Diproses",
+                                      tanggal: formattedDateStr,
+                                      userId: userId,
+                                      userFirestoreId: userFirestoreId,
+                                      foto: selectedPhotos.isNotEmpty
+                                          ? selectedPhotos.join(',')
+                                          : 'assets/images/logo_ruas.png',
+                                    );
+
+                                    // Save to Firebase DB
+                                    final insertedId = await FirebaseAuthService
+                                        .instance
+                                        .createLaporan(newReport);
+                                    final savedReport = LaporanModel(
+                                      firestoreId: insertedId,
+                                      judul: newReport.judul,
+                                      kategori: newReport.kategori,
+                                      lokasi: newReport.lokasi,
+                                      koordinat: newReport.koordinat,
+                                      deskripsi: newReport.deskripsi,
+                                      status: newReport.status,
+                                      tanggal: newReport.tanggal,
+                                      userId: newReport.userId,
+                                      userFirestoreId:
+                                          newReport.userFirestoreId,
+                                      foto: newReport.foto,
+                                    );
+
+                                    // Tutup loading dialog
+                                    if (mounted) {
+                                      Navigator.pop(context);
+                                    }
+
+                                    // Redirect to confirmation
+                                    if (mounted) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              KonfirmasiLaporan(
+                                                nomorLaporan: reportNum,
+                                                tanggal: formattedTimeStr,
+                                                kategori: selectedDropdown!,
+                                                report: savedReport,
+                                              ),
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    // Tutup loading jika terjadi error
+                                    if (mounted) {
+                                      Navigator.pop(context);
+                                    }
+                                    // Tampilkan snackbar error
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "Gagal mengirim laporan: $e",
+                                          ),
+                                          behavior: SnackBarBehavior.floating,
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.send_rounded,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      "Kirim Laporan Sekarang",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            onPressed: () async {
-                              if (selectedDropdown == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Silakan pilih kategori laporan terlebih dahulu!",
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                                return;
-                              }
-                              if (judulController.text.trim().isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Judul laporan tidak boleh kosong!",
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                                return;
-                              }
-                              if (deskripsiController.text.trim().isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Deskripsi laporan tidak boleh kosong!",
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                                return;
-                              }
-                              if (selectedPhotos.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Harap tambahkan minimal 1 foto bukti!",
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                                return;
-                              }
-
-                              final DateTime now = DateTime.now();
-                              final String formattedDateStr = DateFormat(
-                                'dd MMM yyyy',
-                                'id_ID',
-                              ).format(now);
-                              final String formattedTimeStr = DateFormat(
-                                'dd MMMM yyyy, HH:mm',
-                                'id_ID',
-                              ).format(now);
-
-                              final count = await FirebaseAuthService.instance
-                                  .getLaporanCount();
-                              final String reportNum =
-                                  "#LP${DateFormat('yyMMdd').format(now)}${100 + (count % 900)}";
-
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              final userId =
-                                  prefs.getInt('current_user_id') ?? 1;
-                              final userFirestoreId =
-                                  prefs.getString('current_user_firestore_id');
-
-                              // Build LaporanModel object
-                              final newReport = LaporanModel(
-                                judul: judulController.text.trim(),
-                                kategori: selectedDropdown!,
-                                lokasi: currentLokasi,
-                                koordinat: currentKoordinat,
-                                deskripsi: deskripsiController.text.trim(),
-                                status: "Diproses",
-                                tanggal: formattedDateStr,
-                                userId: userId,
-                                userFirestoreId: userFirestoreId,
-                                foto: selectedPhotos.isNotEmpty
-                                    ? selectedPhotos.join(',')
-                                    : 'assets/images/kota_1.jpg',
-                              );
-
-                              // Save to Firebase DB
-                              final insertedId = await FirebaseAuthService.instance
-                                  .createLaporan(newReport);
-                              final savedReport = LaporanModel(
-                                firestoreId: insertedId,
-                                judul: newReport.judul,
-                                kategori: newReport.kategori,
-                                lokasi: newReport.lokasi,
-                                koordinat: newReport.koordinat,
-                                deskripsi: newReport.deskripsi,
-                                status: newReport.status,
-                                tanggal: newReport.tanggal,
-                                userId: newReport.userId,
-                                userFirestoreId: newReport.userFirestoreId,
-                                foto: newReport.foto,
-                              );
-
-                              // Redirect to confirmation
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => KonfirmasiLaporan(
-                                    nomorLaporan: reportNum,
-                                    tanggal: formattedTimeStr,
-                                    kategori: selectedDropdown!,
-                                    report: savedReport,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
-                                  Icons.send_rounded,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  "Kirim Laporan Sekarang",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                            const SizedBox(height: 20),
+                          ],
                         ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
         );
       },
     );
@@ -1710,4 +1864,3 @@ class DashedUploadArea extends StatelessWidget {
     );
   }
 }
-

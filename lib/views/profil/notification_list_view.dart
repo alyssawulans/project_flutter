@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -22,11 +23,18 @@ class _NotificationListViewState extends State<NotificationListView> {
   bool _isLoading = true;
   String _userFirestoreId = '';
   bool _showSimPanel = false;
+  StreamSubscription<List<NotificationModel>>? _notificationsSubscription;
 
   @override
   void initState() {
     super.initState();
     _loadUserAndNotifications();
+  }
+
+  @override
+  void dispose() {
+    _notificationsSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadUserAndNotifications() async {
@@ -37,25 +45,36 @@ class _NotificationListViewState extends State<NotificationListView> {
     final prefs = await SharedPreferences.getInstance();
     _userFirestoreId = prefs.getString('current_user_firestore_id') ?? '';
 
-    await _fetchNotifications();
+    if (_userFirestoreId.isNotEmpty) {
+      _notificationsSubscription?.cancel();
+      _notificationsSubscription = FirebaseAuthService.instance
+          .getNotificationsStream(_userFirestoreId)
+          .listen((notifs) {
+        if (mounted) {
+          setState(() {
+            _notifications = notifs;
+            _isLoading = false;
+          });
+        }
+      }, onError: (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
+    } else {
+      if (mounted) {
+        setState(() {
+          _notifications = [];
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _fetchNotifications() async {
-    if (_userFirestoreId.isEmpty) {
-      setState(() {
-        _notifications = [];
-        _isLoading = false;
-      });
-      return;
-    }
-
-    final notifs = await FirebaseAuthService.instance.getNotifications(_userFirestoreId);
-    if (mounted) {
-      setState(() {
-        _notifications = notifs;
-        _isLoading = false;
-      });
-    }
+    // Di-handle secara otomatis secara real-time oleh StreamSubscription
   }
 
   Future<void> _markAsRead(NotificationModel notif) async {

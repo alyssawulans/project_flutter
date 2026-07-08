@@ -1,4 +1,4 @@
-package com.example.ruas.project_flutter
+package com.aws.ruas
 
 import io.flutter.embedding.android.FlutterActivity
 

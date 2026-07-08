@@ -32,7 +32,7 @@ class AppSettingsController {
   final ValueNotifier<AppSettings> settingsNotifier = ValueNotifier<AppSettings>(
     AppSettings(
       themeMode: ThemeMode.light,
-      fontSizeMultiplier: 1.15,
+      fontSizeMultiplier: 1.0,
       languageCode: 'id',
     ),
   );
@@ -40,7 +40,7 @@ class AppSettingsController {
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     final isDark = prefs.getBool('is_dark_mode') ?? false;
-    final fontSizeMultiplier = prefs.getDouble('font_size_multiplier') ?? 1.15;
+    final fontSizeMultiplier = prefs.getDouble('font_size_multiplier') ?? 1.0;
     final language = prefs.getString('language_code') ?? 'id';
 
     settingsNotifier.value = AppSettings(

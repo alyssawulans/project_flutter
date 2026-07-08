@@ -6,6 +6,7 @@ import 'package:project_flutter/database/firebase_auth_service.dart';
 import 'package:project_flutter/models/laporan_model.dart';
 import 'package:project_flutter/views/laporan/detail_laporan.dart';
 import 'package:project_flutter/views/laporan/laporan_beranda.dart';
+import 'package:project_flutter/widgets/report_image.dart';
 
 // Keep a stub ReportItem and ReportStorage for backwards compatibility if needed, but we will use LaporanModel
 class ReportItem {
@@ -316,33 +317,12 @@ class _RiwayatLaporanState extends State<RiwayatLaporan> {
   }
 
   Widget _buildItemImage(String path, bool isDark) {
-    if (path.startsWith('http')) {
-      return Image.network(
-        path,
-        width: 72,
-        height: 72,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _errorImage(isDark),
-      );
-    } else if (path.startsWith('assets/')) {
-      return Image.asset(
-        path,
-        width: 72,
-        height: 72,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _errorImage(isDark),
-      );
-    } else if (path.isNotEmpty) {
-      return Image.file(
-        File(path),
-        width: 72,
-        height: 72,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _errorImage(isDark),
-      );
-    } else {
-      return _errorImage(isDark);
-    }
+    return ReportImage(
+      path: path,
+      width: 72,
+      height: 72,
+      fit: BoxFit.cover,
+    );
   }
 
   Widget _errorImage(bool isDark) {

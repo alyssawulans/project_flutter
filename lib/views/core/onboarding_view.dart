@@ -435,4 +435,3 @@ class _OnboardingViewState extends State<OnboardingView> {
     );
   }
 }
-
