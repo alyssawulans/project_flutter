@@ -2055,8 +2055,8 @@ class _ProfilViewState extends State<ProfilView> {
                                                         children: [
                                                           Text(
                                                             lang == 'en'
-                                                                ? 'Version 1.0.0'
-                                                                : 'Versi 1.0.0',
+                                                                ? 'Version 1.0.1'
+                                                                : 'Versi 1.0.1',
                                                             style:
                                                                 const TextStyle(
                                                                   fontSize: 11,

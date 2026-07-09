@@ -1492,7 +1492,7 @@ class _PengaturanViewState extends State<PengaturanView> {
                                             child: Column(
                                               children: [
                                                 Text(
-                                                  'Versi 1.0.0 (Final Project)',
+                                                  'Versi 1.0.1',
                                                   style: TextStyle(
                                                     fontSize: 11,
                                                     color: subTextColor,
