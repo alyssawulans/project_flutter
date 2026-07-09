@@ -235,7 +235,8 @@ class FirebaseAuthService {
     await _auth.signOut();
     try {
       final googleSignIn = GoogleSignIn(
-        serverClientId: '702163532500-9btv70j2i2maneognp66oc8n7unfb2qe.apps.googleusercontent.com',
+        serverClientId:
+            '702163532500-9btv70j2i2maneognp66oc8n7unfb2qe.apps.googleusercontent.com',
       );
       // Hapus sesi Google Sign-In agar pada login berikutnya muncul dialog pilihan akun
       await googleSignIn.signOut();

@@ -6,6 +6,7 @@ import 'package:project_flutter/views/core/main_navigation_shell.dart';
 import 'package:project_flutter/views/core/onboarding_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:project_flutter/database/secure_storage_helper.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -49,15 +50,17 @@ class _SplashViewState extends State<SplashView> {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('current_user_id');
     final userFirestoreId = prefs.getString('current_user_firestore_id');
+    final secureUserFirestoreId = await SecureStorageHelper.readData('current_user_firestore_id');
     final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
 
     // Verify Firebase session
-    final bool isFirebaseLoggedIn = userFirestoreId != null &&
+    final bool isFirebaseLoggedIn = (userFirestoreId != null || secureUserFirestoreId != null) &&
         FirebaseAuth.instance.currentUser != null;
 
-    if (userFirestoreId != null && !isFirebaseLoggedIn) {
-      // Clean up zombie session from SharedPreferences (Auto-Backup restore)
+    if ((userFirestoreId != null || secureUserFirestoreId != null) && !isFirebaseLoggedIn) {
+      // Clean up zombie session from SharedPreferences & Secure Storage (Auto-Backup restore)
       await prefs.remove('current_user_firestore_id');
+      await SecureStorageHelper.deleteData('current_user_firestore_id');
       await prefs.remove('current_user_name');
       await prefs.remove('current_user_email');
       await prefs.remove('current_user_role');

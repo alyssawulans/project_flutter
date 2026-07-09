@@ -7,6 +7,7 @@ import 'package:project_flutter/views/auth/admin_register_view.dart';
 import 'package:project_flutter/views/admin/database_viewer_view.dart';
 import 'package:project_flutter/views/core/splash_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:project_flutter/database/secure_storage_helper.dart';
 
 class PengaturanView extends StatefulWidget {
   const PengaturanView({super.key});
@@ -813,6 +814,7 @@ class _PengaturanViewState extends State<PengaturanView> {
       await prefs.remove('current_user_name');
       await prefs.remove('current_user_email');
       await prefs.remove('current_user_firestore_id');
+      await SecureStorageHelper.deleteData('current_user_firestore_id');
       await prefs.remove('current_user_role');
 
       if (mounted) {

@@ -6,6 +6,7 @@ import 'package:project_flutter/models/user_model_firebase.dart';
 import 'package:project_flutter/views/core/main_navigation_shell.dart';
 import 'package:project_flutter/views/auth/register_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:project_flutter/database/secure_storage_helper.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -244,6 +245,7 @@ class _LoginViewState extends State<LoginView> {
       final prefs = await SharedPreferences.getInstance();
       if (user.id != null) {
         await prefs.setString('current_user_firestore_id', user.id!);
+        await SecureStorageHelper.writeData('current_user_firestore_id', user.id!);
       }
       await prefs.setString('current_user_name', user.nama);
       await prefs.setString('current_user_email', user.email);
@@ -279,6 +281,7 @@ class _LoginViewState extends State<LoginView> {
       final prefs = await SharedPreferences.getInstance();
       if (user.id != null) {
         await prefs.setString('current_user_firestore_id', user.id!);
+        await SecureStorageHelper.writeData('current_user_firestore_id', user.id!);
       }
       await prefs.setString('current_user_name', user.nama);
       await prefs.setString('current_user_email', user.email);
