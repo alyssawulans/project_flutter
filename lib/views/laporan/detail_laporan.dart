@@ -62,11 +62,13 @@ class _DetailLaporanState extends State<DetailLaporan> {
     await FirebaseAuthService.instance.updateLaporan(updatedReport);
 
     // Send notification if status changed
-    if (_currentReport.status != newStatus && updatedReport.userFirestoreId != null) {
+    if (_currentReport.status != newStatus &&
+        updatedReport.userFirestoreId != null) {
       try {
         final notif = NotificationModel(
           title: 'Status Laporan Diperbarui',
-          body: 'Laporan "${updatedReport.judul}" Anda kini ditandai sebagai: $newStatus.',
+          body:
+              'Laporan "${updatedReport.judul}" Anda kini ditandai sebagai: $newStatus.',
           tanggal: DateTime.now().toIso8601String(),
           isRead: false,
           type: 'laporan',
@@ -86,7 +88,9 @@ class _DetailLaporanState extends State<DetailLaporan> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Laporan berhasil ditandai sebagai $newStatus"),
-          backgroundColor: newStatus == 'Selesai' ? const Color(0xFF0D9488) : Colors.red,
+          backgroundColor: newStatus == 'Selesai'
+              ? const Color(0xFF0D9488)
+              : Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -103,7 +107,10 @@ class _DetailLaporanState extends State<DetailLaporan> {
   String get imageUrl => _currentReport.foto.split(',').first;
   List<String> get imageUrls {
     if (_currentReport.foto.isEmpty) return [];
-    return _currentReport.foto.split(',').where((url) => url.isNotEmpty).toList();
+    return _currentReport.foto
+        .split(',')
+        .where((url) => url.isNotEmpty)
+        .toList();
   }
 
   String get detailStatusTitle => _currentReport.status;
@@ -131,19 +138,40 @@ class _DetailLaporanState extends State<DetailLaporan> {
   List<Map<String, String>> get timeline {
     if (_currentReport.status == 'Selesai') {
       return [
-        {'title': 'Laporan dibuat', 'waktu': '${_currentReport.tanggal}, 09:00'},
-        {'title': 'Sedang diproses', 'waktu': '${_currentReport.tanggal}, 10:00'},
-        {'title': 'Laporan selesai', 'waktu': '${_currentReport.tanggal}, 14:30'},
+        {
+          'title': 'Laporan dibuat',
+          'waktu': '${_currentReport.tanggal}, 09:00',
+        },
+        {
+          'title': 'Sedang diproses',
+          'waktu': '${_currentReport.tanggal}, 10:00',
+        },
+        {
+          'title': 'Laporan selesai',
+          'waktu': '${_currentReport.tanggal}, 14:30',
+        },
       ];
     } else if (_currentReport.status == 'Ditolak') {
       return [
-        {'title': 'Laporan dibuat', 'waktu': '${_currentReport.tanggal}, 13:00'},
-        {'title': 'Laporan ditolak', 'waktu': '${_currentReport.tanggal}, 16:00'},
+        {
+          'title': 'Laporan dibuat',
+          'waktu': '${_currentReport.tanggal}, 13:00',
+        },
+        {
+          'title': 'Laporan ditolak',
+          'waktu': '${_currentReport.tanggal}, 16:00',
+        },
       ];
     } else {
       return [
-        {'title': 'Laporan dibuat', 'waktu': '${_currentReport.tanggal}, 09:41'},
-        {'title': 'Sedang diproses', 'waktu': '${_currentReport.tanggal}, 10:15'},
+        {
+          'title': 'Laporan dibuat',
+          'waktu': '${_currentReport.tanggal}, 09:41',
+        },
+        {
+          'title': 'Sedang diproses',
+          'waktu': '${_currentReport.tanggal}, 10:15',
+        },
       ];
     }
   }
@@ -157,30 +185,47 @@ class _DetailLaporanState extends State<DetailLaporan> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Hapus Laporan',
-          style: TextStyle(color: isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A)),
+          style: TextStyle(
+            color: isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A),
+          ),
         ),
         content: Text(
           'Apakah Anda yakin ingin menghapus laporan ini?',
-          style: TextStyle(color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155)),
+          style: TextStyle(
+            color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Batal', style: TextStyle(color: isDark ? const Color(0xFF94A3B8) : Colors.black54)),
+            child: Text(
+              'Batal',
+              style: TextStyle(
+                color: isDark ? const Color(0xFF94A3B8) : Colors.black54,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Hapus', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Hapus',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
     );
 
     if (confirm == true) {
-      await FirebaseAuthService.instance.deleteLaporan(_currentReport.firestoreId!);
+      await FirebaseAuthService.instance.deleteLaporan(
+        _currentReport.firestoreId!,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Laporan berhasil dihapus'), backgroundColor: Colors.red),
+          const SnackBar(
+            content: Text('Laporan berhasil dihapus'),
+            backgroundColor: Colors.red,
+          ),
         );
         Navigator.pop(context); // Go back
       }
@@ -232,10 +277,7 @@ class _DetailLaporanState extends State<DetailLaporan> {
         children: [
           Center(
             child: InteractiveViewer(
-              child: ReportImage(
-                path: url,
-                fit: BoxFit.contain,
-              ),
+              child: ReportImage(path: url, fit: BoxFit.contain),
             ),
           ),
           Positioned(
@@ -266,14 +308,24 @@ class _DetailLaporanState extends State<DetailLaporan> {
 
     final report = this;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor = isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC);
+    final Color bgColor = isDark
+        ? const Color(0xFF0F172A)
+        : const Color(0xFFF8FAFC);
     final Color cardBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
-    final Color textColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
-    final Color subTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-    final Color borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
+    final Color textColor = isDark
+        ? const Color(0xFFF8FAFC)
+        : const Color(0xFF0F172A);
+    final Color subTextColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
+    final Color borderColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFF1F5F9);
     final Color appBarBgColor = isDark ? const Color(0xFF1E293B) : Colors.white;
     final Color titleColor = isDark ? Colors.white : primaryTeal;
-    final Color cardIconBg = isDark ? const Color(0xFF0F4C43).withOpacity(0.3) : const Color(0xFFF0FDFA);
+    final Color cardIconBg = isDark
+        ? const Color(0xFF0F4C43).withOpacity(0.3)
+        : const Color(0xFFF0FDFA);
 
     final statusColor = getStatusColor(_currentReport.status);
 
@@ -283,7 +335,10 @@ class _DetailLaporanState extends State<DetailLaporan> {
         backgroundColor: appBarBgColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : primaryTeal),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? Colors.white : primaryTeal,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -302,7 +357,8 @@ class _DetailLaporanState extends State<DetailLaporan> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LaporanEditView(laporan: _currentReport),
+                    builder: (context) =>
+                        LaporanEditView(laporan: _currentReport),
                   ),
                 ).then((updated) {
                   if (updated != null && updated is LaporanModel) {
@@ -372,7 +428,9 @@ class _DetailLaporanState extends State<DetailLaporan> {
                       report.detailStatusDesc,
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? const Color(0xFFE2E8F0) : Colors.grey[700],
+                        color: isDark
+                            ? const Color(0xFFE2E8F0)
+                            : Colors.grey[700],
                         height: 1.4,
                       ),
                     ),
@@ -528,17 +586,16 @@ class _DetailLaporanState extends State<DetailLaporan> {
                           // Description
                           Text(
                             "Deskripsi",
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: subTextColor,
-                            ),
+                            style: TextStyle(fontSize: 11, color: subTextColor),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             report.description,
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? const Color(0xFFE2E8F0) : Colors.grey[700],
+                              color: isDark
+                                  ? const Color(0xFFE2E8F0)
+                                  : Colors.grey[700],
                               height: 1.5,
                             ),
                           ),
@@ -580,10 +637,7 @@ class _DetailLaporanState extends State<DetailLaporan> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: ReportImage(
-                            path: imgUrl,
-                            fit: BoxFit.cover,
-                          ),
+                          child: ReportImage(path: imgUrl, fit: BoxFit.cover),
                         ),
                       ),
                     );
@@ -682,10 +736,17 @@ class _DetailLaporanState extends State<DetailLaporan> {
           ),
         ),
       ),
-      bottomNavigationBar: (_userRole == 'admin' && _currentReport.status.toLowerCase() == 'diproses')
+      bottomNavigationBar:
+          (_userRole == 'admin' &&
+              _currentReport.status.toLowerCase() == 'diproses')
           ? SafeArea(
               child: Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0, top: 10.0),
+                padding: const EdgeInsets.only(
+                  left: 20.0,
+                  right: 20.0,
+                  bottom: 20.0,
+                  top: 10.0,
+                ),
                 child: Row(
                   children: [
                     Expanded(
@@ -693,7 +754,10 @@ class _DetailLaporanState extends State<DetailLaporan> {
                         height: 52,
                         child: OutlinedButton.icon(
                           onPressed: () => _updateReportStatus('Ditolak'),
-                          icon: const Icon(Icons.cancel_outlined, color: Colors.red),
+                          icon: const Icon(
+                            Icons.cancel_outlined,
+                            color: Colors.red,
+                          ),
                           label: const Text(
                             "Tolak Laporan",
                             style: TextStyle(
@@ -725,7 +789,10 @@ class _DetailLaporanState extends State<DetailLaporan> {
                         ),
                         child: ElevatedButton.icon(
                           onPressed: () => _updateReportStatus('Selesai'),
-                          icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+                          icon: const Icon(
+                            Icons.check_circle_outline,
+                            color: Colors.white,
+                          ),
                           label: const Text(
                             "Setujui Laporan",
                             style: TextStyle(
@@ -752,4 +819,3 @@ class _DetailLaporanState extends State<DetailLaporan> {
     );
   }
 }
-

@@ -209,41 +209,56 @@ class _LaporanEditViewState extends State<LaporanEditView> {
           : 'assets/images/logo_ruas.png',
     );
 
-    await FirebaseAuthService.instance.updateLaporan(updated);
+    try {
+      await FirebaseAuthService.instance.updateLaporan(updated);
 
-    // Send notification if status changed
-    if (widget.laporan.status != _selectedStatus && widget.laporan.userFirestoreId != null) {
-      try {
-        final notif = NotificationModel(
-          title: 'Status Laporan Diperbarui',
-          body: 'Laporan "${widget.laporan.judul}" Anda kini ditandai sebagai: $_selectedStatus.',
-          tanggal: DateTime.now().toIso8601String(),
-          isRead: false,
-          type: 'laporan',
-          relatedId: widget.laporan.firestoreId ?? '',
-          userFirestoreId: widget.laporan.userFirestoreId!,
-        );
-        await FirebaseAuthService.instance.createNotification(notif);
-      } catch (_) {
-        // Fail silently
+      // Send notification if status changed
+      if (widget.laporan.status != _selectedStatus && widget.laporan.userFirestoreId != null) {
+        try {
+          final notif = NotificationModel(
+            title: 'Status Laporan Diperbarui',
+            body: 'Laporan "${widget.laporan.judul}" Anda kini ditandai sebagai: $_selectedStatus.',
+            tanggal: DateTime.now().toIso8601String(),
+            isRead: false,
+            type: 'laporan',
+            relatedId: widget.laporan.firestoreId ?? '',
+            userFirestoreId: widget.laporan.userFirestoreId!,
+          );
+          await FirebaseAuthService.instance.createNotification(notif);
+        } catch (_) {
+          // Fail silently
+        }
       }
-    }
 
-    setState(() {
-      _isSaving = false;
-    });
+      setState(() {
+        _isSaving = false;
+      });
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Laporan berhasil diperbarui!'),
-          backgroundColor: Color(0xFF0D9488),
-        ),
-      );
-      Navigator.pop(
-        context,
-        updated,
-      ); // pop and return updated report to detail screen
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Laporan berhasil diperbarui!'),
+            backgroundColor: Color(0xFF0D9488),
+          ),
+        );
+        Navigator.pop(
+          context,
+          updated,
+        ); // pop and return updated report to detail screen
+      }
+    } catch (e) {
+      setState(() {
+        _isSaving = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memperbarui laporan: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 

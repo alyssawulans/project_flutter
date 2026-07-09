@@ -7,14 +7,14 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:702163532500:android:d05d7b1003d180d8d0d941",
+        "mobilesdk_app_id": "1:702163532500:android:f078e43b1ea84741d0d941",
         "android_client_info": {
           "package_name": "com.aws.ruas"
         }
       },
       "oauth_client": [
         {
-          "client_id": "702163532500-hvs7ait202iila6bv2585do1hkqsdv91.apps.googleusercontent.com",
+          "client_id": "702163532500-25ue0b9clle7rukvnu51sb0ch1tmdj62.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.aws.ruas",
@@ -22,11 +22,72 @@
           }
         },
         {
-          "client_id": "702163532500-msg4baov1n4997c3iccftkn9jaoligfs.apps.googleusercontent.com",
+          "client_id": "702163532500-ll878blvk3li6jhi90aav4ftbo9t97i2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.aws.ruas",
             "certificate_hash": "b3bc8a961143c8a1e82315bc66165c75710081b6"
+          }
+        },
+        {
+          "client_id": "702163532500-t52akftkj1f2eknos7aq0mci1s5i9hbp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aws.ruas",
+            "certificate_hash": "4fb80229461f149bdda41b13a5c4c506450bcfd4"
+          }
+        },
+        {
+          "client_id": "702163532500-9btv70j2i2maneognp66oc8n7unfb2qe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4Ndkc0t-1o7V0ppjp1NssZuvBADkozo8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "702163532500-9btv70j2i2maneognp66oc8n7unfb2qe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:702163532500:android:d05d7b1003d180d8d0d941",
+        "android_client_info": {
+          "package_name": "com.example.ruas.project_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "702163532500-hvs7ait202iila6bv2585do1hkqsdv91.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ruas.project_flutter",
+            "certificate_hash": "46b14e2ce686136788c4d0b73985f93fb5219bb2"
+          }
+        },
+        {
+          "client_id": "702163532500-msg4baov1n4997c3iccftkn9jaoligfs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ruas.project_flutter",
+            "certificate_hash": "b3bc8a961143c8a1e82315bc66165c75710081b6"
+          }
+        },
+        {
+          "client_id": "702163532500-pn78k12vkdrld7c867137gmm6e3iifea.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ruas.project_flutter",
+            "certificate_hash": "4fb80229461f149bdda41b13a5c4c506450bcfd4"
           }
         },
         {

@@ -192,20 +192,35 @@ class _LaporanAddViewState extends State<LaporanAddView> {
       foto: _pickedImagePath ?? 'assets/images/logo_ruas.png',
     );
 
-    await FirebaseAuthService.instance.createLaporan(newReport);
+    try {
+      await FirebaseAuthService.instance.createLaporan(newReport);
 
-    setState(() {
-      _isSaving = false;
-    });
+      setState(() {
+        _isSaving = false;
+      });
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Laporan berhasil disimpan!'),
-          backgroundColor: Color(0xFF0D9488),
-        ),
-      );
-      Navigator.pop(context);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Laporan berhasil disimpan!'),
+            backgroundColor: Color(0xFF0D9488),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      setState(() {
+        _isSaving = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal menyimpan laporan: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 

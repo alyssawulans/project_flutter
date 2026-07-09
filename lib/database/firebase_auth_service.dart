@@ -14,7 +14,9 @@ class FirebaseAuthService {
   static final FirebaseAuthService instance = FirebaseAuthService._init();
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instanceFor(
+    bucket: 'gs://ruas-app.firebasestorage.app',
+  );
 
   FirebaseAuthService._init();
 
@@ -103,7 +105,10 @@ class FirebaseAuthService {
   Future<UserModelFirebase?> signInWithGoogle() async {
     try {
       // 1. Jalankan alur Google Sign-In
-      final googleSignIn = GoogleSignIn();
+      final googleSignIn = GoogleSignIn(
+        serverClientId:
+            '702163532500-9btv70j2i2maneognp66oc8n7unfb2qe.apps.googleusercontent.com',
+      );
       final googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) return null;
@@ -149,7 +154,9 @@ class FirebaseAuthService {
         user = defaultUser;
       }
       return user;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('Error during Google Sign-In: $e');
+      print('StackTrace: $stackTrace');
       return null;
     }
   }
@@ -250,13 +257,18 @@ class FirebaseAuthService {
           '${DateTime.now().millisecondsSinceEpoch}_${filePath.split('/').last}';
       final ref = _storage.ref().child(folderName).child(fileName);
 
+      print(
+        'Uploading file to Firebase Storage bucket: ${_storage.bucket} at path: $folderName/$fileName',
+      );
+
       // Mulai upload
       final uploadTask = await ref.putFile(file);
       final downloadUrl = await uploadTask.ref.getDownloadURL();
+      print('Upload success! URL: $downloadUrl');
       return downloadUrl;
     } catch (e) {
       print('DEBUG STORAGE ERROR: $e');
-      return filePath; // Fallback jika gagal upload
+      rethrow; // Rethrow agar UI tahu bahwa upload gagal
     }
   }
 
