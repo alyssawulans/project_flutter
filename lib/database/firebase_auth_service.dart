@@ -230,9 +230,18 @@ class FirebaseAuthService {
     }
   }
 
-  // Sign out dari Firebase Auth
+  // Sign out dari Firebase Auth dan Google Sign-In
   Future<void> signOut() async {
     await _auth.signOut();
+    try {
+      final googleSignIn = GoogleSignIn(
+        serverClientId: '702163532500-9btv70j2i2maneognp66oc8n7unfb2qe.apps.googleusercontent.com',
+      );
+      // Hapus sesi Google Sign-In agar pada login berikutnya muncul dialog pilihan akun
+      await googleSignIn.signOut();
+    } catch (e) {
+      print('Error during Google Sign-Out: $e');
+    }
   }
 
   // Helper untuk mengunggah file lokal ke Firebase Storage dan mengembalikan URL download

@@ -80,9 +80,13 @@ class _BuatLaporanState extends State<BuatLaporan> {
 
   final ImagePicker _picker = ImagePicker();
 
+  LottieComposition? _loadingComposition;
+  LottieComposition? _congratsComposition;
+
   @override
   void initState() {
     super.initState();
+    _preloadLottieAnimations();
     selectedDropdown = widget.initialCategory;
     judulController.addListener(() {
       setState(() {
@@ -94,6 +98,15 @@ class _BuatLaporanState extends State<BuatLaporan> {
         descLength = deskripsiController.text.length;
       });
     });
+  }
+
+  void _preloadLottieAnimations() async {
+    try {
+      _loadingComposition = await AssetLottie('assets/animations/confuse.json').load();
+      _congratsComposition = await AssetLottie('assets/animations/congrats.json').load();
+    } catch (e) {
+      print('DEBUG LOTTIE PRELOAD ERROR: $e');
+    }
   }
 
   @override
@@ -600,22 +613,29 @@ class _BuatLaporanState extends State<BuatLaporan> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Lottie.asset(
-                    'assets/animations/confuse.json',
-                    height: 150,
-                    width: 150,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const SizedBox(
-                        height: 100,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: Color(0xFF0D9488),
-                          ),
+                  _loadingComposition != null
+                      ? Lottie(
+                          composition: _loadingComposition!,
+                          height: 150,
+                          width: 150,
+                          fit: BoxFit.contain,
+                        )
+                      : Lottie.asset(
+                          'assets/animations/confuse.json',
+                          height: 150,
+                          width: 150,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const SizedBox(
+                              height: 100,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFF0D9488),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                   const SizedBox(height: 20),
                   const Text(
                     "Tolong tunggu...",
@@ -1564,6 +1584,8 @@ class _BuatLaporanState extends State<BuatLaporan> {
                                                 tanggal: formattedTimeStr,
                                                 kategori: selectedDropdown!,
                                                 report: savedReport,
+                                                congratsComposition:
+                                                    _congratsComposition,
                                               ),
                                         ),
                                       );

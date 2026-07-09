@@ -10,6 +10,7 @@ class KonfirmasiLaporan extends StatefulWidget {
   final String tanggal;
   final String kategori;
   final LaporanModel report;
+  final LottieComposition? congratsComposition;
 
   const KonfirmasiLaporan({
     super.key,
@@ -17,6 +18,7 @@ class KonfirmasiLaporan extends StatefulWidget {
     required this.tanggal,
     required this.kategori,
     required this.report,
+    this.congratsComposition,
   });
 
   @override
@@ -56,11 +58,17 @@ class _KonfirmasiLaporanState extends State<KonfirmasiLaporan> {
                     SizedBox(
                       width: 180,
                       height: 180,
-                      child: Lottie.asset(
-                        "assets/animations/congrats.json",
-                        repeat: false,
-                        fit: BoxFit.contain,
-                      ),
+                      child: widget.congratsComposition != null
+                          ? Lottie(
+                              composition: widget.congratsComposition!,
+                              repeat: false,
+                              fit: BoxFit.contain,
+                            )
+                          : Lottie.asset(
+                              "assets/animations/congrats.json",
+                              repeat: false,
+                              fit: BoxFit.contain,
+                            ),
                     ),
                     const SizedBox(height: 24),
                     Text(
